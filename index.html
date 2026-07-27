@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Razão · Gestão Financeira</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">R</span>
+      <div class="brand-text">
+        <strong>Razão</strong>
+        <small>gestão financeira</small>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item is-active" data-tab="dashboard">
+        <svg viewBox="0 0 24 24"><path d="M3 13h4v8H3zM10 4h4v17h-4zM17 9h4v12h-4z"/></svg>
+        Painel
+      </button>
+      <button class="nav-item" data-tab="fornecedores">
+        <svg viewBox="0 0 24 24"><path d="M3 21V8l9-5 9 5v13h-6v-6H9v6z"/></svg>
+        Fornecedores
+      </button>
+      <button class="nav-item" data-tab="bancos">
+        <svg viewBox="0 0 24 24"><path d="M3 10l9-6 9 6v2H3zM4 12h2v7H4zM9 12h2v7H9zM13 12h2v7h-2zM18 12h2v7h-2zM3 21h18v2H3z"/></svg>
+        Contas Bancárias
+      </button>
+      <button class="nav-item" data-tab="pagar">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM4 9h16M8 14h4"/></svg>
+        Contas a Pagar
+      </button>
+      <button class="nav-item" data-tab="cartoes">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18v12H3zM3 10h18M6 15h4"/></svg>
+        Cartões de Crédito
+      </button>
+      <button class="nav-item" data-tab="relatorios">
+        <svg viewBox="0 0 24 24"><path d="M5 20V10M11 20V4M17 20v-7"/></svg>
+        Relatórios
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="mini-balance">
+        <span>Saldo em contas</span>
+        <strong id="sidebar-saldo">R$ 0,00</strong>
+      </div>
+      <button class="ghost-btn" id="btn-export">Exportar dados</button>
+      <button class="ghost-btn" id="btn-import">Importar dados</button>
+      <button class="ghost-btn" id="btn-reset" style="border-color:var(--debit); color:#F3D3CB;">Limpar dados</button>
+      <input type="file" id="file-import" accept="application/json" hidden>
+    </div>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <h1 id="page-title">Painel</h1>
+      <div class="topbar-chips" id="topbar-chips"></div>
+    </header>
+
+    <section id="tab-content" class="tab-content">
+      <!-- injetado via JS -->
+    </section>
+  </main>
+
+</div>
+
+<div id="modal-overlay" class="modal-overlay" hidden>
+  <div class="modal" id="modal-box">
+    <button class="modal-close" id="modal-close">&times;</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
