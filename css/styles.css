@@ -322,7 +322,7 @@ table.ledger td.actions{ text-align: right; white-space: nowrap; }
   .filter-steps{ grid-template-columns: 1fr 1fr; }
 }
 
-/* Celular (retrato 9:16 e telas pequenas): ajuste total sem rolagem lateral */
+/* Celular (retrato 9:16 e telas pequenas): menu em grade/múltiplas linhas e sem rolagem lateral */
 @media (max-width: 640px){
   html, body {
     overflow-x: hidden;
@@ -346,22 +346,27 @@ table.ledger td.actions{ text-align: right; white-space: nowrap; }
     box-sizing: border-box;
   }
   
-  .brand { padding: 2px 4px 8px; }
+  .brand { padding: 2px 4px 6px; }
   .brand-text strong { font-size: 16px; }
 
+  /* Menu em múltiplas linhas (grade de 2 colunas no mobile) */
   .nav {
     flex-direction: row; 
-    flex-wrap: nowrap; 
+    flex-wrap: wrap; 
     gap: 6px;
-    overflow-x: auto; 
-    -webkit-overflow-scrolling: touch; 
-    scrollbar-width: none;
+    overflow-x: visible; 
     margin: 0; 
-    padding: 4px 0;
-    max-width: 100%;
+    padding: 6px 0;
+    width: 100%;
   }
-  .nav::-webkit-scrollbar { display: none; }
-  .nav-item { flex: 0 0 auto; white-space: nowrap; padding: 8px 12px; }
+
+  .nav-item { 
+    flex: 1 1 calc(50% - 6px); 
+    justify-content: flex-start;
+    padding: 8px 8px; 
+    font-size: 12px;
+    box-sizing: border-box;
+  }
 
   .sidebar-footer {
     flex-direction: row; 
