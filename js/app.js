@@ -52,7 +52,8 @@
       suppliers: [], clients: [],
       bankAccounts: [], bankTransactions: [],
       creditCards: [], cardTransactions: [], cardSettlements: [],
-      payables: [], receivables: []
+      payables: [], receivables: [],
+      appointments: []
     };
   }
 
@@ -127,6 +128,24 @@
     const day = Math.min(closing, daysInMonth(year, monthIndex));
     return `${year}-${String(monthIndex+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
   }
+
+  /* ---------------- Datas da agenda (semana) ---------------- */
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function addDaysISO(iso, days){
+    const d = new Date(iso + 'T00:00:00');
+    d.setDate(d.getDate()+days);
+    return d.toISOString().slice(0,10);
+  }
+  function mondayOf(iso){
+    const d = new Date(iso + 'T00:00:00');
+    const day = d.getDay(); // 0=domingo ... 6=sábado
+    const diff = (day===0) ? -6 : (1-day);
+    return addDaysISO(iso, diff);
+  }
+  function weekDatesFrom(startISO){
+    return Array.from({length:7}, (_,i)=> addDaysISO(startISO, i));
+  }
+  const WEEKDAY_LABELS = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
 
   /* ================================================================
      CÁLCULOS
@@ -640,9 +659,9 @@
   }
 
   function deleteClient(id){
-    const inUse = db.receivables.some(r=>r.clientId===id);
+    const inUse = db.receivables.some(r=>r.clientId===id) || db.appointments.some(a=>a.clientId===id);
     if(inUse){
-      alert('Este cliente possui contas a receber vinculadas. Exclua ou reatribua essas contas antes de remover o cliente.');
+      alert('Este cliente possui contas a receber e/ou agendamentos vinculados. Exclua ou reatribua essas contas/agendamentos antes de remover o cliente.');
       return;
     }
     if(!confirm('Excluir este cliente?')) return;
@@ -793,7 +812,7 @@
     if(selectedBankId===id) selectedBankId = null;
     saveDB();
     renderTab();
-    toast('Conta excluída.');
+    toast('Conta excluído.');
   }
 
   function bankMoveFormHTML(accountId){
@@ -1368,6 +1387,180 @@
   }
 
   /* ================================================================
+     AGENDA
+  ================================================================= */
+  let agendaWeekStart = mondayOf(todayISO());
+
+  function renderAgenda(){
+    const days = weekDatesFrom(agendaWeekStart);
+    const weekAppointments = db.appointments.filter(a=>days.includes(a.date));
+
+    const defaultHours = Array.from({length:14}, (_,i)=> i+7); // 07h às 20h
+    const usedHours = weekAppointments.map(a=> parseInt(a.time.split(':')[0],10));
+    const allHours = Array.from(new Set([...defaultHours, ...usedHours])).sort((x,y)=>x-y);
+
+    const defaultDate = days.includes(todayISO()) ? todayISO() : agendaWeekStart;
+
+    const headerCells = days.map((d,i)=>{
+      const isToday = d===todayISO();
+      return `<div class="agenda-day-header ${isToday?'is-today':''}">${WEEKDAY_LABELS[i]}<br><span>${fmtDate(d)}</span></div>`;
+    }).join('');
+
+    const rows = allHours.map(h=>{
+      const label = `<div class="agenda-hour-label">${pad2(h)}:00</div>`;
+      const cells = days.map(d=>{
+        const items = weekAppointments.filter(a=> a.date===d && parseInt(a.time.split(':')[0],10)===h).sort((a,b)=>a.time.localeCompare(b.time));
+        const chips = items.map(a=>`
+          <div class="agenda-chip ${a.status==='confirmado'?'is-confirmed':''}">
+            <button type="button" class="agenda-chip-main" data-action="edit-appointment" data-id="${a.id}">
+              <span class="agenda-chip-time">${a.time} - ${a.endTime || '--:--'}</span>
+              <span class="agenda-chip-name">${esc(clientName(a.clientId))}</span>
+            </button>
+            <div class="agenda-chip-actions">
+              ${a.status==='agendado'
+                ? `<button type="button" data-action="confirm-appointment" data-id="${a.id}" title="Confirmar presença">&check;</button>`
+                : `<button type="button" class="agenda-chip-badge" data-action="unconfirm-appointment" data-id="${a.id}" title="Desfazer confirmação">presente ↺</button>`}
+              <button type="button" data-action="delete-appointment" data-id="${a.id}" title="Excluir">&times;</button>
+            </div>
+          </div>`).join('');
+        return `<div class="agenda-cell">${chips}<button type="button" class="agenda-add-btn" data-action="schedule-appointment" data-date="${d}" data-hour="${h}" title="Agendar neste horário">+</button></div>`;
+      }).join('');
+      return label + cells;
+    }).join('');
+
+    return `
+      <div class="panel">
+        <div class="panel-head">
+          <div><h2>Agenda semanal</h2><p class="panel-sub">${fmtDate(days[0])} – ${fmtDate(days[6])} · pode agendar mais de um cliente no mesmo horário</p></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="btn secondary small" data-action="agenda-prev-week">◀ Semana anterior</button>
+            <button class="btn secondary small" data-action="agenda-today">Hoje</button>
+            <button class="btn secondary small" data-action="agenda-next-week">Próxima semana ▶</button>
+            <button class="btn" data-action="schedule-appointment" data-date="${defaultDate}">+ Novo agendamento</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <div class="agenda-grid" style="grid-template-columns: 64px repeat(7, minmax(112px,1fr)); min-width:760px;">
+            <div class="agenda-corner"></div>
+            ${headerCells}
+            ${rows}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function appointmentFormHTML(existing, presetDate, presetHour){
+    if(!db.clients.length){
+      return `
+        <h2>Novo agendamento</h2>
+        <div class="empty-state">
+          <h3>Cadastre um cliente primeiro</h3>
+          <p>Todo agendamento precisa estar vinculado a um cliente.</p>
+          <button class="btn" data-action="goto-clientes-from-modal">Ir para Clientes</button>
+        </div>`;
+    }
+    const e = existing || {};
+    const date = e.date || presetDate || todayISO();
+    const hasPresetHour = presetHour!==undefined && presetHour!==null && presetHour!=='';
+    const time = e.time || (hasPresetHour ? pad2(parseInt(presetHour,10))+':00' : '');
+    
+    // Calcula a hora final sugerida (Início + 1 hora)
+    let defaultEndTime = '';
+    if(time){
+      const [h, m] = time.split(':');
+      defaultEndTime = pad2((parseInt(h,10) + 1) % 24) + ':' + m;
+    }
+    const endTime = e.endTime || defaultEndTime;
+
+    return `
+      <h2>${existing ? 'Editar agendamento' : 'Novo agendamento'}</h2>
+      <form id="form-appointment" data-edit-id="${existing ? e.id : ''}">
+        <div class="form-grid">
+          <div class="field full">
+            <label>Cliente</label>
+            <select id="f-client" required>${clientOptions(e.clientId)}</select>
+          </div>
+          <div class="field full">
+            <label>Data</label>
+            <input type="date" id="f-date" value="${date}" required>
+          </div>
+          <div class="field">
+            <label>Hora Início</label>
+            <input type="time" id="f-time" value="${time}" required>
+          </div>
+          <div class="field">
+            <label>Hora Fim</label>
+            <input type="time" id="f-endtime" value="${endTime}" required>
+          </div>
+          <div class="field full">
+            <label>Observações</label>
+            <textarea id="f-notes">${esc(e.notes||'')}</textarea>
+          </div>
+        </div>
+        <div class="form-actions">
+          ${existing ? `<button type="button" class="link-btn danger" style="margin-right:auto" data-action="delete-appointment" data-id="${e.id}">Excluir</button>` : ''}
+          <button type="button" class="btn secondary" data-action="close-modal">Cancelar</button>
+          <button type="submit" class="btn">Salvar agendamento</button>
+        </div>
+      </form>
+    `;
+  }
+
+  function saveAppointmentForm(form){
+    const editId = form.dataset.editId;
+    const clientId = document.getElementById('f-client').value;
+    const date = document.getElementById('f-date').value;
+    const time = document.getElementById('f-time').value;
+    const endTime = document.getElementById('f-endtime').value;
+    const notes = document.getElementById('f-notes').value.trim();
+    
+    if(!clientId){ toast('Selecione um cliente.'); return; }
+    if(!date || !time || !endTime){ toast('Informe data, horário de início e de fim.'); return; }
+    if(time >= endTime) { toast('A hora final deve ser maior que a inicial.'); return; }
+
+    if(editId){
+      Object.assign(db.appointments.find(a=>a.id===editId), { clientId, date, time, endTime, notes });
+      toast('Agendamento atualizado.');
+    }else{
+      db.appointments.push({ id: uid('apt'), clientId, date, time, endTime, notes, status:'agendado', confirmedAt:null, createdAt: Date.now() });
+      toast('Agendamento criado.');
+    }
+    saveDB();
+    closeModal();
+    renderTab();
+  }
+
+  function confirmAppointmentPresence(id){
+    const a = db.appointments.find(x=>x.id===id);
+    if(!a) return;
+    a.status = 'confirmado';
+    a.confirmedAt = todayISO();
+    saveDB();
+    renderTab();
+    toast('Presença confirmada.');
+  }
+
+  function unconfirmAppointment(id){
+    const a = db.appointments.find(x=>x.id===id);
+    if(!a) return;
+    a.status = 'agendado';
+    a.confirmedAt = null;
+    saveDB();
+    renderTab();
+    toast('Confirmação desfeita.');
+  }
+
+  function deleteAppointment(id){
+    if(!confirm('Excluir este agendamento?')) return;
+    db.appointments = db.appointments.filter(a=>a.id!==id);
+    saveDB();
+    closeModal();
+    renderTab();
+    toast('Agendamento excluído.');
+  }
+
+  /* ================================================================
      CARTÕES DE CRÉDITO
   ================================================================= */
   let selectedCardId = null;
@@ -1421,7 +1614,7 @@
 
     return `
       <div class="panel-head" style="margin-bottom:16px;">
-        <div><h2 style="font-family:var(--font-display)">Cartões de crédito</h2><p class="panel-sub">Vincule o cartão a uma conta bancária para dar baixa direto na fatura. Compras podem ser parceladas.</p></div>
+        <div><h2 style="font-family:var(--font-display)">Cartões de crédito</h2></div>
         <button class="btn" data-action="add-card">+ Novo cartão</button>
       </div>
       ${cards ? `<div class="card-grid">${cards}</div>` : '<div class="empty-state"><h3>Nenhum cartão cadastrado</h3><p>Cadastre um cartão para lançar compras e dar baixa nas faturas.</p></div>'}
@@ -1662,6 +1855,8 @@
   let reportMode = 'pagar';
   let reportFiltersPagar = { supplier:'all', card:'all', status:'all', from:'', to:'' };
   let reportFiltersReceber = { client:'all', status:'all', from:'', to:'' };
+  let reportFiltersFreq = { client:'all', from:'', to:'' };
+  let reportFiltersAgenda = { client:'all', status:'all', from:'', to:'' };
 
   function filteredPayables(){
     return db.payables.filter(p=>{
@@ -1683,16 +1878,48 @@
       return true;
     });
   }
+  function filteredAppointmentsFreq(){
+    return db.appointments.filter(a=>{
+      if(reportFiltersFreq.client!=='all' && a.clientId!==reportFiltersFreq.client) return false;
+      if(reportFiltersFreq.from && a.date < reportFiltersFreq.from) return false;
+      if(reportFiltersFreq.to && a.date > reportFiltersFreq.to) return false;
+      return true;
+    });
+  }
+  function filteredAppointmentsList(){
+    return db.appointments.filter(a=>{
+      if(reportFiltersAgenda.client!=='all' && a.clientId!==reportFiltersAgenda.client) return false;
+      if(reportFiltersAgenda.status!=='all' && a.status!==reportFiltersAgenda.status) return false;
+      if(reportFiltersAgenda.from && a.date < reportFiltersAgenda.from) return false;
+      if(reportFiltersAgenda.to && a.date > reportFiltersAgenda.to) return false;
+      return true;
+    });
+  }
 
   function renderReports(){
     return `
-      <div class="method-toggle" style="max-width:420px; margin-bottom:18px;">
+      <div class="method-toggle" style="margin-bottom:18px;">
         <button type="button" class="${reportMode==='pagar'?'is-active':''}" data-toggle="report-mode" data-value="pagar">Contas a pagar</button>
         <button type="button" class="${reportMode==='receber'?'is-active':''}" data-toggle="report-mode" data-value="receber">Contas a receber</button>
+        <button type="button" class="${reportMode==='freq'?'is-active':''}" data-toggle="report-mode" data-value="freq">Frequência de clientes</button>
+        <button type="button" class="${reportMode==='agenda'?'is-active':''}" data-toggle="report-mode" data-value="agenda">Agendamentos</button>
       </div>
-      ${reportMode==='pagar' ? renderReportPagarFilters() : renderReportReceberFilters()}
-      <div id="report-results">${reportMode==='pagar' ? reportResultsPagarHTML() : reportResultsReceberHTML()}</div>
+      ${renderReportFiltersForMode()}
+      <div id="report-results">${reportResultsForMode()}</div>
     `;
+  }
+
+  function renderReportFiltersForMode(){
+    if(reportMode==='pagar') return renderReportPagarFilters();
+    if(reportMode==='receber') return renderReportReceberFilters();
+    if(reportMode==='freq') return renderReportFreqFilters();
+    return renderReportAgendaFilters();
+  }
+  function reportResultsForMode(){
+    if(reportMode==='pagar') return reportResultsPagarHTML();
+    if(reportMode==='receber') return reportResultsReceberHTML();
+    if(reportMode==='freq') return reportResultsFreqHTML();
+    return reportResultsAgendaHTML();
   }
 
   function renderReportPagarFilters(){
@@ -1885,9 +2112,146 @@
     `;
   }
 
+  function renderReportFreqFilters(){
+    return `
+      <div class="panel">
+        <div class="panel-head"><h2>Filtrar frequência</h2><span class="panel-sub">Quantas vezes cada cliente agendou e compareceu.</span></div>
+        <div class="filter-steps" style="grid-template-columns:repeat(2,1fr)">
+          <div class="filter-step">
+            <span class="step-label"><span class="step-num">1</span>Cliente</span>
+            <select id="rf-client">
+              <option value="all">Todos os clientes</option>
+              ${db.clients.map(c=>`<option value="${c.id}" ${reportFiltersFreq.client===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="filter-step">
+            <span class="step-label"><span class="step-num">2</span>Período (data do agendamento)</span>
+            <div style="display:flex; gap:6px;">
+              <input type="date" id="rf-from" value="${reportFiltersFreq.from}">
+              <input type="date" id="rf-to" value="${reportFiltersFreq.to}">
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function reportResultsFreqHTML(){
+    const list = filteredAppointmentsFreq();
+    const totalGeral = list.length;
+    const totalConfirmados = list.filter(a=>a.status==='confirmado').length;
+    const taxaGeral = totalGeral ? Math.round((totalConfirmados/totalGeral)*100) : 0;
+
+    const byClient = {};
+    list.forEach(a=>{
+      if(!byClient[a.clientId]) byClient[a.clientId] = { total:0, confirmados:0, ultima:null };
+      const g = byClient[a.clientId];
+      g.total++;
+      if(a.status==='confirmado'){
+        g.confirmados++;
+        if(!g.ultima || a.date > g.ultima) g.ultima = a.date;
+      }
+    });
+
+    const rows = Object.entries(byClient)
+      .sort((a,b)=> b[1].total - a[1].total)
+      .map(([id,g])=>{
+        const taxa = g.total ? Math.round((g.confirmados/g.total)*100) : 0;
+        return `<tr>
+          <td>${esc(clientName(id))}</td>
+          <td class="num">${g.total}</td>
+          <td class="num">${g.confirmados}</td>
+          <td class="num">${g.total-g.confirmados}</td>
+          <td class="num">${taxa}%</td>
+          <td>${g.ultima ? fmtDate(g.ultima) : '—'}</td>
+        </tr>`;
+      }).join('') || '<tr class="empty-row"><td colspan="6">Nenhum agendamento para os filtros selecionados.</td></tr>';
+
+    return `
+      <div class="summary-strip">
+        <div class="summary-box"><span>Agendamentos no filtro</span><strong>${totalGeral}</strong></div>
+        <div class="summary-box"><span>Presenças confirmadas</span><strong style="color:var(--credit)">${totalConfirmados}</strong></div>
+        <div class="summary-box"><span>Taxa geral de comparecimento</span><strong>${taxaGeral}%</strong></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Frequência por cliente</h2></div>
+        <div style="overflow-x:auto">
+        <table class="ledger">
+          <thead><tr><th>Cliente</th><th class="num">Agendados</th><th class="num">Confirmados</th><th class="num">Pendentes</th><th class="num">Taxa</th><th>Última visita confirmada</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderReportAgendaFilters(){
+    return `
+      <div class="panel">
+        <div class="panel-head"><h2>Filtrar agendamentos</h2><span class="panel-sub">Histórico detalhado, do mais recente ao mais antigo.</span></div>
+        <div class="filter-steps">
+          <div class="filter-step">
+            <span class="step-label"><span class="step-num">1</span>Cliente</span>
+            <select id="rf-client">
+              <option value="all">Todos os clientes</option>
+              ${db.clients.map(c=>`<option value="${c.id}" ${reportFiltersAgenda.client===c.id?'selected':''}>${esc(c.name)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="filter-step">
+            <span class="step-label"><span class="step-num">2</span>Status</span>
+            <select id="rf-status">
+              <option value="all">Todos</option>
+              <option value="agendado" ${reportFiltersAgenda.status==='agendado'?'selected':''}>Agendado</option>
+              <option value="confirmado" ${reportFiltersAgenda.status==='confirmado'?'selected':''}>Confirmado</option>
+            </select>
+          </div>
+          <div class="filter-step">
+            <span class="step-label"><span class="step-num">3</span>Período</span>
+            <div style="display:flex; gap:6px;">
+              <input type="date" id="rf-from" value="${reportFiltersAgenda.from}">
+              <input type="date" id="rf-to" value="${reportFiltersAgenda.to}">
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function reportResultsAgendaHTML(){
+    const list = filteredAppointmentsList().slice().sort((a,b)=> (b.date+b.time).localeCompare(a.date+a.time));
+    const total = list.length;
+    const confirmados = list.filter(a=>a.status==='confirmado').length;
+
+    const rows = list.map(a=>`
+      <tr>
+        <td>${fmtDate(a.date)}</td>
+        <td class="mono">${a.time} - ${a.endTime || '--:--'}</td>
+        <td>${esc(clientName(a.clientId))}</td>
+        <td><span class="badge ${a.status==='confirmado'?'pago':'pendente'}">${a.status==='confirmado'?'Confirmado':'Agendado'}</span></td>
+        <td>${esc(a.notes||'—')}</td>
+      </tr>`).join('') || '<tr class="empty-row"><td colspan="5">Nenhum agendamento para os filtros selecionados.</td></tr>';
+
+    return `
+      <div class="summary-strip">
+        <div class="summary-box"><span>Resultados</span><strong>${total}</strong></div>
+        <div class="summary-box"><span>Confirmados</span><strong style="color:var(--credit)">${confirmados}</strong></div>
+        <div class="summary-box"><span>Pendentes</span><strong style="color:var(--debit)">${total-confirmados}</strong></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Histórico de agendamentos</h2></div>
+        <div style="overflow-x:auto">
+        <table class="ledger">
+          <thead><tr><th>Data</th><th>Horário</th><th>Cliente</th><th>Status</th><th>Observações</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        </div>
+      </div>
+    `;
+  }
+
   function refreshReportResults(){
     const el = document.getElementById('report-results');
-    if(el) el.innerHTML = reportMode==='pagar' ? reportResultsPagarHTML() : reportResultsReceberHTML();
+    if(el) el.innerHTML = reportResultsForMode();
   }
 
   /* ================================================================
@@ -1897,6 +2261,7 @@
     dashboard:    { title:'Painel',              render: renderDashboard },
     fornecedores: { title:'Fornecedores',        render: renderSuppliers },
     clientes:     { title:'Clientes',            render: renderClients },
+    agenda:       { title:'Agenda',              render: renderAgenda },
     bancos:       { title:'Contas Bancárias',    render: renderBanks },
     pagar:        { title:'Contas a Pagar',      render: renderPayables },
     receber:      { title:'Contas a Receber',    render: renderReceivables },
@@ -2143,6 +2508,16 @@
         }
         break;
 
+      // Agenda
+      case 'schedule-appointment': openModal(appointmentFormHTML(null, el.dataset.date, el.dataset.hour)); break;
+      case 'edit-appointment': openModal(appointmentFormHTML(db.appointments.find(a=>a.id===id))); break;
+      case 'confirm-appointment': confirmAppointmentPresence(id); break;
+      case 'unconfirm-appointment': unconfirmAppointment(id); break;
+      case 'delete-appointment': deleteAppointment(id); break;
+      case 'agenda-prev-week': agendaWeekStart = addDaysISO(agendaWeekStart, -7); renderTab(); break;
+      case 'agenda-next-week': agendaWeekStart = addDaysISO(agendaWeekStart, 7); renderTab(); break;
+      case 'agenda-today': agendaWeekStart = mondayOf(todayISO()); renderTab(); break;
+
       // Cartões
       case 'add-card': openModal(cardFormHTML(null)); break;
       case 'edit-card': openModal(cardFormHTML(db.creditCards.find(c=>c.id===id))); break;
@@ -2240,6 +2615,7 @@
       case 'form-receivable': saveReceivableForm(e.target); break;
       case 'form-card': saveCardForm(e.target); break;
       case 'form-card-purchase': saveCardPurchaseForm(e.target); break;
+      case 'form-appointment': saveAppointmentForm(e.target); break;
       default: break;
     }
   });
@@ -2259,17 +2635,30 @@
     // Filtros de relatórios
     if(e.target.id==='rf-supplier'){ reportFiltersPagar.supplier = e.target.value; refreshReportResults(); }
     if(e.target.id==='rf-card'){ reportFiltersPagar.card = e.target.value; refreshReportResults(); }
-    if(e.target.id==='rf-client'){ reportFiltersReceber.client = e.target.value; refreshReportResults(); }
+    if(e.target.id==='rf-client'){
+      if(reportMode==='receber') reportFiltersReceber.client = e.target.value;
+      else if(reportMode==='freq') reportFiltersFreq.client = e.target.value;
+      else if(reportMode==='agenda') reportFiltersAgenda.client = e.target.value;
+      refreshReportResults();
+    }
     if(e.target.id==='rf-status'){
-      if(reportMode==='pagar') reportFiltersPagar.status = e.target.value; else reportFiltersReceber.status = e.target.value;
+      if(reportMode==='pagar') reportFiltersPagar.status = e.target.value;
+      else if(reportMode==='receber') reportFiltersReceber.status = e.target.value;
+      else if(reportMode==='agenda') reportFiltersAgenda.status = e.target.value;
       refreshReportResults();
     }
     if(e.target.id==='rf-from'){
-      if(reportMode==='pagar') reportFiltersPagar.from = e.target.value; else reportFiltersReceber.from = e.target.value;
+      if(reportMode==='pagar') reportFiltersPagar.from = e.target.value;
+      else if(reportMode==='receber') reportFiltersReceber.from = e.target.value;
+      else if(reportMode==='freq') reportFiltersFreq.from = e.target.value;
+      else if(reportMode==='agenda') reportFiltersAgenda.from = e.target.value;
       refreshReportResults();
     }
     if(e.target.id==='rf-to'){
-      if(reportMode==='pagar') reportFiltersPagar.to = e.target.value; else reportFiltersReceber.to = e.target.value;
+      if(reportMode==='pagar') reportFiltersPagar.to = e.target.value;
+      else if(reportMode==='receber') reportFiltersReceber.to = e.target.value;
+      else if(reportMode==='freq') reportFiltersFreq.to = e.target.value;
+      else if(reportMode==='agenda') reportFiltersAgenda.to = e.target.value;
       refreshReportResults();
     }
   });
