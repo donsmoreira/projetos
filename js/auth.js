@@ -2,18 +2,17 @@ import { supabaseClient } from "./config.js";
 
 export async function getCurrentUser() {
   const {
-    data: { user },
+    data: { session },
     error
-  } = await supabaseClient.auth.getUser();
+  } = await supabaseClient.auth.getSession();
 
   if (error) {
-    console.error("Erro ao obter usuário:", error);
+    console.error("Erro ao verificar sessão:", error);
     return null;
   }
 
-  return user;
+  return session?.user ?? null;
 }
-
 export async function signIn(email, password) {
   const { data, error } =
     await supabaseClient.auth.signInWithPassword({
