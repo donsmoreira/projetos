@@ -480,3 +480,22 @@ table.ledger td.actions{ text-align: right; white-space: nowrap; }
 
   .auth-card { padding: 22px 18px; }
 }
+.auth-card h2 {
+  font-family: var(--font-display);
+  margin: 0 0 6px;
+  font-size: 24px;
+}
+
+.auth-card .modal-sub {
+  color: var(--ink-soft);
+  margin: 0 0 20px;
+}
+
+.auth-success {
+  color: var(--credit);
+  background: var(--accent-soft);
+  border-radius: 5px;
+  padding: 8px 10px;
+  margin-top: 12px;
+  font-size: 12.5px;
+}
