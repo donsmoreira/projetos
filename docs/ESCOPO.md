@@ -1,7 +1,7 @@
 # Razão Finance ARC — Escopo do Projeto
 
 > Documento vivo. Atualize os checkboxes conforme as entregas forem concluídas.
-> Última revisão: 09/11/2026 · **Versão atual: v0.1.0 (alpha)** · histórico em [CHANGELOG.md](../CHANGELOG.md)
+> Última revisão: 10/11/2026 · **Versão atual: v0.1.0 (alpha)** · histórico em [CHANGELOG.md](../CHANGELOG.md)
 
 ---
 
@@ -80,7 +80,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 |---|---|---|
 | Clientes (`/clientes`) | ✅ CRUD + busca | nome, tipo (PF/PJ), documento, telefone, e-mail, observações |
 | Fornecedores (`/fornecedores`) | ✅ CRUD + busca | nome, documento, telefone, e-mail, observações |
-| Contas gerenciais (`/contas-gerenciais`) | 🟡 tela pronta, falta criar a tabela no Supabase | árvore de contas pai/subcontas; nome, receita/despesa, fixa/variável; filtro por tipo, busca, expandir/recolher |
+| Contas gerenciais (`/contas-gerenciais`) | ✅ CRUD + busca | árvore de contas pai/subcontas; nome, receita/despesa, fixa/variável; filtro por tipo, busca, expandir/recolher |
 
 ### 3.4 Contas bancárias (`/bancos`)
 | Item | Status | Observação |
@@ -126,8 +126,8 @@ Mesmas lacunas: status vencido, recebimento parcial, recorrência. ❌
 ### 3.7 Cartões de crédito (`/cartoes`)
 | Item | Status | Observação |
 |---|---|---|
-| CRUD de cartões | 🟡 | código corrigido para bater com o banco; depende de rodar `supabase/migrations/20261110_cartoes_e_politicas.sql` (D12) |
-| Exclusão lógica | 🟡 | `active = false`; a coluna é criada pelo mesmo SQL |
+| CRUD de cartões | ✅ | código corrigido para bater com o banco (D12) |
+| Exclusão lógica | ✅ | `active = false` |
 | Tabelas de compras e faturas no banco | ✅ | `card_transactions` (com parcelas) e `card_settlements` já existem, sem tela |
 | Lançamento de compras no cartão | ❌ | |
 | Compras parceladas no cartão | ❌ | |
@@ -285,7 +285,7 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [ ] Transformar a estrutura em migrations versionadas (`supabase/migrations`)
 - [x] Revisar RLS de todas as tabelas (cada usuário só vê os próprios dados)
 - [x] Corrigir a tela de Cartões para bater com o banco (D12) — código pronto
-- [ ] Rodar `supabase/migrations/20261110_cartoes_e_politicas.sql` no Supabase (colunas dos cartões + remove políticas duplicadas D13)
+- [x] Rodar `supabase/migrations/20261110_cartoes_e_politicas.sql` no Supabase (colunas dos cartões + remove políticas duplicadas D13)
 - [ ] Gerar tipos TypeScript a partir do schema (`supabase gen types`)
 - [ ] Mover pagamento, recebimento e estorno para funções no Postgres (RPC) com transação atômica (D1)
 - [x] Corrigir cálculo de vencimento das parcelas (D4) — `src/utils/date.ts`

@@ -2,43 +2,55 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Michroma&family=JetBrains+Mono:wght@500;600&display=swap">
 <style>
-/* Layout: caderno-razão — faixa verde do app no topo, depois seções em coluna única com blocos em grade */
+/*
+ * Identidade ARC (a mesma do app): faixa do topo quase preta com brilho azul elétrico,
+ * azul #1a7cff / ciano #4fc3ff como destaque, títulos em Exo 2 e a marca em Michroma.
+ * Claro e escuro seguem o tema do aparelho, como no app.
+ */
 :root {
-  --bg: #F3F6F4;
+  --bg: #F2F6FC;
   --surface: #FFFFFF;
-  --surface-2: #EAF0ED;
-  --ink: #14211D;
-  --muted: #5A6B65;
-  --line: #D8E2DD;
-  --band: #183C34;
-  --band-ink: #F2F7F5;
-  --band-muted: #A9C2B9;
-  --brand: #2E6B58;
-  --gold: #B88A2E;
-  --ok: #2E7D5B;
-  --ok-soft: #DDF0E6;
-  --warn: #A86A12;
-  --warn-soft: #F8EBD3;
-  --bad: #B0433A;
-  --bad-soft: #F7E0DD;
-  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-  --font-body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --surface-2: #EAF1FB;
+  --ink: #142038;
+  --muted: #4A5B78;
+  --line: #DCE5F2;
+  --band: #05080F;
+  --band-ink: #E8EEF8;
+  --band-muted: #9AA9C2;
+  --band-line: rgba(61, 155, 255, .28);
+  --brand: #1769E0;
+  --gold: #1A7CFF;
+  --on-gold: #FFFFFF;
+  --glow: rgba(26, 124, 255, .45);
+  --ok: #12865A;
+  --ok-soft: #DCF2E8;
+  --warn: #A86C00;
+  --warn-soft: #F8EBCF;
+  --bad: #D0353B;
+  --bad-soft: #FBE3E4;
+  --font-display: "Exo 2", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-brand: "Michroma", "Exo 2", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0D1613; --surface: #14201C; --surface-2: #1A2925; --ink: #E4EDE9; --muted: #93A8A0; --line: #263832;
-    --band: #12302A; --band-ink: #EEF5F2; --band-muted: #8FB0A5; --brand: #63B597; --gold: #D9B25E;
-    --ok: #63B597; --ok-soft: #173329; --warn: #E2A94E; --warn-soft: #33281A; --bad: #E58076; --bad-soft: #3A1F1C;
+    --bg: #05080F; --surface: #0B1220; --surface-2: #121C31; --ink: #E8EEF8; --muted: #9AA9C2; --line: #1D2B46;
+    --band: #070C17; --band-ink: #E8EEF8; --band-muted: #9AA9C2; --band-line: rgba(61, 155, 255, .35);
+    --brand: #4FC3FF; --gold: #1A7CFF; --on-gold: #FFFFFF; --glow: rgba(61, 155, 255, .45);
+    --ok: #2FD28A; --ok-soft: rgba(47, 210, 138, .12); --warn: #F5B83D; --warn-soft: rgba(245, 184, 61, .12);
+    --bad: #F0565A; --bad-soft: rgba(240, 86, 90, .12);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0D1613; --surface: #14201C; --surface-2: #1A2925; --ink: #E4EDE9; --muted: #93A8A0; --line: #263832;
-  --band: #12302A; --band-ink: #EEF5F2; --band-muted: #8FB0A5; --brand: #63B597; --gold: #D9B25E;
-  --ok: #63B597; --ok-soft: #173329; --warn: #E2A94E; --warn-soft: #33281A; --bad: #E58076; --bad-soft: #3A1F1C;
+  --bg: #05080F; --surface: #0B1220; --surface-2: #121C31; --ink: #E8EEF8; --muted: #9AA9C2; --line: #1D2B46;
+  --band: #070C17; --band-ink: #E8EEF8; --band-muted: #9AA9C2; --band-line: rgba(61, 155, 255, .35);
+  --brand: #4FC3FF; --gold: #1A7CFF; --on-gold: #FFFFFF; --glow: rgba(61, 155, 255, .45);
+  --ok: #2FD28A; --ok-soft: rgba(47, 210, 138, .12); --warn: #F5B83D; --warn-soft: rgba(245, 184, 61, .12);
+  --bad: #F0565A; --bad-soft: rgba(240, 86, 90, .12);
   color-scheme: dark;
 }
 
@@ -63,13 +75,21 @@ a { color: inherit; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
 
 /* ---------- Topo ---------- */
-.hero { background: var(--band); color: var(--band-ink); }
+.hero {
+  color: var(--band-ink);
+  background:
+    linear-gradient(90deg, transparent, var(--band-line) 30%, rgba(79, 195, 255, .45) 70%, transparent) bottom / 100% 1px no-repeat,
+    radial-gradient(ellipse at 15% 0, rgba(26, 124, 255, .28), transparent 55%),
+    radial-gradient(ellipse at 90% 100%, rgba(79, 195, 255, .12), transparent 50%),
+    var(--band);
+}
+.brand-mark { font-family: var(--font-brand); font-size: 12px; letter-spacing: .14em; color: #4FC3FF; text-transform: uppercase; }
 .hero .wrap { padding-block: 40px 32px; display: grid; gap: 28px; }
 .eyebrow {
   font-size: 12px; letter-spacing: .12em; text-transform: uppercase; font-weight: 600; color: var(--band-muted);
 }
 .hero h1 { font-size: clamp(34px, 6vw, 56px); font-weight: 800; letter-spacing: -.02em; }
-.hero h1 span { color: var(--gold); }
+.hero h1 span { color: #3D9BFF; text-shadow: 0 0 24px var(--glow); }
 .hero-lead { max-width: 60ch; color: var(--band-muted); font-size: 17px; }
 .hero-top { display: grid; gap: 14px; }
 .hero-stats { display: flex; flex-wrap: wrap; gap: 12px 36px; align-items: flex-end; }
@@ -78,14 +98,14 @@ a { color: inherit; }
 .stat small { color: var(--band-muted); font-size: 13px; }
 .overall { flex: 1 1 260px; display: grid; gap: 8px; }
 .overall-bar { height: 10px; border-radius: 99px; background: rgba(255,255,255,.12); overflow: hidden; }
-.overall-bar i { display: block; height: 100%; background: var(--gold); border-radius: 99px; }
+.overall-bar i { display: block; height: 100%; background: linear-gradient(90deg, #1A7CFF, #4FC3FF); border-radius: 99px; box-shadow: 0 0 12px var(--glow); }
 .overall small { color: var(--band-muted); font-size: 13px; }
 .nav { display: flex; flex-wrap: wrap; gap: 8px; }
 .nav a {
   text-decoration: none; font-size: 14px; font-weight: 600; padding: 7px 14px; border-radius: 99px;
-  border: 1px solid rgba(255,255,255,.18); color: var(--band-ink);
+  border: 1px solid rgba(61, 155, 255, .35); color: var(--band-ink);
 }
-.nav a:hover { background: rgba(255,255,255,.08); }
+.nav a:hover { background: rgba(26, 124, 255, .18); border-color: #3D9BFF; }
 
 /* ---------- Seções ---------- */
 main .wrap { display: grid; gap: 64px; padding-block: 48px 72px; }
@@ -133,13 +153,14 @@ section { display: grid; gap: 22px; scroll-margin-top: 16px; }
   width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
   font-family: var(--font-display); font-weight: 800; font-size: 20px; background: var(--surface-2); color: var(--brand);
 }
-.phase.next .phase-n { background: var(--gold); color: #1B1405; }
+.phase.next { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold), 0 8px 28px -12px var(--glow); }
+.phase.next .phase-n { background: var(--gold); color: var(--on-gold); box-shadow: 0 0 16px var(--glow); }
 .phase-title { display: grid; gap: 2px; min-width: 0; }
 .phase-title h3 { font-size: 18px; }
 .phase-title p { color: var(--muted); font-size: 14px; }
 .phase-meta { display: flex; align-items: center; gap: 10px; }
 .pill { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
-.pill.next { background: var(--gold); color: #1B1405; }
+.pill.next { background: var(--gold); color: var(--on-gold); }
 .pill.later { background: var(--surface-2); color: var(--muted); }
 .chev { width: 10px; height: 10px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); transition: transform .2s; margin-right: 4px; }
 .phase[open] .chev { transform: rotate(-135deg); }
@@ -155,16 +176,16 @@ section { display: grid; gap: 22px; scroll-margin-top: 16px; }
 /* Integração */
 .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 12px; align-items: stretch; }
 .node { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 6px; align-content: start; min-width: 0; }
-.node.core { background: var(--band); color: var(--band-ink); border-color: transparent; }
+.node.core { background: radial-gradient(ellipse at 50% 0, rgba(26, 124, 255, .3), transparent 70%), var(--band); color: var(--band-ink); border-color: rgba(61, 155, 255, .45); box-shadow: 0 0 24px -8px var(--glow); }
 .node.core p { color: var(--band-muted); }
 .node h3 { font-size: 17px; }
 .node p { font-size: 14px; color: var(--muted); }
 .node .kicker { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--brand); }
-.node.core .kicker { color: var(--gold); }
+.node.core .kicker { color: #4FC3FF; }
 .arrow { display: grid; place-items: center; color: var(--muted); font-size: 22px; }
 .chats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
 .chat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 10px; }
-.bubble { justify-self: end; max-width: 90%; background: var(--ok-soft); color: var(--ink); padding: 8px 12px; border-radius: 12px 12px 2px 12px; font-size: 14.5px; }
+.bubble { justify-self: end; max-width: 90%; background: rgba(26, 124, 255, .14); color: var(--ink); padding: 8px 12px; border-radius: 12px 12px 2px 12px; font-size: 14.5px; }
 .reply { max-width: 90%; background: var(--surface-2); padding: 8px 12px; border-radius: 12px 12px 12px 2px; font-size: 14px; color: var(--muted); }
 
 /* Pontos de atenção */
@@ -206,12 +227,12 @@ footer .wrap { padding-block: 24px; color: var(--muted); font-size: 13px; displa
 <header class="hero">
   <div class="wrap">
     <div class="hero-top">
-      <span class="eyebrow">ARC · Análises Reais e Computacionais · D&amp;C</span>
+      <span class="brand-mark">ARC · Análises Reais e Computacionais · D&amp;C</span>
       <h1>Razão Finance <span>ARC</span></h1>
       <p class="hero-lead">O gestor financeiro do ARC. Feito para o computador, mas se adapta ao celular. Mais adiante vai ser a base de dados do Assessor Financeiro ARC no WhatsApp.</p>
     </div>
     <div class="hero-stats">
-      <div class="stat"><strong class="num">v0.1.0</strong><small>versão atual · alpha</small></div>
+      <div class="stat"><strong class="num">v0.1.0+</strong><small>versão atual · alpha (a v0.2.0 sai ao fechar a Fase 0)</small></div>
       <div class="stat"><strong class="num" id="stat-modules">10</strong><small>módulos mapeados</small></div>
       <div class="stat"><strong class="num">7</strong><small>fases no roteiro</small></div>
       <div class="overall">
@@ -247,7 +268,7 @@ footer .wrap { padding-block: 24px; color: var(--muted); font-size: 13px; displa
       </div>
       <div class="stack">
         <span class="tag">React 19</span><span class="tag">TypeScript</span><span class="tag">Vite 8</span>
-        <span class="tag">React Router 7</span><span class="tag">Supabase (Auth + Postgres)</span><span class="tag">CSS puro</span><span class="tag">lucide-react</span>
+        <span class="tag">React Router 7</span><span class="tag">Supabase (Auth + Postgres)</span><span class="tag">CSS puro</span><span class="tag">lucide-react</span><span class="tag">Recharts</span>
       </div>
     </section>
 
@@ -339,7 +360,7 @@ footer .wrap { padding-block: 24px; color: var(--muted); font-size: 13px; displa
 <footer>
   <div class="wrap">
     <span>Razão Finance ARC · documento vivo</span>
-    <span>Última revisão: 09/11/2026</span>
+    <span>Última revisão: 10/11/2026</span>
   </div>
 </footer>
 
@@ -348,52 +369,65 @@ footer .wrap { padding-block: 24px; color: var(--muted); font-size: 13px; displa
 const modules = [
   { name: "Autenticação", route: "/login", items: [
     ["Login com e-mail e senha", 1], ["Rotas protegidas", 1], ["Sair do sistema", 1],
-    ["Cadastro de usuário", 0], ["Recuperação de senha", 0], ["Tela de perfil", 0] ] },
+    ["Criar conta com código no e-mail", 0.5, "tela pronta; falta o e-mail próprio (SMTP) no Supabase"],
+    ["Esqueceu a senha (código no e-mail)", 0.5, "tela pronta; mesma dependência"],
+    ["Mensagens de erro em português", 1], ["Tela de perfil", 0] ] },
   { name: "Dashboard", route: "/", items: [
-    ["Total a pagar e a receber", 1], ["Saldo em contas", 1], ["Próximos vencimentos", 1], ["Saldo por conta bancária", 1],
-    ["Limite usado nos cartões", 1],["Contas vencidas em destaque", 0], ["Gráficos", 0] ] },
+    ["Total a pagar e a receber", 1], ["Saldo em contas e no caixa", 1], ["Próximos vencimentos", 1], ["Saldo por conta bancária", 1],
+    ["Limite usado nos cartões", 1], ["Contas vencidas em destaque", 0], ["Gráficos no painel", 0, "já existem em Relatórios"] ] },
   { name: "Clientes", route: "/clientes", items: [
     ["Cadastro completo (PF/PJ)", 1], ["Busca", 1] ] },
   { name: "Fornecedores", route: "/fornecedores", items: [
     ["Cadastro completo", 1], ["Busca", 1] ] },
+  { name: "Contas gerenciais", route: "/contas-gerenciais", items: [
+    ["Plano de contas de receita e despesa", 1], ["Fixa ou variável", 1], ["Conta pai e subcontas em vários níveis", 1],
+    ["Busca, filtro por tipo, expandir/recolher", 1], ["Bloqueios no banco (tipo, nome repetido, conta em uso)", 1] ] },
   { name: "Contas bancárias", route: "/bancos", items: [
-    ["Cadastro de contas", 1], ["Extrato da conta", 0.5, "código pronto, falta a tela"],
-    ["Lançamento manual", 0.5, "código pronto, falta a tela"], ["Transferência entre contas", 0], ["Importar extrato (OFX/CSV)", 0] ] },
+    ["Cadastro de contas", 1], ["Banco escolhido numa lista com código", 1], ["Extrato da conta", 0.5, "código pronto, falta a tela"],
+    ["Lançamento manual", 0.5, "feito no Caixa; falta a tela para bancos"], ["Transferência entre contas", 0.5, "banco ↔ caixa pronto; falta banco ↔ banco"], ["Importar extrato (OFX/CSV)", 0] ] },
+  { name: "Caixa (dinheiro físico)", route: "/caixa", items: [
+    ["Cadastro de caixas", 1], ["Entradas e saídas avulsas", 1], ["Saque e depósito com o banco", 1],
+    ["Fluxo de caixa por período", 1], ["Pagar e receber em dinheiro", 1], ["Saldo nunca fica negativo", 1, "regra no banco"],
+    ["Fechamento de caixa diário", 0] ] },
   { name: "Contas a pagar", route: "/contas-pagar", items: [
-    ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Pagamento pela conta bancária", 1], ["Estorno", 1],
-    ["Pagar com cartão", 0.5, "campos existem, sem uso"], ["Categorias", 0.5, "texto livre"],
+    ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Pagamento pela conta ou pelo caixa", 1], ["Estorno", 1],
+    ["Conta gerencial obrigatória (só despesa)", 1], ["Pagar com cartão", 0.5, "campos existem, sem uso"],
     ["Status vencido", 0], ["Pagamento parcial", 0], ["Contas recorrentes", 0], ["Anexos (boleto, comprovante)", 0] ] },
   { name: "Contas a receber", route: "/contas-receber", items: [
-    ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Recebimento na conta bancária", 1], ["Estorno", 1],
-    ["Categorias", 0.5, "texto livre"], ["Status vencido", 0], ["Recebimento parcial", 0], ["Contas recorrentes", 0] ] },
+    ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Recebimento na conta ou no caixa", 1], ["Estorno", 1],
+    ["Conta gerencial obrigatória (só receita)", 1], ["Status vencido", 0], ["Recebimento parcial", 0], ["Contas recorrentes", 0] ] },
   { name: "Cartões de crédito", route: "/cartoes", items: [
-    ["Cadastro de cartões", 0.5, "corrigido, falta rodar o SQL no banco"], ["Desativar cartão", 0.5, "falta rodar o SQL no banco"],["Tabelas de compras e faturas no banco", 0.5, "existem, falta a tela"],["Lançar compras", 0], ["Compras parceladas", 0],
-    ["Faturas", 0], ["Limite calculado sozinho", 1] ] },
+    ["Cadastro de cartões", 1], ["Banco e bandeira em listas, nome automático", 1], ["Desativar cartão", 1],
+    ["Limite calculado sozinho", 1], ["Lançar compras", 0], ["Compras parceladas", 0], ["Faturas", 0] ] },
   { name: "Relatórios", route: "/relatorios", items: [
-    ["Entradas x saídas por período", 1], ["Filtro por tipo", 1], ["Resumo do período", 1],
-    ["Por categoria", 0], ["Fluxo de caixa projetado", 0], ["Gráficos", 0], ["Exportar PDF/Excel", 0] ] },
-  { name: "Layout e celular", route: "todas as telas", items: [
-    ["Layout no computador", 1], ["Páginas se ajustam em telas menores", 0.5],
-    ["Tabelas no celular", 0.5, "precisam virar cartões"], ["Menu lateral no celular", 0, "ocupa a tela toda hoje"], ["Instalar como app (PWA)", 0] ] }
+    ["Descritivo (tabela) com resumo", 1], ["Torres (barras)", 1], ["Curvas (linhas e acumulado)", 1], ["Pizza", 1],
+    ["Filtros: conta, caixa, conta gerencial, fornecedor/cliente, origem", 1], ["Atalhos de período", 1],
+    ["Fluxo de caixa projetado", 0], ["Exportar PDF/Excel", 0] ] },
+  { name: "Visual e celular", route: "todas as telas", items: [
+    ["Identidade visual ARC", 1], ["Modo claro e escuro (chave no topo)", 1], ["Menu recolhível no computador", 1],
+    ["Menu em gaveta no celular", 1], ["Páginas se ajustam em telas menores", 0.5],
+    ["Tabelas no celular", 0.5, "precisam virar cartões"], ["Formulários em tela cheia no celular", 0], ["Instalar como app (PWA)", 0] ] }
 ];
 
 const phases = [
   { n: 0, v: "v0.2.0", title: "Fundação", desc: "Arrumar a casa antes de construir mais", next: true, groups: [
-    ["Base", ["✓ Criar o repositório git","✓ Levantar a estrutura real do banco", "✓ Revisar as regras de acesso (RLS) de todas as tabelas", "✓ Corrigir a tela de Cartões para bater com o banco", "Rodar o SQL dos cartões no Supabase","Gerar os tipos TypeScript a partir do banco"]],
-    ["Correções", ["Pagamento, recebimento e estorno atômicos (funções no Postgres)", "✓ Corrigir vencimento das parcelas no fim do mês", "✓ Juntar o código repetido do usuário logado", "Juntar formatação de moeda e data e a barra de busca", "✓ Escrever o README do projeto", "✓ Mostrar a versão do app no menu", "Corrigir os avisos do lint"]],
-    ["Publicação", ["✓ Levar a versão Vite para o GitHub, guardando a versão antiga em HTML como legado", "Criar o site na Vercel ligado ao GitHub", "✓ Criar o vercel.json para as rotas funcionarem ao atualizar a página","Usar o nome novo da chave do Supabase na Vercel", "Testar cada módulo na tela, principalmente Cartões e Relatórios"]] ] },
+    ["Base", ["✓ Criar o repositório git","✓ Levantar a estrutura real do banco", "✓ Revisar as regras de acesso (RLS) de todas as tabelas", "✓ Corrigir a tela de Cartões para bater com o banco", "✓ Rodar no Supabase os SQLs de contas gerenciais, lançamentos e caixa","Gerar os tipos TypeScript a partir do banco"]],
+    ["Correções", ["Pagamento, recebimento e estorno atômicos (funções no Postgres)", "✓ Corrigir vencimento das parcelas no fim do mês", "✓ Juntar o código repetido do usuário logado", "Juntar formatação de moeda e data e a barra de busca", "✓ Escrever o README do projeto", "✓ Mostrar a versão do app no menu", "Corrigir os avisos do lint que sobraram"]],
+    ["Segurança antes do teste", ["✓ Diagnóstico: acesso sem login bloqueado e cada usuário só vê os próprios dados", "E-mail próprio (SMTP) no Supabase ou criar a conta do testador à mão", "Fechar o cadastro público durante o teste", "Senha mínima de 8 no Supabase e e-mail confirmado ligado", "Regras de proteção do navegador no vercel.json", "Atualizar as ferramentas de desenvolvimento (Vite e outras)", "Verificação em duas etapas no Supabase, GitHub, Vercel e e-mail"]],
+    ["Publicação", ["✓ Levar a versão Vite para o GitHub, guardando a versão antiga em HTML como legado", "Criar o site na Vercel ligado ao GitHub", "✓ Criar o vercel.json para as rotas funcionarem ao atualizar a página","Usar o nome novo da chave do Supabase na Vercel", "Testar cada módulo na tela com a pessoa de teste"]] ] },
   { n: 1, v: "v0.3.0", title: "Celular", desc: "Funcionar bem em qualquer tamanho de tela", groups: [
-    ["Telas", ["Menu lateral recolhível com botão no topo", "Tabelas viram lista de cartões", "Formulários em tela cheia", "Botões e campos do tamanho certo para o dedo", "Instalar como app (PWA)"]] ] },
+    ["Telas", ["✓ Menu lateral recolhível com botão no topo (gaveta no celular, só ícones no computador)", "Tabelas viram lista de cartões", "Formulários em tela cheia", "Botões e campos do tamanho certo para o dedo", "Instalar como app (PWA)"]] ] },
   { n: 2, v: "v0.4 → v0.7", title: "Completar os módulos", desc: "Fechar o que ficou pela metade", groups: [
-    ["Bancos · v0.4.0",["Tela de extrato", "Lançamento manual", "Transferência entre contas", "Saldo calculado no banco de dados"]],
-    ["Contas · v0.5.0", ["Status vencido", "Pagamento e recebimento parcial", "Contas recorrentes", "Filtros por período, status e categoria", "Pagar várias de uma vez"]],
-    ["Categorias · v0.6.0", ["Cadastro de categorias de receita e despesa", "Escolher categoria em vez de digitar"]],
-    ["Cartões · v0.7.0", ["Lançar compras à vista e parceladas", "Faturas: fechar e pagar", "Pagar conta com cartão", "Limite calculado sozinho"]] ] },
+    ["Bancos · v0.4.0",["Tela de extrato", "Lançamento manual para bancos", "✓ Transferência banco ↔ caixa", "Transferência banco ↔ banco", "Saldo calculado no banco de dados"]],
+    ["Caixa", ["✓ Caixa de dinheiro físico com fluxo de caixa", "✓ Pagar e receber pelo caixa", "Fechamento de caixa diário"]],
+    ["Contas · v0.5.0", ["Status vencido", "Pagamento e recebimento parcial", "Contas recorrentes", "Filtros por período, status e conta gerencial", "Pagar várias de uma vez"]],
+    ["Contas gerenciais · v0.6.0", ["✓ Plano de contas de receita e despesa, com subcontas", "✓ Conta gerencial obrigatória nos lançamentos"]],
+    ["Cartões · v0.7.0", ["Lançar compras à vista e parceladas", "Faturas: fechar e pagar", "Pagar conta com cartão", "✓ Limite calculado sozinho"]] ] },
   { n: 3, v: "v0.8.0", title: "Painel e relatórios", desc: "Ver o dinheiro de um jeito claro", groups: [
-    ["Painel", ["Contas vencidas e de hoje em destaque", "Gráfico mensal de entradas x saídas"]],
-    ["Relatórios", ["Despesas por categoria", "Fluxo de caixa projetado", "Exportar PDF e Excel"]] ] },
+    ["Painel", ["Contas vencidas e de hoje em destaque", "Gráficos no painel inicial"]],
+    ["Relatórios", ["✓ Torres, curvas e pizza", "✓ Despesas e receitas por conta gerencial", "✓ Filtros amplos e atalhos de período", "Fluxo de caixa projetado", "Exportar PDF e Excel"]] ] },
   { n: 4, v: "v0.9.0", title: "Conta do usuário", desc: "Cadastro, senha e perfil", groups: [
-    ["Itens", ["Cadastro e recuperação de senha", "Perfil com telefone/WhatsApp", "Várias empresas por usuário (a decidir)"]] ] },
+    ["Itens", ["✓ Criar conta e recuperar senha com código no e-mail", "E-mail próprio (SMTP) para os códigos chegarem a qualquer pessoa", "Perfil com telefone/WhatsApp", "Várias empresas por usuário (a decidir)"]] ] },
   { n: 5, v: "v1.0.0", title: "Qualidade e publicação", desc: "Beta com convidados e lançamento da 1.0", groups: [
     ["Itens", ["Testes automáticos (Vitest e Playwright)", "Checagem automática a cada mudança (CI)", "Publicar com ambiente de testes e de produção", "Monitorar erros"]],
     ["Lançamento", ["Beta com usuários convidados (1.0.0-beta.N)", "Versão candidata (1.0.0-rc)", "Lançamento da v1.0.0"]] ] },
@@ -403,14 +437,17 @@ const phases = [
 ];
 
 const debts = [
-  ["alta", "A tela de Cartões não batia com a tabela do banco. O código foi corrigido, falta rodar o SQL no Supabase", "supabase/migrations/20261110_cartoes_e_politicas.sql"],
+  ["alta", "Códigos de verificação não chegam para quem não é da equipe do Supabase: precisa de e-mail próprio (SMTP) ou criar a conta do testador à mão", "Supabase · Authentication"],
+  ["alta", "Cadastro público aberto: com o site no ar, qualquer pessoa pode criar conta. Fechar durante o teste", "Supabase · Sign In / Providers"],
   ["alta", "Pagamento e estorno feitos em duas etapas separadas: se falhar no meio, os dados ficam inconsistentes", "payablesService.ts · receivablesService.ts"],
-  ["baixa", "Regras de acesso duplicadas em duas tabelas do banco (inofensivas)", "Supabase · credit_cards · receivables"],
+  ["media", "Faltam as regras de proteção do navegador (cabeçalhos de segurança) no site publicado", "vercel.json"],
+  ["media", "Ferramentas de desenvolvimento com vulnerabilidades conhecidas (15, sendo 5 altas). O site final não é afetado", "package.json · Vite e outras"],
   ["media", "Painel baixa todas as movimentações para calcular o saldo, e vai ficar lento com o tempo", "dashboardService.ts"],
   ["media", "Excluir conta bancária que tem lançamentos: comportamento indefinido", "bankAccountsService.ts"],
-  ["media", "Nenhum teste automático", "—"],
-  ["baixa", "Código repetido entre módulos (usuário logado, barra de busca)", "services/ · pages/*/components"],
-  ["baixa", "O verificador de código (lint) acusa 16 avisos de um padrão que o React 19 desaconselha. Não quebra o app", "páginas e formulários"]
+  ["media", "Testes automáticos só nas regras de cálculo; nenhum teste de tela", "—"],
+  ["baixa", "Um cadastro pode apontar para o fornecedor ou a conta de outro usuário (identificadores impossíveis de adivinhar; risco quase nulo)", "Supabase · chaves estrangeiras"],
+  ["baixa", "Código repetido entre módulos (barra de busca)", "pages/*/components"],
+  ["baixa", "O verificador de código (lint) ainda acusa avisos antigos de um padrão que o React 19 desaconselha. Não quebra o app", "páginas e formulários"]
 ];
 
 const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
