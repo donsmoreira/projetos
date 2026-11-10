@@ -351,7 +351,7 @@ const modules = [
     ["Cadastro de usuário", 0], ["Recuperação de senha", 0], ["Tela de perfil", 0] ] },
   { name: "Dashboard", route: "/", items: [
     ["Total a pagar e a receber", 1], ["Saldo em contas", 1], ["Próximos vencimentos", 1], ["Saldo por conta bancária", 1],
-    ["Limite usado nos cartões", 0.5, "está fixo em zero"], ["Contas vencidas em destaque", 0], ["Gráficos", 0] ] },
+    ["Limite usado nos cartões", 1],["Contas vencidas em destaque", 0], ["Gráficos", 0] ] },
   { name: "Clientes", route: "/clientes", items: [
     ["Cadastro completo (PF/PJ)", 1], ["Busca", 1] ] },
   { name: "Fornecedores", route: "/fornecedores", items: [
@@ -367,8 +367,8 @@ const modules = [
     ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Recebimento na conta bancária", 1], ["Estorno", 1],
     ["Categorias", 0.5, "texto livre"], ["Status vencido", 0], ["Recebimento parcial", 0], ["Contas recorrentes", 0] ] },
   { name: "Cartões de crédito", route: "/cartoes", items: [
-    ["Cadastro de cartões", 0, "quebrado: a tela não bate com a tabela do banco"], ["Desativar cartão", 0], ["Tabelas de compras e faturas no banco", 0.5, "existem, falta a tela"],["Lançar compras", 0], ["Compras parceladas", 0],
-    ["Faturas", 0], ["Limite calculado sozinho", 0] ] },
+    ["Cadastro de cartões", 0.5, "corrigido, falta rodar o SQL no banco"], ["Desativar cartão", 0.5, "falta rodar o SQL no banco"],["Tabelas de compras e faturas no banco", 0.5, "existem, falta a tela"],["Lançar compras", 0], ["Compras parceladas", 0],
+    ["Faturas", 0], ["Limite calculado sozinho", 1] ] },
   { name: "Relatórios", route: "/relatorios", items: [
     ["Entradas x saídas por período", 1], ["Filtro por tipo", 1], ["Resumo do período", 1],
     ["Por categoria", 0], ["Fluxo de caixa projetado", 0], ["Gráficos", 0], ["Exportar PDF/Excel", 0] ] },
@@ -379,7 +379,7 @@ const modules = [
 
 const phases = [
   { n: 0, v: "v0.2.0", title: "Fundação", desc: "Arrumar a casa antes de construir mais", next: true, groups: [
-    ["Base", ["✓ Criar o repositório git","✓ Levantar a estrutura real do banco", "✓ Revisar as regras de acesso (RLS) de todas as tabelas", "Corrigir a tela de Cartões para bater com o banco","Gerar os tipos TypeScript a partir do banco"]],
+    ["Base", ["✓ Criar o repositório git","✓ Levantar a estrutura real do banco", "✓ Revisar as regras de acesso (RLS) de todas as tabelas", "✓ Corrigir a tela de Cartões para bater com o banco", "Rodar o SQL dos cartões no Supabase","Gerar os tipos TypeScript a partir do banco"]],
     ["Correções", ["Pagamento, recebimento e estorno atômicos (funções no Postgres)", "✓ Corrigir vencimento das parcelas no fim do mês", "✓ Juntar o código repetido do usuário logado", "Juntar formatação de moeda e data e a barra de busca", "✓ Escrever o README do projeto", "✓ Mostrar a versão do app no menu", "Corrigir os avisos do lint"]],
     ["Publicação", ["✓ Levar a versão Vite para o GitHub, guardando a versão antiga em HTML como legado", "Criar o site na Vercel ligado ao GitHub", "✓ Criar o vercel.json para as rotas funcionarem ao atualizar a página","Usar o nome novo da chave do Supabase na Vercel", "Testar cada módulo na tela, principalmente Cartões e Relatórios"]] ] },
   { n: 1, v: "v0.3.0", title: "Celular", desc: "Funcionar bem em qualquer tamanho de tela", groups: [
@@ -403,11 +403,10 @@ const phases = [
 ];
 
 const debts = [
-  ["alta", "A tela de Cartões usa campos que não existem na tabela do banco, então listar, cadastrar e excluir falham", "creditCardsService.ts · types/creditCard.ts"],
+  ["alta", "A tela de Cartões não batia com a tabela do banco. O código foi corrigido, falta rodar o SQL no Supabase", "supabase/migrations/20261110_cartoes_e_politicas.sql"],
   ["alta", "Pagamento e estorno feitos em duas etapas separadas: se falhar no meio, os dados ficam inconsistentes", "payablesService.ts · receivablesService.ts"],
   ["baixa", "Regras de acesso duplicadas em duas tabelas do banco (inofensivas)", "Supabase · credit_cards · receivables"],
   ["media", "Painel baixa todas as movimentações para calcular o saldo, e vai ficar lento com o tempo", "dashboardService.ts"],
-  ["media", "Limite usado nos cartões fixo em zero no painel", "dashboardService.ts"],
   ["media", "Excluir conta bancária que tem lançamentos: comportamento indefinido", "bankAccountsService.ts"],
   ["media", "Nenhum teste automático", "—"],
   ["baixa", "Código repetido entre módulos (usuário logado, barra de busca)", "services/ · pages/*/components"],

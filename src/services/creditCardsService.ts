@@ -6,27 +6,51 @@ import type {
   CreditCardFormData
 } from "../types/creditCard";
 
+const CARD_SELECT = `
+  *,
+  card_transactions (
+    value,
+    settled
+  )
+`;
+
+type CardTransactionRow = {
+  value: number | string | null;
+  settled: boolean;
+};
+
 function normalizeCreditCard(
   card: Record<string, unknown>
 ): CreditCard {
-  const limitTotal =
-    Number(card.limit_total || 0);
+  const { card_transactions, ...cardData } =
+    card as Record<string, unknown> & {
+      card_transactions?: CardTransactionRow[];
+    };
 
-  const availableLimit =
-    Number(card.available_limit || 0);
+  const limitTotal =
+    Number(cardData.credit_limit || 0);
+
+  // Compras ainda não pagas na fatura ocupam o limite
+  const usedLimit = (card_transactions ?? [])
+    .filter(transaction => !transaction.settled)
+    .reduce(
+      (total, transaction) =>
+        total + Number(transaction.value || 0),
+      0
+    );
 
   return {
-    ...card,
+    ...cardData,
 
     limit_total:
       limitTotal,
 
-    available_limit:
-      availableLimit,
-
     used_limit:
+      usedLimit,
+
+    available_limit:
       Math.max(
-        limitTotal - availableLimit,
+        limitTotal - usedLimit,
         0
       ),
 
@@ -50,7 +74,7 @@ export async function listCreditCards(): Promise<
 > {
   const { data, error } = await supabase
     .from("credit_cards")
-    .select("*")
+    .select(CARD_SELECT)
     .eq("active", true)
     .order("name", {
       ascending: true
@@ -91,11 +115,8 @@ export async function createCreditCard(
       holder_name:
         card.holderName || null,
 
-      limit_total:
+      credit_limit:
         Number(card.limitTotal || 0),
-
-      available_limit:
-        Number(card.availableLimit || 0),
 
       closing_day:
         Number(card.closingDay || 0) || null,
@@ -112,7 +133,7 @@ export async function createCreditCard(
       active:
         true
     })
-    .select()
+    .select(CARD_SELECT)
     .single();
 
   if (error) {
@@ -144,11 +165,8 @@ export async function updateCreditCard(
       holder_name:
         card.holderName || null,
 
-      limit_total:
+      credit_limit:
         Number(card.limitTotal || 0),
-
-      available_limit:
-        Number(card.availableLimit || 0),
 
       closing_day:
         Number(card.closingDay || 0) || null,
@@ -166,7 +184,7 @@ export async function updateCreditCard(
         new Date().toISOString()
     })
     .eq("id", id)
-    .select()
+    .select(CARD_SELECT)
     .single();
 
   if (error) {

@@ -30,7 +30,6 @@ const emptyForm: CreditCardFormData = {
   finalDigits: "",
   holderName: "",
   limitTotal: 0,
-  availableLimit: 0,
   closingDay: 1,
   dueDay: 1,
   color: "#183c34",
@@ -65,10 +64,6 @@ function CreditCardForm({
           card.holder_name ?? "",
         limitTotal:
           Number(card.limit_total || 0),
-        availableLimit:
-          Number(
-            card.available_limit || 0
-          ),
         closingDay:
           Number(card.closing_day || 1),
         dueDay:
@@ -119,25 +114,6 @@ function CreditCardForm({
     }
 
     if (
-      Number(formData.availableLimit) < 0
-    ) {
-      setErrorMessage(
-        "O limite disponível não pode ser negativo."
-      );
-      return;
-    }
-
-    if (
-      Number(formData.availableLimit) >
-      Number(formData.limitTotal)
-    ) {
-      setErrorMessage(
-        "O limite disponível não pode ser maior que o limite total."
-      );
-      return;
-    }
-
-    if (
       formData.finalDigits &&
       !/^\d{4}$/.test(
         formData.finalDigits
@@ -172,11 +148,6 @@ function CreditCardForm({
         limitTotal:
           Number(
             formData.limitTotal || 0
-          ),
-
-        availableLimit:
-          Number(
-            formData.availableLimit || 0
           ),
 
         closingDay:
@@ -353,20 +324,21 @@ function CreditCardForm({
 
           <input
             id="credit-card-available"
-            type="number"
-            min="0"
-            step="0.01"
+            type="text"
             value={
-              formData.availableLimit
+              card
+                ? card.available_limit.toLocaleString(
+                    "pt-BR",
+                    {
+                      style: "currency",
+                      currency: "BRL"
+                    }
+                  )
+                : "Igual ao limite total"
             }
-            onChange={event =>
-              updateField(
-                "availableLimit",
-                Number(
-                  event.target.value || 0
-                )
-              )
-            }
+            readOnly
+            disabled
+            title="Calculado pelas compras ainda não pagas na fatura"
           />
         </div>
 

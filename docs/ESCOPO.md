@@ -68,7 +68,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Total a pagar (pendentes) | ✅ | soma valor original + juros + multa |
 | Total a receber (pendentes) | ✅ | |
 | Saldo em contas | ✅ | saldo inicial + soma das `bank_transactions` |
-| Limite utilizado em cartões | 🟡 | **valor fixo em 0** em `dashboardService.ts` |
+| Limite utilizado em cartões | ✅ | soma das compras em aberto dos cartões ativos |
 | Próximas 6 contas a pagar e a receber | ✅ | |
 | Saldo por conta bancária | ✅ | |
 | Contas vencidas em destaque | ❌ | |
@@ -111,13 +111,13 @@ Mesmas lacunas: status vencido, recebimento parcial, categorias cadastradas, rec
 ### 3.7 Cartões de crédito (`/cartoes`)
 | Item | Status | Observação |
 |---|---|---|
-| CRUD de cartões | ❌ | **quebrado:** o código usa colunas que não existem na tabela do banco (ver D12) |
-| Exclusão lógica | ❌ | a coluna `active` não existe no banco |
+| CRUD de cartões | 🟡 | código corrigido para bater com o banco; depende de rodar `supabase/migrations/20261110_cartoes_e_politicas.sql` (D12) |
+| Exclusão lógica | 🟡 | `active = false`; a coluna é criada pelo mesmo SQL |
 | Tabelas de compras e faturas no banco | ✅ | `card_transactions` (com parcelas) e `card_settlements` já existem, sem tela |
 | Lançamento de compras no cartão | ❌ | |
 | Compras parceladas no cartão | ❌ | |
 | Faturas (abertura, fechamento, pagamento) | ❌ | |
-| Cálculo automático do limite disponível | ❌ | hoje é digitado à mão |
+| Cálculo automático do limite disponível | ✅ | limite total menos as compras em aberto em `card_transactions` |
 
 ### 3.8 Relatórios (`/relatorios`)
 | Item | Status | Observação |
@@ -206,7 +206,7 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 | D8 | Excluir conta bancária com lançamentos: comportamento depende das FKs do banco | `bankAccountsService.ts` | Média |
 | D9 | README ainda é o template do Vite | `README.md` | Baixa |
 | D10 | Sem testes automatizados | — | Média |
-| D12 | Tela de Cartões não bate com a tabela `credit_cards` do banco: listar, cadastrar e excluir falham | `creditCardsService.ts`, `types/creditCard.ts` | Alta |
+| D12 | Tela de Cartões não batia com a tabela `credit_cards`. **Código corrigido**; falta rodar o SQL de migração | `creditCardsService.ts`, `supabase/migrations/` | Alta |
 | D13 | Políticas RLS duplicadas em `credit_cards` e `receivables` (versões antigas para o papel `public`) | Supabase | Baixa |
 | D11 | `npm run lint` acusa 16 erros: `setState` chamado direto dentro de `useEffect` (padrão que o React 19 desaconselha) e um export misto no AuthContext. Não quebra o app | páginas e formulários | Baixa |
 
@@ -257,8 +257,8 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [x] Levantar a estrutura real do banco (`supabase/schema-atual.json`)
 - [ ] Transformar a estrutura em migrations versionadas (`supabase/migrations`)
 - [x] Revisar RLS de todas as tabelas (cada usuário só vê os próprios dados)
-- [ ] Corrigir a tela de Cartões para bater com o banco (D12)
-- [ ] Remover as políticas RLS duplicadas (D13)
+- [x] Corrigir a tela de Cartões para bater com o banco (D12) — código pronto
+- [ ] Rodar `supabase/migrations/20261110_cartoes_e_politicas.sql` no Supabase (colunas dos cartões + remove políticas duplicadas D13)
 - [ ] Gerar tipos TypeScript a partir do schema (`supabase gen types`)
 - [ ] Mover pagamento, recebimento e estorno para funções no Postgres (RPC) com transação atômica (D1)
 - [x] Corrigir cálculo de vencimento das parcelas (D4) — `src/utils/date.ts`
@@ -302,8 +302,8 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [ ] Lançamento de compras (à vista e parceladas)
 - [ ] Faturas: geração pelo dia de fechamento, fechamento e pagamento (gera `bank_transaction`)
 - [ ] Pagar conta a pagar com cartão (usar `card_id`)
-- [ ] Limite disponível calculado automaticamente
-- [ ] Dashboard com limite utilizado real (D6)
+- [x] Limite disponível calculado automaticamente
+- [x] Dashboard com limite utilizado real (D6)
 
 ### Fase 3 — Dashboard e relatórios · v0.8.0
 - [ ] Destaque de contas vencidas e que vencem hoje

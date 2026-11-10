@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { listCreditCards } from "./creditCardsService";
 
 import type {
   BankAccountItem,
@@ -228,13 +229,21 @@ export async function getDashboardData(): Promise<DashboardData> {
   payables,
   receivables,
   bankAccountRows,
-  bankTransactions
+  bankTransactions,
+  creditCards
 ] = await Promise.all([
   getPendingPayables(),
   getPendingReceivables(),
   getBankAccounts(),
-  getBankTransactions()
+  getBankTransactions(),
+  listCreditCards()
 ]);
+
+  const totalCardUsage = creditCards.reduce(
+    (total, card) =>
+      total + card.used_limit,
+    0
+  );
 
   const totalPayables = payables.reduce(
     (total, payable) =>
@@ -277,7 +286,7 @@ const summary: FinancialSummary[] = [
   },
   {
     label: "Limite utilizado em cartões",
-    value: 0,
+    value: totalCardUsage,
     variant: "payable"
   }
 ];
