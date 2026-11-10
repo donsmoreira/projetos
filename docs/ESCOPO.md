@@ -111,8 +111,9 @@ Mesmas lacunas: status vencido, recebimento parcial, categorias cadastradas, rec
 ### 3.7 Cartões de crédito (`/cartoes`)
 | Item | Status | Observação |
 |---|---|---|
-| CRUD de cartões | ✅ | nome, banco, bandeira, final, titular, limite total/disponível, dia de fechamento/vencimento, cor |
-| Exclusão lógica | ✅ | `active = false` |
+| CRUD de cartões | ❌ | **quebrado:** o código usa colunas que não existem na tabela do banco (ver D12) |
+| Exclusão lógica | ❌ | a coluna `active` não existe no banco |
+| Tabelas de compras e faturas no banco | ✅ | `card_transactions` (com parcelas) e `card_settlements` já existem, sem tela |
 | Lançamento de compras no cartão | ❌ | |
 | Compras parceladas no cartão | ❌ | |
 | Faturas (abertura, fechamento, pagamento) | ❌ | |
@@ -144,7 +145,9 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 | Ponto | Situação |
 |---|---|
 | Build de produção (`npm run build`) | ✅ passa sem erros (só um aviso de tamanho do pacote JS, 543 kB) |
-| Cartões de crédito (havia tela branca/404) | ✅ o código compila; validações presentes (limites não negativos, disponível ≤ total, final com 4 dígitos). Falta testar na tela |
+| Cartões de crédito (havia tela branca/404) | ❌ o código compila, mas **não bate com o banco**: usa `bank`, `final_digits`, `holder_name`, `limit_total`, `available_limit`, `color`, `notes` e `active`, que não existem. O banco tem `credit_limit` e `bank_account_id` |
+| Segurança (RLS) | ✅ as 11 tabelas têm RLS ativo, e cada usuário só acessa as próprias linhas (`auth.uid() = user_id`). Há políticas duplicadas em `credit_cards` e `receivables` (inofensivas) |
+| Tabelas extras no banco | `profiles` (criada no cadastro do usuário), `card_transactions`, `card_settlements` e `appointments` (agenda com clientes) |
 | Relatórios (não tinha confirmação final) | ✅ o código compila e usa `bank_transactions`. Falta testar na tela |
 | Convenção de sinais | ✅ confirmada no código: pagamentos gravam valor negativo, recebimentos positivo |
 | Tabelas no Supabase | ✅ as 7 tabelas existem (`clients`, `suppliers`, `bank_accounts`, `bank_transactions`, `payables`, `receivables`, `credit_cards`), e o acesso sem login é negado |
@@ -156,9 +159,9 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 
 ---
 
-## 4. Modelo de dados (Supabase) — inferido do código
+## 4. Modelo de dados (Supabase)
 
-> O schema SQL **não está versionado** no projeto. A tabela abaixo foi deduzida dos services e precisa ser confirmada no Supabase.
+> Estrutura real exportada em 10/11/2026 para `supabase/schema-atual.json` (gerada por `supabase/levantamento-schema.sql`). São 11 tabelas, todas com RLS ativo. Valores em `numeric(14,2)`.
 
 | Tabela | Campos principais | Relações |
 |---|---|---|
@@ -168,7 +171,11 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 | `bank_transactions` | transaction_date, description, value (+ entrada / − saída), transaction_type (`manual`, `payable_payment`, ...), reference_type, reference_id | bank_account_id, payable_id |
 | `payables` | description, category, original_value, interest, penalty, issue_date, due_date, status, payment_*, paid_value, installment_* | supplier_id, bank_account_id, bank_transaction_id, card_id, card_transaction_id |
 | `receivables` | igual a payables, com received_value / receipt_date | client_id, bank_account_id, bank_transaction_id |
-| `credit_cards` | name, bank, brand, final_digits, holder_name, limit_total, available_limit, closing_day, due_day, color, active | user_id |
+| `credit_cards` | name, brand, credit_limit, closing_day, due_day (1–31) | user_id, bank_account_id |
+| `card_transactions` | transaction_date, description, value, settled, installment_* | card_id, payable_id, settlement_id |
+| `card_settlements` (pagamento de fatura) | settlement_date, value | card_id, bank_account_id, bank_transaction_id |
+| `profiles` | full_name, company_name, phone, preferred_theme, currency | user_id (criado automaticamente no cadastro) |
+| `appointments` (agenda) | appointment_date, start_time, end_time, status (agendado/confirmado), confirmed_at | user_id, client_id |
 
 **Princípio central:** `bank_transactions` é o **razão** do sistema. Todo dinheiro que entra ou sai de uma conta vira uma linha nessa tabela, e saldos e relatórios saem dela.
 
@@ -199,6 +206,8 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 | D8 | Excluir conta bancária com lançamentos: comportamento depende das FKs do banco | `bankAccountsService.ts` | Média |
 | D9 | README ainda é o template do Vite | `README.md` | Baixa |
 | D10 | Sem testes automatizados | — | Média |
+| D12 | Tela de Cartões não bate com a tabela `credit_cards` do banco: listar, cadastrar e excluir falham | `creditCardsService.ts`, `types/creditCard.ts` | Alta |
+| D13 | Políticas RLS duplicadas em `credit_cards` e `receivables` (versões antigas para o papel `public`) | Supabase | Baixa |
 | D11 | `npm run lint` acusa 16 erros: `setState` chamado direto dentro de `useEffect` (padrão que o React 19 desaconselha) e um export misto no AuthContext. Não quebra o app | páginas e formulários | Baixa |
 
 ---
@@ -245,8 +254,11 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 
 ### Fase 0 — Fundação · v0.2.0
 - [x] Iniciar repositório git e primeiro commit (v0.1.0 no GitHub, versão antiga na tag `legado-html`)
-- [ ] Exportar o schema do Supabase para o projeto (`supabase/migrations`) e documentar as políticas RLS — consulta pronta em `supabase/levantamento-schema.sql`
-- [ ] Revisar RLS de todas as tabelas (cada usuário só vê os próprios dados)
+- [x] Levantar a estrutura real do banco (`supabase/schema-atual.json`)
+- [ ] Transformar a estrutura em migrations versionadas (`supabase/migrations`)
+- [x] Revisar RLS de todas as tabelas (cada usuário só vê os próprios dados)
+- [ ] Corrigir a tela de Cartões para bater com o banco (D12)
+- [ ] Remover as políticas RLS duplicadas (D13)
 - [ ] Gerar tipos TypeScript a partir do schema (`supabase gen types`)
 - [ ] Mover pagamento, recebimento e estorno para funções no Postgres (RPC) com transação atômica (D1)
 - [x] Corrigir cálculo de vencimento das parcelas (D4) — `src/utils/date.ts`
@@ -352,3 +364,4 @@ Objetivo: o Assessor no WhatsApp lê e escreve nos mesmos dados do Razão.
 4. **Login único ARC:** todos os produtos ARC vão compartilhar a mesma conta de usuário?
 5. **Multiempresa:** um usuário pode gerir mais de uma empresa/carteira?
 6. **Monetização/planos:** haverá limites por plano que o sistema precise controlar?
+7. **Agenda (`appointments`):** a tabela de agendamentos com clientes no banco é do Razão ou de outro produto ARC que usa o mesmo Supabase?
