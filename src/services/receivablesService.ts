@@ -1,4 +1,6 @@
 import { supabase } from "./supabase";
+import { getAuthenticatedUser } from "./auth";
+import { addMonthsToDate } from "../utils/date";
 
 import type {
   Receivable,
@@ -6,19 +8,6 @@ import type {
   ReceivableFormData,
   ReceivableReceiptData
 } from "../types/receivable";
-
-async function getAuthenticatedUser() {
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    throw new Error("Usuário não autenticado.");
-  }
-
-  return user;
-}
 
 function normalizeReceivable(
   receivable: Record<string, unknown>
@@ -106,19 +95,11 @@ export async function createReceivables(
   const records = Array.from(
     { length: installmentCount },
     (_, index) => {
-      const dueDate =
-        new Date(
-          `${receivable.dueDate}T12:00:00`
-        );
-
-      dueDate.setMonth(
-        dueDate.getMonth() + index
-      );
-
       const formattedDueDate =
-        dueDate
-          .toISOString()
-          .split("T")[0];
+        addMonthsToDate(
+          receivable.dueDate,
+          index
+        );
 
       return {
         user_id: user.id,

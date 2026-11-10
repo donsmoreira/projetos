@@ -1,22 +1,10 @@
 import { supabase } from "./supabase";
+import { getAuthenticatedUser } from "./auth";
 
 import type {
   CreditCard,
   CreditCardFormData
 } from "../types/creditCard";
-
-async function getAuthenticatedUser() {
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    throw new Error("Usuário não autenticado.");
-  }
-
-  return user;
-}
 
 function normalizeCreditCard(
   card: Record<string, unknown>

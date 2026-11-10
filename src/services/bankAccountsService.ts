@@ -1,23 +1,11 @@
 import { supabase } from "./supabase";
+import { getAuthenticatedUser } from "./auth";
 
 import type {
   BankAccount,
   BankAccountFormData,
   BankTransaction
 } from "../types/bankAccount";
-
-async function getAuthenticatedUser() {
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    throw new Error("Usuário não autenticado.");
-  }
-
-  return user;
-}
 
 export async function listBankAccounts(): Promise<BankAccount[]> {
   const { data, error } = await supabase

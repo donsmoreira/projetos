@@ -1,75 +1,66 @@
-# React + TypeScript + Vite
+# Razão Finance ARC
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Gestor financeiro do ecossistema **ARC** (Análises Reais e Computacionais), da D&C.
+Controla contas a pagar e a receber, contas bancárias, cartões de crédito e relatórios.
+Feito para o computador, com adaptação para o celular.
 
-Currently, two official plugins are available:
+- **Escopo e roteiro:** [docs/ESCOPO.md](docs/ESCOPO.md)
+- **Histórico de versões:** [CHANGELOG.md](CHANGELOG.md)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tecnologias
 
-## React Compiler
+React 19 + TypeScript + Vite, React Router, Supabase (login e banco de dados) e ícones lucide-react.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Como rodar no computador
 
-## Expanding the ESLint configuration
+Precisa do [Node.js](https://nodejs.org) instalado.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. Instale as dependências (só na primeira vez ou quando o `package.json` mudar):
+   ```bash
+   npm install
+   ```
+2. Crie o arquivo `.env.local` na raiz do projeto com os dados do Supabase
+   (em Project Settings → API Keys):
+   ```
+   VITE_SUPABASE_URL=https://SEU-PROJETO.supabase.co
+   VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+   ```
+   Use só a chave **publishable**. Nunca coloque a chave `secret` / `service_role` no frontend.
+3. Inicie o servidor:
+   ```bash
+   npm run dev
+   ```
+   e abra http://localhost:5173. Para parar, `Ctrl + C` no terminal.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Outros comandos
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+| Comando | Para que serve |
+|---|---|
+| `npm run build` | gera a versão de produção na pasta `dist` |
+| `npm run preview` | abre localmente a versão de produção gerada |
+| `npm run lint` | procura problemas no código |
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Publicação (Vercel)
 
-```
+- Framework: **Vite** · Build: `npm run build` · Saída: `dist`
+- Variáveis de ambiente: `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`
+- O `vercel.json` faz as rotas internas (ex.: `/clientes`) funcionarem ao atualizar a página.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Estrutura
 
 ```
+src/
+  components/   componentes genéricos
+  contexts/     sessão do usuário (AuthContext)
+  layouts/      menu lateral + barra superior
+  pages/        uma pasta por tela
+  routes/       rotas e proteção por login
+  services/     acesso ao Supabase
+  types/        tipos de dados
+  utils/        funções auxiliares
+```
+
+## Versões
+
+O projeto segue [SemVer](https://semver.org/lang/pt-BR/). A versão fica no `package.json` e aparece no rodapé do menu.
+Cada entrega é registrada no [CHANGELOG.md](CHANGELOG.md).

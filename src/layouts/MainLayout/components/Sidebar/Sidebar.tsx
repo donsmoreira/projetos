@@ -71,6 +71,10 @@ function Sidebar() {
           to="/relatorios"
         />
       </nav>
+
+      <footer className="sidebar-footer">
+        v{__APP_VERSION__}
+      </footer>
     </aside>
   );
 }

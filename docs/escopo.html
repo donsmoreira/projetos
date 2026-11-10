@@ -147,7 +147,10 @@ section { display: grid; gap: 22px; scroll-margin-top: 16px; }
 .group h4 { margin: 0 0 6px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .todo { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font-size: 15px; }
 .todo li { display: grid; grid-template-columns: 16px 1fr; gap: 10px; align-items: baseline; }
-.box { width: 14px; height: 14px; border: 1.5px solid var(--line); border-radius: 4px; transform: translateY(2px); }
+.box { width: 14px; height: 14px; border: 1.5px solid var(--line); border-radius: 4px; transform: translateY(2px); position: relative; }
+.box.done { background: var(--ok); border-color: var(--ok); }
+.box.done::after { content: ""; position: absolute; left: 3.5px; top: 0.5px; width: 4px; height: 8px; border: solid var(--surface); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.todo li.done span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
 
 /* Integração */
 .flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 12px; align-items: stretch; }
@@ -375,9 +378,9 @@ const modules = [
 
 const phases = [
   { n: 0, v: "v0.2.0", title: "Fundação", desc: "Arrumar a casa antes de construir mais", next: true, groups: [
-    ["Base", ["Criar o repositório git", "Salvar o schema do Supabase no projeto (migrations)", "Revisar as regras de acesso (RLS) de todas as tabelas", "Gerar os tipos TypeScript a partir do banco"]],
-    ["Correções", ["Pagamento, recebimento e estorno atômicos (funções no Postgres)", "Corrigir vencimento das parcelas no fim do mês", "Juntar código repetido (usuário, moeda, data, busca)", "Escrever o README do projeto", "Mostrar a versão do app no menu"]],
-    ["Publicação", ["Levar a versão Vite para o GitHub, guardando a versão antiga em HTML como legado", "Criar o site na Vercel ligado ao GitHub","Criar o vercel.json para as rotas funcionarem ao atualizar a página", "Usar o nome novo da chave do Supabase na Vercel", "Testar cada módulo na tela, principalmente Cartões e Relatórios"]] ] },
+    ["Base", ["✓ Criar o repositório git","Salvar o schema do Supabase no projeto (migrations)", "Revisar as regras de acesso (RLS) de todas as tabelas", "Gerar os tipos TypeScript a partir do banco"]],
+    ["Correções", ["Pagamento, recebimento e estorno atômicos (funções no Postgres)", "✓ Corrigir vencimento das parcelas no fim do mês", "✓ Juntar o código repetido do usuário logado", "Juntar formatação de moeda e data e a barra de busca", "✓ Escrever o README do projeto", "✓ Mostrar a versão do app no menu", "Corrigir os avisos do lint"]],
+    ["Publicação", ["✓ Levar a versão Vite para o GitHub, guardando a versão antiga em HTML como legado", "Criar o site na Vercel ligado ao GitHub", "✓ Criar o vercel.json para as rotas funcionarem ao atualizar a página","Usar o nome novo da chave do Supabase na Vercel", "Testar cada módulo na tela, principalmente Cartões e Relatórios"]] ] },
   { n: 1, v: "v0.3.0", title: "Celular", desc: "Funcionar bem em qualquer tamanho de tela", groups: [
     ["Telas", ["Menu lateral recolhível com botão no topo", "Tabelas viram lista de cartões", "Formulários em tela cheia", "Botões e campos do tamanho certo para o dedo", "Instalar como app (PWA)"]] ] },
   { n: 2, v: "v0.4 → v0.7", title: "Completar os módulos", desc: "Fechar o que ficou pela metade", groups: [
@@ -401,14 +404,12 @@ const phases = [
 const debts = [
   ["alta", "Pagamento e estorno feitos em duas etapas separadas: se falhar no meio, os dados ficam inconsistentes", "payablesService.ts · receivablesService.ts"],
   ["alta", "Estrutura do banco e regras de acesso não estão salvas no projeto", "supabase/"],
-  ["alta", "Projeto ainda sem controle de versão (git)", "raiz do projeto"],
-  ["media", "Parcelas que vencem dia 29 a 31 pulam um mês", "createPayables · createReceivables"],
   ["media", "Painel baixa todas as movimentações para calcular o saldo, e vai ficar lento com o tempo", "dashboardService.ts"],
   ["media", "Limite usado nos cartões fixo em zero no painel", "dashboardService.ts"],
   ["media", "Excluir conta bancária que tem lançamentos: comportamento indefinido", "bankAccountsService.ts"],
   ["media", "Nenhum teste automático", "—"],
   ["baixa", "Código repetido entre módulos (usuário logado, barra de busca)", "services/ · pages/*/components"],
-  ["baixa", "README ainda é o modelo padrão do Vite", "README.md"]
+  ["baixa", "O verificador de código (lint) acusa 16 avisos de um padrão que o React 19 desaconselha. Não quebra o app", "páginas e formulários"]
 ];
 
 const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -452,7 +453,10 @@ document.getElementById("road").innerHTML = phases.map(p => {
       </span>
     </summary>
     <div class="phase-body">${p.groups.map(g => `<div class="group"><h4>${esc(g[0])}</h4>
-      <ul class="todo">${g[1].map(t => `<li><i class="box"></i><span>${esc(t)}</span></li>`).join("")}</ul></div>`).join("")}</div>
+      <ul class="todo">${g[1].map(t => {
+        const done = t.startsWith("✓ ");
+        return `<li class="${done ? "done" : ""}"><i class="box${done ? " done" : ""}"></i><span>${esc(done ? t.slice(2) : t)}</span></li>`;
+      }).join("")}</ul></div>`).join("")}</div>
   </details>`;
 }).join("");
 

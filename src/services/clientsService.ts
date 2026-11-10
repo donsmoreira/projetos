@@ -1,22 +1,10 @@
 import { supabase } from "./supabase";
+import { getAuthenticatedUser } from "./auth";
 
 import type {
   Client,
   ClientFormData
 } from "../types/client";
-
-async function getAuthenticatedUser() {
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    throw new Error("Usuário não autenticado.");
-  }
-
-  return user;
-}
 
 export async function listClients(): Promise<Client[]> {
   const { data, error } = await supabase

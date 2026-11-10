@@ -199,6 +199,7 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 | D8 | Excluir conta bancária com lançamentos: comportamento depende das FKs do banco | `bankAccountsService.ts` | Média |
 | D9 | README ainda é o template do Vite | `README.md` | Baixa |
 | D10 | Sem testes automatizados | — | Média |
+| D11 | `npm run lint` acusa 16 erros: `setState` chamado direto dentro de `useEffect` (padrão que o React 19 desaconselha) e um export misto no AuthContext. Não quebra o app | páginas e formulários | Baixa |
 
 ---
 
@@ -243,18 +244,20 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 ## 8. Roadmap (o que está planejado)
 
 ### Fase 0 — Fundação · v0.2.0
-- [ ] Iniciar repositório git e primeiro commit
-- [ ] Exportar o schema do Supabase para o projeto (`supabase/migrations`) e documentar as políticas RLS
+- [x] Iniciar repositório git e primeiro commit (v0.1.0 no GitHub, versão antiga na tag `legado-html`)
+- [ ] Exportar o schema do Supabase para o projeto (`supabase/migrations`) e documentar as políticas RLS — consulta pronta em `supabase/levantamento-schema.sql`
 - [ ] Revisar RLS de todas as tabelas (cada usuário só vê os próprios dados)
 - [ ] Gerar tipos TypeScript a partir do schema (`supabase gen types`)
 - [ ] Mover pagamento, recebimento e estorno para funções no Postgres (RPC) com transação atômica (D1)
-- [ ] Corrigir cálculo de vencimento das parcelas (D4)
-- [ ] Extrair helpers comuns (usuário autenticado, formatação de moeda/data, SearchBar genérico) (D7)
-- [ ] Escrever o README real do projeto (D9)
-- [ ] Exibir a versão do app no rodapé do menu
+- [x] Corrigir cálculo de vencimento das parcelas (D4) — `src/utils/date.ts`
+- [x] Juntar `getAuthenticatedUser` num só lugar (`src/services/auth.ts`)
+- [ ] Unificar formatação de moeda/data e um SearchBar genérico (D7)
+- [x] Escrever o README real do projeto (D9)
+- [x] Exibir a versão do app no rodapé do menu
+- [ ] Corrigir os avisos do lint (D11)
 - [ ] Levar a versão Vite para o repositório do GitHub, preservando a versão antiga em HTML como legado
 - [ ] Criar o projeto na Vercel ligado ao GitHub
-- [ ] Criar `vercel.json` com rewrite para as rotas do BrowserRouter
+- [x] Criar `vercel.json` com rewrite para as rotas do BrowserRouter
 - [ ] Na Vercel, cadastrar `VITE_SUPABASE_PUBLISHABLE_KEY` (o nome antigo era `ANON_KEY`)
 - [ ] Testar na tela cada módulo, principalmente Cartões e Relatórios
 
