@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#05080f" />
+    <meta name="theme-color" content="#f2f6fc" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -13,11 +13,12 @@
     />
     <title>Razão Finance ARC</title>
     <script>
-      // Aplica o tema salvo antes de a tela aparecer (evita piscar no tema errado)
+      // Aplica o tema salvo antes de a tela aparecer (evita piscar no tema errado).
+      // O padrão é o modo claro; o escuro só vale se a pessoa escolheu.
       try {
-        if (localStorage.getItem("arc-theme") === "light") {
-          document.documentElement.dataset.theme = "light";
-          document.querySelector('meta[name="theme-color"]').content = "#f2f6fc";
+        if (localStorage.getItem("arc-theme") === "dark") {
+          delete document.documentElement.dataset.theme;
+          document.querySelector('meta[name="theme-color"]').content = "#05080f";
         }
       } catch (e) {}
     </script>

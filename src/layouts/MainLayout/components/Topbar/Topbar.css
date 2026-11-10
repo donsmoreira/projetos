@@ -91,7 +91,140 @@
   font-weight: 700;
 }
 
-/* Botões de ícone do topo: tema claro/escuro e sair */
+/*
+ * Chave de tema em pílula. A bolinha é presa pelas duas pontas (left e right):
+ * a ponta da frente sai primeiro e a de trás vem logo depois, então ela
+ * se estica no caminho e volta ao tamanho normal com um leve "quique".
+ */
+.theme-switch {
+  --switch-w: 62px;
+  --switch-h: 32px;
+  --switch-pad: 3px;
+  --thumb: 26px;
+  --far: calc(var(--switch-w) - var(--switch-pad) - var(--thumb) - 2px);
+  --ease-plastic: cubic-bezier(0.34, 1.3, 0.5, 1);
+
+  position: relative;
+
+  width: var(--switch-w);
+  height: var(--switch-h);
+  flex-shrink: 0;
+
+  padding: 0;
+
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+
+  background: var(--surface-muted);
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+.theme-switch:hover {
+  border-color: var(--primary);
+}
+
+.theme-switch:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.theme-switch-thumb {
+  position: absolute;
+  top: var(--switch-pad);
+  bottom: var(--switch-pad);
+
+  /* Modo claro: bolinha à esquerda */
+  left: var(--switch-pad);
+  right: var(--far);
+
+  border-radius: 999px;
+
+  background: #ffffff;
+  box-shadow:
+    0 2px 6px rgba(20, 40, 80, 0.22),
+    0 0 0 1px rgba(20, 40, 80, 0.06);
+
+  /* Indo para a esquerda: a ponta esquerda sai na frente */
+  transition:
+    left 0.32s var(--ease-plastic),
+    right 0.32s var(--ease-plastic) 0.09s,
+    background-color 0.3s;
+}
+
+.theme-switch[aria-checked="true"] {
+  background: #0e1628;
+  border-color: var(--border-strong);
+}
+
+.theme-switch[aria-checked="true"] .theme-switch-thumb {
+  /* Modo escuro: bolinha à direita */
+  left: var(--far);
+  right: var(--switch-pad);
+
+  background: var(--primary);
+  box-shadow: 0 0 12px var(--arc-glow);
+
+  /* Indo para a direita: a ponta direita sai na frente */
+  transition:
+    right 0.32s var(--ease-plastic),
+    left 0.32s var(--ease-plastic) 0.09s,
+    background-color 0.3s;
+}
+
+/* Ao apertar, a bolinha já se estica um pouco na direção para onde vai */
+.theme-switch:active .theme-switch-thumb {
+  right: calc(var(--far) - 7px);
+}
+
+.theme-switch[aria-checked="true"]:active .theme-switch-thumb {
+  left: calc(var(--far) - 7px);
+  right: var(--switch-pad);
+}
+
+.theme-switch-icon {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+
+  transform: translateY(-50%);
+
+  pointer-events: none;
+
+  transition: color 0.3s;
+}
+
+.theme-switch-icon-sun {
+  left: calc(var(--switch-pad) + (var(--thumb) - 14px) / 2);
+  color: #c98500;
+}
+
+.theme-switch-icon-moon {
+  right: calc(var(--switch-pad) + (var(--thumb) - 14px) / 2);
+  color: var(--text-muted);
+}
+
+.theme-switch[aria-checked="true"] .theme-switch-icon-sun {
+  color: #6c7c97;
+}
+
+.theme-switch[aria-checked="true"] .theme-switch-icon-moon {
+  color: #ffffff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-switch-thumb,
+  .theme-switch[aria-checked="true"] .theme-switch-thumb {
+    transition-duration: 0.01s;
+    transition-delay: 0s;
+  }
+}
+
+/* Botões de ícone do topo: sair */
 .topbar-icon-button {
   width: 38px;
   height: 38px;

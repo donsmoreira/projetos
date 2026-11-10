@@ -15,7 +15,7 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 - Relatórios com filtros amplos, que valem para a tabela, o resumo e todos os gráficos: conta/caixa, conta gerencial (inclui as subcontas), fornecedor/cliente e origem. Atalhos de período: hoje, este mês, mês passado, últimos 30/90 dias, este ano, ano passado.
 - Torres com "Ver por": período, conta gerencial (principal ou subconta), fornecedor/cliente, lançamento (parcelas juntas), conta/caixa ou origem. Pizza com "Mostrar" (saídas, entradas ou entradas x saídas) e "Fatias por" com as mesmas opções. Cada item mantém a mesma cor ao filtrar.
 - Tabela do relatório com a coluna "Fornecedor / cliente".
-- Modo claro e modo escuro: botão (sol/lua) no topo, ao lado do nome do usuário. O escuro continua o padrão; o claro tem fundo branco e tons claros de azul da marca. A escolha fica salva no navegador, e os gráficos e a tela de entrada acompanham o tema.
+- Modo claro e modo escuro: chave em pílula no topo, ao lado do nome do usuário (bolinha à esquerda = claro, à direita = escuro), que se estica ao deslizar. O claro é o padrão e tem fundo branco e tons claros de azul da marca. A escolha fica salva no navegador, e os gráficos e a tela de entrada acompanham o tema.
 - Menu lateral: o item selecionado é um botão azul sólido com texto branco, e os demais itens têm texto mais forte.
 
 ### Corrigido

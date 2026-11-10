@@ -74,16 +74,32 @@ function Topbar() {
       </div>
 
       <div className="topbar-user">
+        {/* Chave pílula: bolinha à esquerda = modo claro, à direita = modo escuro */}
         <button
           type="button"
-          className="topbar-icon-button"
-          onClick={toggleTheme}
+          role="switch"
+          aria-checked={theme === "dark"}
+          aria-label="Modo escuro"
           title={themeLabel}
-          aria-label={themeLabel}
+          className="theme-switch"
+          onClick={toggleTheme}
         >
-          {theme === "light"
-            ? <Moon size={18} />
-            : <Sun size={18} />}
+          <span
+            className="theme-switch-thumb"
+            aria-hidden="true"
+          />
+
+          <Sun
+            size={14}
+            className="theme-switch-icon theme-switch-icon-sun"
+            aria-hidden="true"
+          />
+
+          <Moon
+            size={14}
+            className="theme-switch-icon theme-switch-icon-moon"
+            aria-hidden="true"
+          />
         </button>
 
         <div className="topbar-user-info">

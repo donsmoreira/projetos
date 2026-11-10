@@ -36,7 +36,7 @@ function applyTheme(theme: Theme) {
 }
 
 /**
- * Tema claro/escuro do sistema. O escuro é o padrão; a escolha fica salva
+ * Tema claro/escuro do sistema. O claro é o padrão; a escolha fica salva
  * neste navegador. O tema salvo é aplicado no index.html, antes do React.
  */
 export function useTheme() {
