@@ -60,6 +60,12 @@
   box-shadow: 0 0 10px var(--arc-glow);
 }
 
+.sidebar-item-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .sidebar-icon {
   display: flex;
   align-items: center;

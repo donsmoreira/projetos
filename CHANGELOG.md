@@ -17,6 +17,7 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 - Tabela do relatório com a coluna "Fornecedor / cliente".
 - Modo claro e modo escuro: chave em pílula no topo, ao lado do nome do usuário (bolinha à esquerda = claro, à direita = escuro), que se estica ao deslizar. O claro é o padrão e tem fundo branco e tons claros de azul da marca. A escolha fica salva no navegador, e os gráficos e a tela de entrada acompanham o tema.
 - Menu lateral: o item selecionado é um botão azul sólido com texto branco, e os demais itens têm texto mais forte.
+- Menu lateral recolhível, com botão à esquerda do título no topo. No computador, recolhe para uma faixa só com ícones (o nome aparece ao passar o mouse) e o conteúdo ocupa o espaço liberado; a escolha fica salva. No celular (até 768px), o menu vira uma gaveta que abre por cima da tela e fecha ao escolher uma tela, ao tocar no fundo escuro ou com Esc.
 
 ### Corrigido
 - Campo de valor zerado: ao clicar, o campo fica vazio para digitar direto (antes, digitar "50" em "0,00" não fazia nada).

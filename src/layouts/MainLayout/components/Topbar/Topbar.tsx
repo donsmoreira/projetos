@@ -1,4 +1,12 @@
-import { LogOut, Moon, Sun } from "lucide-react";
+import {
+  LogOut,
+  Menu,
+  Moon,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Sun,
+  X
+} from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 import { useAuth } from "../../../../contexts/AuthContext";
@@ -19,7 +27,17 @@ const pageTitles: Record<string, string> = {
   "/relatorios": "Relatórios"
 };
 
-function Topbar() {
+type TopbarProps = {
+  menuCollapsed: boolean;
+  mobileMenuOpen: boolean;
+  onToggleMenu: () => void;
+};
+
+function Topbar({
+  menuCollapsed,
+  mobileMenuOpen,
+  onToggleMenu
+}: TopbarProps) {
   const location = useLocation();
 
   const {
@@ -67,10 +85,35 @@ function Topbar() {
 
   return (
     <header className="topbar">
-      <div className="topbar-title">
-        <h1>{pageTitle}</h1>
+      <div className="topbar-start">
+        {/* Computador: recolhe/expande o menu. Celular: abre/fecha a gaveta. */}
+        <button
+          type="button"
+          className="topbar-icon-button topbar-menu-button"
+          onClick={onToggleMenu}
+          aria-controls="menu-principal"
+          aria-expanded={mobileMenuOpen}
+          title={menuCollapsed ? "Expandir menu" : "Recolher menu"}
+          aria-label="Menu"
+        >
+          <span className="topbar-menu-desktop">
+            {menuCollapsed
+              ? <PanelLeftOpen size={18} />
+              : <PanelLeftClose size={18} />}
+          </span>
 
-        <p>Razão Finance ARC</p>
+          <span className="topbar-menu-mobile">
+            {mobileMenuOpen
+              ? <X size={20} />
+              : <Menu size={20} />}
+          </span>
+        </button>
+
+        <div className="topbar-title">
+          <h1>{pageTitle}</h1>
+
+          <p>Razão Finance ARC</p>
+        </div>
       </div>
 
       <div className="topbar-user">

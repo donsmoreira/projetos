@@ -18,7 +18,39 @@
     var(--sidebar);
 }
 
+.topbar-start {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.topbar-menu-button {
+  flex-shrink: 0;
+}
+
+.topbar-menu-button span {
+  display: flex;
+}
+
+.topbar-menu-mobile {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .topbar-menu-desktop {
+    display: none !important;
+  }
+
+  .topbar-menu-mobile {
+    display: flex !important;
+  }
+}
+
 .topbar-title {
+  min-width: 0;
+
   display: flex;
   flex-direction: column;
   gap: 3px;
@@ -26,6 +58,10 @@
 
 .topbar-title h1 {
   margin: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 
   color: var(--text);
 

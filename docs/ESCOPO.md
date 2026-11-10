@@ -161,7 +161,7 @@ Mesmas lacunas: status vencido, recebimento parcial, recorrência. ❌
 |---|---|---|
 | Layout desktop (Sidebar + Topbar) | ✅ | |
 | Ajustes de grid nas páginas para telas menores | 🟡 | há `@media` nas páginas |
-| Sidebar no mobile | ❌ | largura fixa de 250px, **sem menu recolhível** — no celular ela ocupa a tela |
+| Menu lateral recolhível | ✅ | botão no topo: no computador recolhe para só ícones (fica salvo); abaixo de 768px vira gaveta por cima da tela, que fecha ao escolher uma tela, no fundo escuro ou com Esc |
 | Tabelas no mobile | 🟡 | precisam virar cards ou ter rolagem horizontal |
 | Instalável (PWA) | ❌ | |
 
@@ -301,7 +301,7 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [ ] Testar na tela cada módulo, principalmente Cartões e Relatórios
 
 ### Fase 1 — Responsividade e mobile · v0.3.0
-- [ ] Sidebar vira menu recolhível (drawer) abaixo de 768px, com botão na Topbar
+- [x] Sidebar vira menu recolhível (drawer) abaixo de 768px, com botão na Topbar — e no computador recolhe para só ícones
 - [ ] Tabelas viram lista de cards no mobile
 - [ ] Modais e formulários em tela cheia no mobile
 - [ ] Revisar tamanhos de toque (botões, inputs) e teclado numérico em campos de valor

@@ -8,18 +8,26 @@ type SidebarItemProps = {
   title: string;
   to: string;
   end?: boolean;
+  /** Menu recolhido: o nome aparece só ao passar o mouse */
+  collapsed?: boolean;
+  onNavigate?: () => void;
 };
 
 function SidebarItem({
   icon,
   title,
   to,
-  end = false
+  end = false,
+  collapsed = false,
+  onNavigate
 }: SidebarItemProps) {
   return (
     <NavLink
       to={to}
       end={end}
+      title={collapsed ? title : undefined}
+      aria-label={title}
+      onClick={onNavigate}
       className={({ isActive }) =>
         `sidebar-item ${isActive ? "active" : ""}`
       }
@@ -28,7 +36,7 @@ function SidebarItem({
         {icon}
       </span>
 
-      <span>{title}</span>
+      <span className="sidebar-item-label">{title}</span>
     </NavLink>
   );
 }

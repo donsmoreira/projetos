@@ -15,6 +15,56 @@
   border-right: 1px solid var(--border);
 
   color: var(--text);
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  transition: width 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/*
+ * Computador com o menu recolhido: só os ícones (72px).
+ * O conteúdo da página ocupa o espaço que sobra automaticamente.
+ */
+@media (min-width: 769px) {
+  .menu-collapsed .sidebar {
+    width: 72px;
+  }
+
+  .menu-collapsed .sidebar-logo {
+    justify-content: center;
+    padding: 26px 0;
+  }
+
+  .menu-collapsed .sidebar-logo-text,
+  .menu-collapsed .sidebar-item-label,
+  .menu-collapsed .sidebar-footer-brand {
+    display: none;
+  }
+
+  .menu-collapsed .sidebar-menu {
+    padding: 18px 12px;
+  }
+
+  .menu-collapsed .sidebar-item {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .menu-collapsed .sidebar-item.active::before {
+    left: -12px;
+  }
+
+  .menu-collapsed .sidebar-footer {
+    align-items: center;
+    padding: 16px 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar {
+    transition: none;
+  }
 }
 
 .sidebar-logo {

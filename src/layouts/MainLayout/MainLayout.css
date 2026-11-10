@@ -1,15 +1,12 @@
 .layout {
+  width: 100%;
+  min-height: 100vh;
 
-    width:100%;
+  display: flex;
 
-    min-height:100vh;
+  background: var(--background);
 
-    display:flex;
-
-    background:var(--background);
-
-    overflow:hidden;
-
+  overflow: hidden;
 }
 
 .layout-content {
@@ -31,21 +28,67 @@
   overflow: auto;
 }
 
-/* Em telas menores, o sistema volta a ocupar toda a janela */
+/* Fundo atrás da gaveta: só existe no celular */
+.layout-backdrop {
+  display: none;
+}
+
+/*
+ * Celular e telas estreitas: o menu sai da tela e vira uma gaveta
+ * que abre por cima do conteúdo pelo botão do topo.
+ */
 @media (max-width: 768px) {
-  .layout {
-    width: 100%;
-    min-height: 100vh;
-
-    margin: 0;
-
-    border: none;
-    border-radius: 0;
-
-    box-shadow: none;
-  }
-
   .page-content {
     padding: 18px;
+  }
+
+  .layout .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 60;
+
+    width: 270px;
+    max-width: 85vw;
+
+    transform: translateX(-100%);
+    box-shadow: none;
+
+    transition:
+      transform 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+      box-shadow 0.28s;
+  }
+
+  .layout.menu-mobile-open .sidebar {
+    transform: translateX(0);
+    box-shadow: 12px 0 40px var(--shadow-color);
+  }
+
+  .layout-backdrop {
+    display: block;
+
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+
+    background: var(--overlay);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.28s;
+  }
+
+  .layout.menu-mobile-open .layout-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .layout .sidebar,
+  .layout-backdrop {
+    transition: none;
   }
 }
