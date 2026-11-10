@@ -1,0 +1,35 @@
+.card{
+
+    background:var(--card);
+
+    border:1px solid var(--border);
+
+    border-radius:12px;
+
+    overflow:hidden;
+
+    box-shadow:0 2px 8px rgba(0,0,0,.04);
+
+}
+
+.card-header{
+
+    padding:18px 22px;
+
+    border-bottom:1px solid var(--border);
+
+}
+
+.card-header h2{
+
+    font-size:18px;
+
+    font-weight:600;
+
+}
+
+.card-body{
+
+    padding:22px;
+
+}

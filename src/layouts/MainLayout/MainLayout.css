@@ -1,0 +1,51 @@
+.layout {
+
+    width:100%;
+
+    min-height:100vh;
+
+    display:flex;
+
+    background:var(--background);
+
+    overflow:hidden;
+
+}
+
+.layout-content {
+  min-width: 0;
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  background: var(--background);
+}
+
+.page-content {
+  min-width: 0;
+  flex: 1;
+
+  padding: 24px;
+
+  overflow: auto;
+}
+
+/* Em telas menores, o sistema volta a ocupar toda a janela */
+@media (max-width: 768px) {
+  .layout {
+    width: 100%;
+    min-height: 100vh;
+
+    margin: 0;
+
+    border: none;
+    border-radius: 0;
+
+    box-shadow: none;
+  }
+
+  .page-content {
+    padding: 18px;
+  }
+}

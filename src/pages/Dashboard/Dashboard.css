@@ -1,0 +1,393 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  padding: 16px;
+
+  background: #eef1ef;
+}
+
+/* CABEÇALHO DO PAINEL */
+
+.dashboard-section-heading {
+  padding: 0;
+
+  background: transparent;
+  border: none;
+}
+
+.dashboard-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.dashboard-heading h2 {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.dashboard-heading-subtitle {
+  margin-top: 4px;
+
+  color: var(--text-light);
+
+  font-size: 13px;
+}
+
+/* RESUMO PEQUENO NO TOPO */
+
+.dashboard-quick-summary {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.quick-summary-card {
+  min-width: 126px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  padding: 9px 11px;
+
+  background: #ffffff;
+  border: 1px solid #d8dedb;
+  border-radius: 5px;
+}
+
+.quick-summary-card span {
+  color: #6b746f;
+
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.quick-summary-card strong {
+  font-size: 14px;
+}
+
+/* BLOCOS PRINCIPAIS */
+
+.dashboard-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  padding: 16px;
+
+  background: #f4f6f5;
+  border: 1px solid #d9dfdc;
+  border-radius: 6px;
+}
+
+.dashboard-section-title h3 {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.dashboard-section-title p {
+  margin-top: 3px;
+
+  color: var(--text-light);
+
+  font-size: 12px;
+}
+
+/* CARDS DE RESUMO */
+
+.dashboard-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dashboard-summary-card {
+  min-height: 80px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+
+  padding: 15px;
+
+  background: #ffffff;
+  border: 1px solid #d8dedb;
+  border-radius: 5px;
+}
+
+.dashboard-summary-card span {
+  color: #6b746f;
+
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.dashboard-summary-card strong {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+/* CORES DOS VALORES */
+
+.value-payable {
+  color: #b34a3d;
+}
+
+.value-receivable {
+  color: #2e7d4f;
+}
+
+.value-neutral {
+  color: #24332d;
+}
+
+/* PAGAMENTOS E RECEBIMENTOS */
+
+.dashboard-table-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dashboard-panel {
+  min-width: 0;
+
+  overflow: hidden;
+
+  background: #ffffff;
+  border: 1px solid #d8dedb;
+  border-radius: 5px;
+}
+
+.dashboard-table-grid .dashboard-panel:first-child {
+  border-top: 4px solid #b34a3d;
+}
+
+.dashboard-table-grid .dashboard-panel:last-child {
+  border-top: 4px solid #2e7d4f;
+}
+
+/* CABEÇALHOS DOS PAINÉIS */
+
+.dashboard-panel-header {
+  min-height: 52px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 0 16px;
+
+  background: #fafbfa;
+  border-bottom: 1px solid #d8dedb;
+}
+
+.dashboard-table-grid
+  .dashboard-panel:first-child
+  .dashboard-panel-header {
+  background: #fdf4f2;
+}
+
+.dashboard-table-grid
+  .dashboard-panel:last-child
+  .dashboard-panel-header {
+  background: #f1f8f4;
+}
+
+.dashboard-panel-header h3 {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.dashboard-panel-header span {
+  color: var(--text-light);
+
+  font-size: 11px;
+  text-transform: lowercase;
+}
+
+/* TABELAS */
+
+.dashboard-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.dashboard-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  font-size: 12px;
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 10px 14px;
+
+  border-bottom: 1px solid #e1e5e3;
+
+  text-align: left;
+  white-space: nowrap;
+}
+
+.dashboard-table th {
+  background: #fbfcfb;
+  color: #66716c;
+
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.dashboard-table td {
+  color: var(--text);
+}
+
+.dashboard-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.dashboard-table tbody tr:hover {
+  background: #f7f9f8;
+}
+
+.dashboard-table .table-value {
+  text-align: right;
+}
+
+/* VALORES DAS TABELAS */
+
+.payable-value {
+  color: #b34a3d !important;
+  font-weight: 700;
+}
+
+.receivable-value {
+  color: #2e7d4f !important;
+  font-weight: 700;
+}
+
+.bank-balance {
+  color: #2e7d4f !important;
+  font-weight: 700;
+}
+
+/* POSIÇÃO BANCÁRIA */
+
+.dashboard-section:last-child {
+  border-top: 3px solid #2f5f50;
+}
+
+.dashboard-section:last-child .dashboard-panel-header {
+  background: #f2f6f4;
+}
+
+/* ESTADOS DE CARREGAMENTO E ERRO */
+
+.dashboard-state {
+  min-height: 180px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+
+  padding: 24px;
+
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  color: var(--text-light);
+  text-align: center;
+}
+
+.dashboard-state-error {
+  color: var(--danger);
+}
+
+.dashboard-state-error h2 {
+  color: var(--danger);
+  font-size: 18px;
+}
+
+.dashboard-state-error p {
+  font-size: 13px;
+}
+
+/* MENSAGENS DAS TABELAS */
+
+.dashboard-table-message {
+  padding: 20px !important;
+
+  color: var(--text-light) !important;
+
+  text-align: center !important;
+}
+
+.dashboard-table-error {
+  color: var(--danger) !important;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 1200px) {
+  .dashboard-heading {
+    flex-direction: column;
+  }
+
+  .dashboard-quick-summary {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .dashboard-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-table-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .dashboard {
+    padding: 10px;
+  }
+
+  .dashboard-section {
+    padding: 12px;
+  }
+
+  .dashboard-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-summary-card {
+    flex: 1;
+    min-width: 140px;
+  }
+}

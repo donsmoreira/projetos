@@ -1,0 +1,434 @@
+.reports-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  padding: 16px;
+
+  background: #eef1ef;
+}
+
+/* CABEÇALHO */
+
+.reports-header {
+  padding: 18px;
+
+  background: #f4f6f5;
+  border: 1px solid #d9dfdc;
+  border-radius: 6px;
+}
+
+.reports-header h2 {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.reports-header p {
+  margin-top: 4px;
+
+  color: var(--text-light);
+
+  font-size: 13px;
+}
+
+/* CONTEÚDO */
+
+.reports-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  padding: 16px;
+
+  background: #f4f6f5;
+  border: 1px solid #d9dfdc;
+  border-radius: 6px;
+}
+
+/* FILTROS */
+
+.report-filters {
+  display: grid;
+  grid-template-columns:
+    minmax(150px, 1fr)
+    minmax(150px, 1fr)
+    minmax(190px, 1fr)
+    auto;
+  align-items: end;
+  gap: 12px;
+
+  padding: 16px;
+
+  background: #ffffff;
+  border: 1px solid #d8dedb;
+  border-radius: 6px;
+}
+
+.report-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.report-filter-field label {
+  color: var(--text);
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.report-filter-field input,
+.report-filter-field select {
+  width: 100%;
+  height: 42px;
+
+  padding: 0 11px;
+
+  border: 1px solid #cfd8d4;
+  border-radius: 6px;
+
+  background: #ffffff;
+  color: var(--text);
+
+  outline: none;
+
+  font-size: 13px;
+}
+
+.report-filter-field input:focus,
+.report-filter-field select:focus {
+  border-color: var(--primary);
+
+  box-shadow: 0 0 0 3px rgba(15, 76, 58, 0.1);
+}
+
+.report-filter-button {
+  min-height: 42px;
+
+  padding: 0 18px;
+
+  border: 1px solid var(--primary);
+  border-radius: 6px;
+
+  background: var(--primary);
+  color: #ffffff;
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.report-filter-button:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.report-filter-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* RESUMO */
+
+.report-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.report-summary-card {
+  min-height: 92px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+
+  padding: 16px;
+
+  background: #ffffff;
+  border: 1px solid #d8dedb;
+  border-radius: 6px;
+}
+
+.report-summary-card span {
+  color: var(--text-light);
+
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.report-summary-card strong {
+  color: var(--text);
+
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.report-summary-income {
+  border-top: 4px solid var(--success);
+}
+
+.report-summary-income strong {
+  color: var(--success);
+}
+
+.report-summary-expense {
+  border-top: 4px solid var(--danger);
+}
+
+.report-summary-expense strong {
+  color: var(--danger);
+}
+
+.report-summary-balance-positive {
+  border-top: 4px solid var(--primary);
+}
+
+.report-summary-balance-positive strong {
+  color: var(--primary);
+}
+
+.report-summary-balance-negative {
+  border-top: 4px solid var(--danger);
+}
+
+.report-summary-balance-negative strong {
+  color: var(--danger);
+}
+
+/* SEÇÃO DE MOVIMENTAÇÕES */
+
+.reports-transactions-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  padding: 16px;
+
+  background: #ffffff;
+  border: 1px solid #d8dedb;
+  border-radius: 6px;
+}
+
+.reports-section-header h3 {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.reports-section-header p {
+  margin-top: 3px;
+
+  color: var(--text-light);
+
+  font-size: 12px;
+}
+
+/* ESTADOS */
+
+.reports-state,
+.reports-empty {
+  min-height: 180px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+
+  padding: 24px;
+
+  background: #ffffff;
+  border: 1px solid #d8dedb;
+  border-radius: 6px;
+
+  color: var(--text-light);
+  text-align: center;
+}
+
+.reports-state-error {
+  color: var(--danger);
+}
+
+.reports-empty h3 {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 16px;
+}
+
+.reports-empty p {
+  margin: 0;
+
+  font-size: 13px;
+}
+
+/* TABELA */
+
+.reports-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border: 1px solid #d8dedb;
+  border-radius: 6px;
+}
+
+.reports-table {
+  width: 100%;
+  min-width: 900px;
+
+  border-collapse: collapse;
+
+  background: #ffffff;
+
+  font-size: 13px;
+}
+
+.reports-table th,
+.reports-table td {
+  padding: 12px 14px;
+
+  border-bottom: 1px solid #e1e5e3;
+
+  text-align: left;
+  white-space: nowrap;
+}
+
+.reports-table th {
+  background: #f7f9f8;
+  color: #66716c;
+
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.reports-table td {
+  color: var(--text);
+}
+
+.reports-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.reports-table tbody tr:hover {
+  background: #f4f8f6;
+}
+
+.reports-table td strong {
+  font-weight: 700;
+}
+
+/* CONTA BANCÁRIA */
+
+.reports-account-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reports-account-cell span {
+  color: var(--text);
+}
+
+.reports-account-cell small {
+  color: var(--text-light);
+
+  font-size: 11px;
+}
+
+/* TIPO */
+
+.reports-transaction-type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 72px;
+
+  padding: 5px 9px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.reports-transaction-entrada {
+  background: #e5f4eb;
+  color: #246b45;
+}
+
+.reports-transaction-saida {
+  background: #f9e7e3;
+  color: #9a3d32;
+}
+
+/* VALORES */
+
+.reports-value-column {
+  text-align: right !important;
+}
+
+.reports-value {
+  text-align: right !important;
+
+  font-weight: 700;
+}
+
+.reports-value-entrada {
+  color: var(--success) !important;
+}
+
+.reports-value-saida {
+  color: var(--danger) !important;
+}
+
+/* RESPONSIVIDADE */
+
+@media (max-width: 1100px) {
+  .report-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .report-filter-button {
+    width: 100%;
+  }
+
+  .report-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .reports-page {
+    padding: 10px;
+  }
+
+  .reports-content {
+    padding: 12px;
+  }
+
+  .report-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .report-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .report-filter-button {
+    width: 100%;
+  }
+}

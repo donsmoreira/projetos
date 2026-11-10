@@ -1,0 +1,97 @@
+import { supabase } from "./supabase";
+
+import type {
+  Supplier,
+  SupplierFormData
+} from "../types/supplier";
+
+async function getAuthenticatedUser() {
+  const {
+    data: { user },
+    error
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    throw new Error("Usuário não autenticado.");
+  }
+
+  return user;
+}
+
+export async function listSuppliers(): Promise<Supplier[]> {
+  const { data, error } = await supabase
+    .from("suppliers")
+    .select("*")
+    .order("name", {
+      ascending: true
+    });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []) as Supplier[];
+}
+
+export async function createSupplier(
+  supplier: SupplierFormData
+): Promise<Supplier> {
+  const user = await getAuthenticatedUser();
+
+  const { data, error } = await supabase
+    .from("suppliers")
+    .insert({
+      user_id: user.id,
+      name: supplier.name,
+      document: supplier.document || null,
+      phone: supplier.phone || null,
+      email: supplier.email || null,
+      notes: supplier.notes || null
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Supplier;
+}
+
+export async function updateSupplier(
+  id: string,
+  supplier: SupplierFormData
+): Promise<Supplier> {
+  const { data, error } = await supabase
+    .from("suppliers")
+    .update({
+      name: supplier.name,
+      document: supplier.document || null,
+      phone: supplier.phone || null,
+      email: supplier.email || null,
+      notes: supplier.notes || null,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Supplier;
+}
+
+export async function deleteSupplier(
+  id: string
+): Promise<void> {
+  const { error } = await supabase
+    .from("suppliers")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}

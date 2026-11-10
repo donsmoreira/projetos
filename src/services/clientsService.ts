@@ -1,0 +1,116 @@
+import { supabase } from "./supabase";
+
+import type {
+  Client,
+  ClientFormData
+} from "../types/client";
+
+async function getAuthenticatedUser() {
+  const {
+    data: { user },
+    error
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    throw new Error("Usuário não autenticado.");
+  }
+
+  return user;
+}
+
+export async function listClients(): Promise<Client[]> {
+  const { data, error } = await supabase
+    .from("clients")
+    .select("*")
+    .order("name", {
+      ascending: true
+    });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data ?? []) as Client[];
+}
+
+export async function createClient(
+  client: ClientFormData
+): Promise<Client> {
+
+  const user = await getAuthenticatedUser();
+
+  const { data, error } = await supabase
+    .from("clients")
+    .insert({
+      user_id: user.id,
+
+      name: client.name,
+
+      type: client.type || null,
+
+      document: client.document || null,
+
+      phone: client.phone || null,
+
+      email: client.email || null,
+
+      notes: client.notes || null
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Client;
+}
+
+export async function updateClient(
+  id: string,
+  client: ClientFormData
+): Promise<Client> {
+
+  const { data, error } = await supabase
+    .from("clients")
+    .update({
+
+      name: client.name,
+
+      type: client.type || null,
+
+      document: client.document || null,
+
+      phone: client.phone || null,
+
+      email: client.email || null,
+
+      notes: client.notes || null,
+
+      updated_at: new Date().toISOString()
+
+    })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as Client;
+}
+
+export async function deleteClient(
+  id: string
+): Promise<void> {
+
+  const { error } = await supabase
+    .from("clients")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}

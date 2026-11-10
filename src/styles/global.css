@@ -1,0 +1,53 @@
+:root {
+  --primary: #0f4c3a;
+  --primary-hover: #0b3c2e;
+
+  --sidebar: #183c34;
+  --sidebar-hover: #235246;
+  --sidebar-active: #2e6b58;
+
+  --background: #eef1ef;
+  --card: #ffffff;
+
+  --border: #d8dedb;
+
+  --text: #14251f;
+  --text-light: #66756f;
+
+  --success: #2e7d4f;
+  --danger: #b34a3d;
+  --warning: #b7791f;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+
+  background: #dfe8e4;
+  color: var(--text);
+
+  font-family:
+    "Segoe UI",
+    Tahoma,
+    Geneva,
+    Verdana,
+    sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}

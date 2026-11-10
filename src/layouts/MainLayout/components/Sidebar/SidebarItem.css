@@ -1,0 +1,36 @@
+.sidebar-item {
+  width: 100%;
+  min-height: 46px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 0 14px;
+
+  border-radius: 8px;
+
+  color: #e5e7eb;
+  text-decoration: none;
+
+  font-size: 15px;
+
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.sidebar-item:hover {
+  background: #34373d;
+}
+
+.sidebar-item.active {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.sidebar-icon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}

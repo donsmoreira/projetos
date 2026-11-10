@@ -1,0 +1,465 @@
+<title>Razão Finance ARC</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: caderno-razão — faixa verde do app no topo, depois seções em coluna única com blocos em grade */
+:root {
+  --bg: #F3F6F4;
+  --surface: #FFFFFF;
+  --surface-2: #EAF0ED;
+  --ink: #14211D;
+  --muted: #5A6B65;
+  --line: #D8E2DD;
+  --band: #183C34;
+  --band-ink: #F2F7F5;
+  --band-muted: #A9C2B9;
+  --brand: #2E6B58;
+  --gold: #B88A2E;
+  --ok: #2E7D5B;
+  --ok-soft: #DDF0E6;
+  --warn: #A86A12;
+  --warn-soft: #F8EBD3;
+  --bad: #B0433A;
+  --bad-soft: #F7E0DD;
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D1613; --surface: #14201C; --surface-2: #1A2925; --ink: #E4EDE9; --muted: #93A8A0; --line: #263832;
+    --band: #12302A; --band-ink: #EEF5F2; --band-muted: #8FB0A5; --brand: #63B597; --gold: #D9B25E;
+    --ok: #63B597; --ok-soft: #173329; --warn: #E2A94E; --warn-soft: #33281A; --bad: #E58076; --bad-soft: #3A1F1C;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D1613; --surface: #14201C; --surface-2: #1A2925; --ink: #E4EDE9; --muted: #93A8A0; --line: #263832;
+  --band: #12302A; --band-ink: #EEF5F2; --band-muted: #8FB0A5; --brand: #63B597; --gold: #D9B25E;
+  --ok: #63B597; --ok-soft: #173329; --warn: #E2A94E; --warn-soft: #33281A; --bad: #E58076; --bad-soft: #3A1F1C;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+p { margin: 0; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+
+/* ---------- Topo ---------- */
+.hero { background: var(--band); color: var(--band-ink); }
+.hero .wrap { padding-block: 40px 32px; display: grid; gap: 28px; }
+.eyebrow {
+  font-size: 12px; letter-spacing: .12em; text-transform: uppercase; font-weight: 600; color: var(--band-muted);
+}
+.hero h1 { font-size: clamp(34px, 6vw, 56px); font-weight: 800; letter-spacing: -.02em; }
+.hero h1 span { color: var(--gold); }
+.hero-lead { max-width: 60ch; color: var(--band-muted); font-size: 17px; }
+.hero-top { display: grid; gap: 14px; }
+.hero-stats { display: flex; flex-wrap: wrap; gap: 12px 36px; align-items: flex-end; }
+.stat { display: grid; gap: 2px; }
+.stat strong { font-family: var(--font-display); font-size: 34px; font-weight: 700; line-height: 1; }
+.stat small { color: var(--band-muted); font-size: 13px; }
+.overall { flex: 1 1 260px; display: grid; gap: 8px; }
+.overall-bar { height: 10px; border-radius: 99px; background: rgba(255,255,255,.12); overflow: hidden; }
+.overall-bar i { display: block; height: 100%; background: var(--gold); border-radius: 99px; }
+.overall small { color: var(--band-muted); font-size: 13px; }
+.nav { display: flex; flex-wrap: wrap; gap: 8px; }
+.nav a {
+  text-decoration: none; font-size: 14px; font-weight: 600; padding: 7px 14px; border-radius: 99px;
+  border: 1px solid rgba(255,255,255,.18); color: var(--band-ink);
+}
+.nav a:hover { background: rgba(255,255,255,.08); }
+
+/* ---------- Seções ---------- */
+main .wrap { display: grid; gap: 64px; padding-block: 48px 72px; }
+section { display: grid; gap: 22px; scroll-margin-top: 16px; }
+.sec-head { display: grid; gap: 6px; max-width: 68ch; }
+.sec-head .eyebrow { color: var(--brand); }
+.sec-head h2 { font-size: clamp(26px, 3.6vw, 34px); font-weight: 700; letter-spacing: -.01em; }
+.sec-head p { color: var(--muted); }
+
+/* Visão */
+.vision { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+.goal { padding: 20px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); display: grid; gap: 6px; align-content: start; }
+.goal h3 { font-size: 18px; }
+.goal p { color: var(--muted); font-size: 15px; }
+.stack { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag { font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 99px; background: var(--surface-2); color: var(--ink); }
+
+/* Módulos */
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+.dot.ok { background: var(--ok); } .dot.part { background: var(--warn); } .dot.no { background: var(--bad); }
+.modules { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.module { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.module-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.module-head h3 { font-size: 19px; font-weight: 700; }
+.module-head .route { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.module-pct { font-family: var(--font-display); font-weight: 700; font-size: 22px; }
+.bar { height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; display: flex; }
+.bar i { display: block; height: 100%; }
+.bar .b-ok { background: var(--ok); } .bar .b-part { background: var(--warn); }
+.items { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font-size: 14.5px; }
+.items li { display: grid; grid-template-columns: 9px 1fr; gap: 10px; align-items: baseline; }
+.items li .dot { transform: translateY(-1px); }
+.items li em { font-style: normal; color: var(--muted); font-size: 13px; display: block; }
+
+/* Roadmap */
+.road { display: grid; gap: 14px; position: relative; }
+.phase { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.phase summary {
+  list-style: none; cursor: pointer; display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; padding: 18px 20px;
+}
+.phase summary::-webkit-details-marker { display: none; }
+.phase-n {
+  width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 800; font-size: 20px; background: var(--surface-2); color: var(--brand);
+}
+.phase.next .phase-n { background: var(--gold); color: #1B1405; }
+.phase-title { display: grid; gap: 2px; min-width: 0; }
+.phase-title h3 { font-size: 18px; }
+.phase-title p { color: var(--muted); font-size: 14px; }
+.phase-meta { display: flex; align-items: center; gap: 10px; }
+.pill { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
+.pill.next { background: var(--gold); color: #1B1405; }
+.pill.later { background: var(--surface-2); color: var(--muted); }
+.chev { width: 10px; height: 10px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); transition: transform .2s; margin-right: 4px; }
+.phase[open] .chev { transform: rotate(-135deg); }
+.phase-body { padding: 0 20px 20px 80px; display: grid; gap: 16px; }
+.group h4 { margin: 0 0 6px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.todo { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; font-size: 15px; }
+.todo li { display: grid; grid-template-columns: 16px 1fr; gap: 10px; align-items: baseline; }
+.box { width: 14px; height: 14px; border: 1.5px solid var(--line); border-radius: 4px; transform: translateY(2px); }
+
+/* Integração */
+.flow { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 12px; align-items: stretch; }
+.node { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.node.core { background: var(--band); color: var(--band-ink); border-color: transparent; }
+.node.core p { color: var(--band-muted); }
+.node h3 { font-size: 17px; }
+.node p { font-size: 14px; color: var(--muted); }
+.node .kicker { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; font-weight: 700; color: var(--brand); }
+.node.core .kicker { color: var(--gold); }
+.arrow { display: grid; place-items: center; color: var(--muted); font-size: 22px; }
+.chats { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.chat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 10px; }
+.bubble { justify-self: end; max-width: 90%; background: var(--ok-soft); color: var(--ink); padding: 8px 12px; border-radius: 12px 12px 2px 12px; font-size: 14.5px; }
+.reply { max-width: 90%; background: var(--surface-2); padding: 8px 12px; border-radius: 12px 12px 12px 2px; font-size: 14px; color: var(--muted); }
+
+/* Pontos de atenção */
+.debts { display: grid; gap: 10px; }
+.debt { display: grid; grid-template-columns: 4px 1fr auto; gap: 16px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 14px 0; overflow: hidden; }
+.debt .stripe { align-self: stretch; }
+.debt.alta .stripe { background: var(--bad); }
+.debt.media .stripe { background: var(--warn); }
+.debt.baixa .stripe { background: var(--line); }
+.debt-text { display: grid; gap: 2px; min-width: 0; }
+.debt-text strong { font-weight: 600; font-size: 15px; }
+.debt-text code { font-family: var(--font-mono); font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+.sev { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+.alta .sev { background: var(--bad-soft); color: var(--bad); }
+.media .sev { background: var(--warn-soft); color: var(--warn); }
+.baixa .sev { background: var(--surface-2); color: var(--muted); }
+
+/* Decisões */
+.questions { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.q { border: 1.5px dashed var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 6px; align-content: start; }
+.q h3 { font-size: 16.5px; }
+.q p { color: var(--muted); font-size: 14.5px; }
+
+footer { border-top: 1px solid var(--line); }
+footer .wrap { padding-block: 24px; color: var(--muted); font-size: 13px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+
+@media (max-width: 760px) {
+  .flow { grid-template-columns: 1fr; }
+  .arrow { transform: rotate(90deg); padding: 2px 0; }
+  .phase-body { padding: 0 18px 18px 18px; }
+  .phase summary { grid-template-columns: auto 1fr; }
+  .phase-meta { grid-column: 1 / -1; justify-content: space-between; }
+  .debt { grid-template-columns: 4px 1fr; }
+  .debt .sev { grid-column: 2; justify-self: start; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <span class="eyebrow">ARC · Análises Reais e Computacionais · D&amp;C</span>
+      <h1>Razão Finance <span>ARC</span></h1>
+      <p class="hero-lead">O gestor financeiro do ARC. Feito para o computador, mas se adapta ao celular. Mais adiante vai ser a base de dados do Assessor Financeiro ARC no WhatsApp.</p>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><strong class="num">v0.1.0</strong><small>versão atual · alpha</small></div>
+      <div class="stat"><strong class="num" id="stat-modules">10</strong><small>módulos mapeados</small></div>
+      <div class="stat"><strong class="num">7</strong><small>fases no roteiro</small></div>
+      <div class="overall">
+        <small>Progresso geral das funcionalidades: <b class="num" id="overall-pct">—</b></small>
+        <div class="overall-bar"><i id="overall-bar" style="width:0%"></i></div>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Seções">
+      <a href="#visao">Visão</a>
+      <a href="#hoje">Onde estamos</a>
+      <a href="#roteiro">Roteiro</a>
+      <a href="#whatsapp">WhatsApp</a>
+      <a href="#atencao">Pontos de atenção</a>
+      <a href="#decisoes">Decisões</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <section id="visao">
+      <div class="sec-head">
+        <span class="eyebrow">Visão</span>
+        <h2>Pra que o Razão existe</h2>
+        <p>Um só lugar para o dinheiro que entra, o que sai e o que ainda vai vencer.</p>
+      </div>
+      <div class="vision">
+        <div class="goal"><h3>Tudo num lugar só</h3><p>Contas a pagar e a receber, bancos e cartões de crédito juntos.</p></div>
+        <div class="goal"><h3>Saber o saldo de verdade</h3><p>O saldo de hoje e o que está por vir, com fluxo de caixa projetado.</p></div>
+        <div class="goal"><h3>Decidir com relatórios</h3><p>Entradas, saídas e categorias por período, com gráficos e exportação.</p></div>
+        <div class="goal"><h3>Base para o Assessor</h3><p>O que for lançado pelo WhatsApp aparece aqui, e o que for lançado aqui aparece lá.</p></div>
+      </div>
+      <div class="stack">
+        <span class="tag">React 19</span><span class="tag">TypeScript</span><span class="tag">Vite 8</span>
+        <span class="tag">React Router 7</span><span class="tag">Supabase (Auth + Postgres)</span><span class="tag">CSS puro</span><span class="tag">lucide-react</span>
+      </div>
+    </section>
+
+    <section id="hoje">
+      <div class="sec-head">
+        <span class="eyebrow">Onde estamos</span>
+        <h2>O que já está pronto, módulo por módulo</h2>
+        <p>Itens parciais contam como meio ponto no percentual.</p>
+      </div>
+      <div class="legend">
+        <span><i class="dot ok"></i>Pronto</span>
+        <span><i class="dot part"></i>Parcial</span>
+        <span><i class="dot no"></i>Ainda não existe</span>
+      </div>
+      <div class="modules" id="modules"></div>
+    </section>
+
+    <section id="roteiro">
+      <div class="sec-head">
+        <span class="eyebrow">Roteiro</span>
+        <h2>O caminho daqui em diante</h2>
+        <p>As fases seguem uma ordem: cada uma prepara o terreno para a próxima. Toque numa fase para ver as tarefas.</p>
+      </div>
+      <div class="road" id="road"></div>
+    </section>
+
+    <section id="whatsapp">
+      <div class="sec-head">
+        <span class="eyebrow">Integração</span>
+        <h2>Como o Razão conversa com o Assessor no WhatsApp</h2>
+        <p>O Assessor não mexe direto nas tabelas. Ele passa por uma camada de API com as mesmas regras do app, então a regra fica num lugar só.</p>
+      </div>
+      <div class="flow">
+        <div class="node">
+          <span class="kicker">Usuário</span>
+          <h3>Razão (app)</h3>
+          <p>Computador e celular. Telas de cadastro, baixa e relatórios.</p>
+        </div>
+        <div class="arrow" aria-hidden="true">⇄</div>
+        <div class="node core">
+          <span class="kicker">Núcleo</span>
+          <h3>Supabase + API de regras</h3>
+          <p>Login único ARC, banco Postgres com RLS e funções para pagar, receber, lançar e consultar.</p>
+        </div>
+        <div class="arrow" aria-hidden="true">⇄</div>
+        <div class="node">
+          <span class="kicker">Usuário</span>
+          <h3>Assessor ARC Wpp</h3>
+          <p>Número de WhatsApp vinculado à conta e confirmado por código.</p>
+        </div>
+      </div>
+      <div class="chats">
+        <div class="chat"><span class="bubble">Gastei R$ 50 no mercado</span><span class="reply">Despesa registrada em Alimentação. Saldo na conta Nubank: R$ 1.230,00</span></div>
+        <div class="chat"><span class="bubble">O que vence essa semana?</span><span class="reply">3 contas: Aluguel (10/11), Internet (12/11), Fornecedor X (14/11)</span></div>
+        <div class="chat"><span class="bubble">Paguei o aluguel</span><span class="reply">Conta "Aluguel" marcada como paga pela conta Itaú.</span></div>
+      </div>
+      <p style="color:var(--muted);font-size:14px">Conversas de exemplo, para ilustrar os casos de uso previstos.</p>
+    </section>
+
+    <section id="atencao">
+      <div class="sec-head">
+        <span class="eyebrow">Pontos de atenção</span>
+        <h2>O que precisa ser arrumado no caminho</h2>
+        <p>Problemas encontrados no código atual, por prioridade.</p>
+      </div>
+      <div class="debts" id="debts"></div>
+    </section>
+
+    <section id="decisoes">
+      <div class="sec-head">
+        <span class="eyebrow">Decisões em aberto</span>
+        <h2>Perguntas que só você responde</h2>
+        <p>As respostas mudam o desenho de algumas fases, principalmente a 4 e a 6.</p>
+      </div>
+      <div class="questions">
+        <div class="q"><h3>Para quem é?</h3><p>Pessoa física, pequena empresa ou os dois, com perfis separados?</p></div>
+        <div class="q"><h3>O que é “desktop”?</h3><p>Basta o app no navegador, instalável como PWA, ou precisa de um programa instalado (Tauri/Electron)?</p></div>
+        <div class="q"><h3>Assessor no WhatsApp</h3><p>Já existe? Usa qual tecnologia (API oficial da Meta, Z-API, Evolution API)? Usa o mesmo Supabase?</p></div>
+        <div class="q"><h3>Login único ARC</h3><p>Todos os produtos ARC vão compartilhar a mesma conta de usuário?</p></div>
+        <div class="q"><h3>Várias empresas</h3><p>Um usuário pode cuidar de mais de uma empresa ou carteira?</p></div>
+        <div class="q"><h3>Planos e cobrança</h3><p>Vai ter limites por plano que o sistema precise controlar?</p></div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Razão Finance ARC · documento vivo</span>
+    <span>Última revisão: 09/11/2026</span>
+  </div>
+</footer>
+
+<script>
+// Status: 1 = pronto, 0.5 = parcial, 0 = não existe
+const modules = [
+  { name: "Autenticação", route: "/login", items: [
+    ["Login com e-mail e senha", 1], ["Rotas protegidas", 1], ["Sair do sistema", 1],
+    ["Cadastro de usuário", 0], ["Recuperação de senha", 0], ["Tela de perfil", 0] ] },
+  { name: "Dashboard", route: "/", items: [
+    ["Total a pagar e a receber", 1], ["Saldo em contas", 1], ["Próximos vencimentos", 1], ["Saldo por conta bancária", 1],
+    ["Limite usado nos cartões", 0.5, "está fixo em zero"], ["Contas vencidas em destaque", 0], ["Gráficos", 0] ] },
+  { name: "Clientes", route: "/clientes", items: [
+    ["Cadastro completo (PF/PJ)", 1], ["Busca", 1] ] },
+  { name: "Fornecedores", route: "/fornecedores", items: [
+    ["Cadastro completo", 1], ["Busca", 1] ] },
+  { name: "Contas bancárias", route: "/bancos", items: [
+    ["Cadastro de contas", 1], ["Extrato da conta", 0.5, "código pronto, falta a tela"],
+    ["Lançamento manual", 0.5, "código pronto, falta a tela"], ["Transferência entre contas", 0], ["Importar extrato (OFX/CSV)", 0] ] },
+  { name: "Contas a pagar", route: "/contas-pagar", items: [
+    ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Pagamento pela conta bancária", 1], ["Estorno", 1],
+    ["Pagar com cartão", 0.5, "campos existem, sem uso"], ["Categorias", 0.5, "texto livre"],
+    ["Status vencido", 0], ["Pagamento parcial", 0], ["Contas recorrentes", 0], ["Anexos (boleto, comprovante)", 0] ] },
+  { name: "Contas a receber", route: "/contas-receber", items: [
+    ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Recebimento na conta bancária", 1], ["Estorno", 1],
+    ["Categorias", 0.5, "texto livre"], ["Status vencido", 0], ["Recebimento parcial", 0], ["Contas recorrentes", 0] ] },
+  { name: "Cartões de crédito", route: "/cartoes", items: [
+    ["Cadastro de cartões", 1], ["Desativar cartão", 1], ["Lançar compras", 0], ["Compras parceladas", 0],
+    ["Faturas", 0], ["Limite calculado sozinho", 0] ] },
+  { name: "Relatórios", route: "/relatorios", items: [
+    ["Entradas x saídas por período", 1], ["Filtro por tipo", 1], ["Resumo do período", 1],
+    ["Por categoria", 0], ["Fluxo de caixa projetado", 0], ["Gráficos", 0], ["Exportar PDF/Excel", 0] ] },
+  { name: "Layout e celular", route: "todas as telas", items: [
+    ["Layout no computador", 1], ["Páginas se ajustam em telas menores", 0.5],
+    ["Tabelas no celular", 0.5, "precisam virar cartões"], ["Menu lateral no celular", 0, "ocupa a tela toda hoje"], ["Instalar como app (PWA)", 0] ] }
+];
+
+const phases = [
+  { n: 0, v: "v0.2.0", title: "Fundação", desc: "Arrumar a casa antes de construir mais", next: true, groups: [
+    ["Base", ["Criar o repositório git", "Salvar o schema do Supabase no projeto (migrations)", "Revisar as regras de acesso (RLS) de todas as tabelas", "Gerar os tipos TypeScript a partir do banco"]],
+    ["Correções", ["Pagamento, recebimento e estorno atômicos (funções no Postgres)", "Corrigir vencimento das parcelas no fim do mês", "Juntar código repetido (usuário, moeda, data, busca)", "Escrever o README do projeto", "Mostrar a versão do app no menu"]],
+    ["Publicação", ["Levar a versão Vite para o GitHub, guardando a versão antiga em HTML como legado", "Criar o site na Vercel ligado ao GitHub","Criar o vercel.json para as rotas funcionarem ao atualizar a página", "Usar o nome novo da chave do Supabase na Vercel", "Testar cada módulo na tela, principalmente Cartões e Relatórios"]] ] },
+  { n: 1, v: "v0.3.0", title: "Celular", desc: "Funcionar bem em qualquer tamanho de tela", groups: [
+    ["Telas", ["Menu lateral recolhível com botão no topo", "Tabelas viram lista de cartões", "Formulários em tela cheia", "Botões e campos do tamanho certo para o dedo", "Instalar como app (PWA)"]] ] },
+  { n: 2, v: "v0.4 → v0.7", title: "Completar os módulos", desc: "Fechar o que ficou pela metade", groups: [
+    ["Bancos · v0.4.0",["Tela de extrato", "Lançamento manual", "Transferência entre contas", "Saldo calculado no banco de dados"]],
+    ["Contas · v0.5.0", ["Status vencido", "Pagamento e recebimento parcial", "Contas recorrentes", "Filtros por período, status e categoria", "Pagar várias de uma vez"]],
+    ["Categorias · v0.6.0", ["Cadastro de categorias de receita e despesa", "Escolher categoria em vez de digitar"]],
+    ["Cartões · v0.7.0", ["Lançar compras à vista e parceladas", "Faturas: fechar e pagar", "Pagar conta com cartão", "Limite calculado sozinho"]] ] },
+  { n: 3, v: "v0.8.0", title: "Painel e relatórios", desc: "Ver o dinheiro de um jeito claro", groups: [
+    ["Painel", ["Contas vencidas e de hoje em destaque", "Gráfico mensal de entradas x saídas"]],
+    ["Relatórios", ["Despesas por categoria", "Fluxo de caixa projetado", "Exportar PDF e Excel"]] ] },
+  { n: 4, v: "v0.9.0", title: "Conta do usuário", desc: "Cadastro, senha e perfil", groups: [
+    ["Itens", ["Cadastro e recuperação de senha", "Perfil com telefone/WhatsApp", "Várias empresas por usuário (a decidir)"]] ] },
+  { n: 5, v: "v1.0.0", title: "Qualidade e publicação", desc: "Beta com convidados e lançamento da 1.0", groups: [
+    ["Itens", ["Testes automáticos (Vitest e Playwright)", "Checagem automática a cada mudança (CI)", "Publicar com ambiente de testes e de produção", "Monitorar erros"]],
+    ["Lançamento", ["Beta com usuários convidados (1.0.0-beta.N)", "Versão candidata (1.0.0-rc)", "Lançamento da v1.0.0"]] ] },
+  { n: 6, v: "v1.1.0", title: "Assessor no WhatsApp", desc: "Integração com o Assessor Financeiro ARC Wpp", groups: [
+    ["Base", ["API de regras usada pelo app e pelo Assessor", "Vincular número de WhatsApp com código", "Marcar a origem de cada lançamento (app ou WhatsApp)"]],
+    ["Conversas", ["Registrar despesa por mensagem", "Consultar saldo", "Listar o que vence na semana", "Marcar conta como paga", "Lembretes de vencimento", "Resumo diário, semanal e mensal"]] ] }
+];
+
+const debts = [
+  ["alta", "Pagamento e estorno feitos em duas etapas separadas: se falhar no meio, os dados ficam inconsistentes", "payablesService.ts · receivablesService.ts"],
+  ["alta", "Estrutura do banco e regras de acesso não estão salvas no projeto", "supabase/"],
+  ["alta", "Projeto ainda sem controle de versão (git)", "raiz do projeto"],
+  ["media", "Parcelas que vencem dia 29 a 31 pulam um mês", "createPayables · createReceivables"],
+  ["media", "Painel baixa todas as movimentações para calcular o saldo, e vai ficar lento com o tempo", "dashboardService.ts"],
+  ["media", "Limite usado nos cartões fixo em zero no painel", "dashboardService.ts"],
+  ["media", "Excluir conta bancária que tem lançamentos: comportamento indefinido", "bankAccountsService.ts"],
+  ["media", "Nenhum teste automático", "—"],
+  ["baixa", "Código repetido entre módulos (usuário logado, barra de busca)", "services/ · pages/*/components"],
+  ["baixa", "README ainda é o modelo padrão do Vite", "README.md"]
+];
+
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const dotClass = v => v === 1 ? "ok" : v === 0.5 ? "part" : "no";
+
+let sumAll = 0, countAll = 0;
+document.getElementById("modules").innerHTML = modules.map(m => {
+  const total = m.items.length;
+  const done = m.items.filter(i => i[1] === 1).length;
+  const part = m.items.filter(i => i[1] === 0.5).length;
+  const score = m.items.reduce((s, i) => s + i[1], 0);
+  sumAll += score; countAll += total;
+  const pct = Math.round(score / total * 100);
+  return `<article class="module">
+    <div class="module-head">
+      <div><h3>${esc(m.name)}</h3><span class="route">${esc(m.route)}</span></div>
+      <span class="module-pct num">${pct}%</span>
+    </div>
+    <div class="bar" role="img" aria-label="${done} prontos, ${part} parciais de ${total}">
+      <i class="b-ok" style="width:${done / total * 100}%"></i><i class="b-part" style="width:${part / total * 100}%"></i>
+    </div>
+    <ul class="items">${m.items.map(i => `<li><i class="dot ${dotClass(i[1])}"></i><span>${esc(i[0])}${i[2] ? `<em>${esc(i[2])}</em>` : ""}</span></li>`).join("")}</ul>
+  </article>`;
+}).join("");
+
+const overall = Math.round(sumAll / countAll * 100);
+document.getElementById("overall-pct").textContent = overall + "%";
+document.getElementById("overall-bar").style.width = overall + "%";
+document.getElementById("stat-modules").textContent = modules.length;
+
+document.getElementById("road").innerHTML = phases.map(p => {
+  const tasks = p.groups.reduce((s, g) => s + g[1].length, 0);
+  return `<details class="phase${p.next ? " next" : ""}"${p.next ? " open" : ""}>
+    <summary>
+      <span class="phase-n">${p.n}</span>
+      <span class="phase-title"><h3>${esc(p.title)}</h3><p>${esc(p.desc)}</p></span>
+      <span class="phase-meta">
+        <span class="pill later num">${esc(p.v)}</span>
+        <span class="pill ${p.next ? "next" : "later"}">${p.next ? "Próxima" : tasks + " tarefas"}</span>
+        <i class="chev" aria-hidden="true"></i>
+      </span>
+    </summary>
+    <div class="phase-body">${p.groups.map(g => `<div class="group"><h4>${esc(g[0])}</h4>
+      <ul class="todo">${g[1].map(t => `<li><i class="box"></i><span>${esc(t)}</span></li>`).join("")}</ul></div>`).join("")}</div>
+  </details>`;
+}).join("");
+
+const sevLabel = { alta: "Alta", media: "Média", baixa: "Baixa" };
+document.getElementById("debts").innerHTML = debts.map(d => `<div class="debt ${d[0]}">
+  <i class="stripe"></i>
+  <span class="debt-text"><strong>${esc(d[1])}</strong><code>${esc(d[2])}</code></span>
+  <span class="sev">${sevLabel[d[0]]}</span>
+</div>`).join("");
+</script>
