@@ -452,7 +452,8 @@
   font-weight: 700;
 }
 
-.bank-account-field input {
+.bank-account-field input,
+.bank-account-field select {
   width: 100%;
   height: 42px;
 
@@ -473,7 +474,8 @@
     box-shadow 0.2s;
 }
 
-.bank-account-field input:focus {
+.bank-account-field input:focus,
+.bank-account-field select:focus {
   border-color: var(--primary);
 
   box-shadow: 0 0 0 3px rgba(15, 76, 58, 0.1);

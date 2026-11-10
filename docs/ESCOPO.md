@@ -122,7 +122,7 @@ Mesmas lacunas: status vencido, recebimento parcial, categorias cadastradas, rec
 | Bandeiras | ✅ | lista fixa das bandeiras do Brasil (`src/constants/cardBrands.ts`) |
 | Nome do cartão | ✅ | automático: banco + bandeira em maiúsculas (ex.: SICREDI VISA), sem o código do banco (`src/utils/bank.ts`) |
 | Valores em reais | 🟡 | componente `CurrencyInput` (edita qualquer casa, formata 5.000,00) no limite do cartão; aplicar nos demais formulários |
-| Banco nas contas bancárias | 🟡 | ainda é texto livre e aceita o código junto (ex.: "748 - Sicredi"); trocar por lista fixa dos bancos |
+| Banco nas contas bancárias | ✅ | lista fixa de bancos do Brasil (`src/constants/banks.ts`) + "Outro banco"; o código numérico é removido ao salvar |
 
 ### 3.8 Relatórios (`/relatorios`)
 | Item | Status | Observação |

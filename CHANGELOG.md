@@ -6,6 +6,7 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 ## [Não lançado]
 
 ### Adicionado
+- Contas bancárias: o banco é escolhido numa lista fixa de bancos do Brasil (só o nome, sem código), com a opção "Outro banco" para digitar. Contas antigas com código ("748 - Sicredi") abrem já com o banco certo selecionado.
 - Cartões: o banco é escolhido entre as contas bancárias cadastradas, em vez de digitado.
 - Cartões: lista fixa das bandeiras usadas no Brasil (Visa, Mastercard, Elo, American Express, Hipercard e outras).
 - Cartões: o nome é montado sozinho com banco + bandeira em maiúsculas (ex.: SICREDI VISA), sem digitação e sem o código numérico do banco.

@@ -17,6 +17,16 @@ import type {
   BankAccountFormData
 } from "../../../types/bankAccount";
 
+import {
+  BANKS,
+  findBank
+} from "../../../constants/banks";
+
+import { cleanBankName } from "../../../utils/bank";
+
+// Valor da opção "Outro banco" na lista
+const OTHER_BANK = "__outro__";
+
 type BankAccountFormProps = {
   account: BankAccount | null;
   onCancel: () => void;
@@ -46,11 +56,26 @@ function BankAccountForm({
   const [errorMessage, setErrorMessage] =
     useState("");
 
+  // true quando o banco não está na lista e é digitado em "Outro banco"
+  const [isOtherBank, setIsOtherBank] =
+    useState(false);
+
   useEffect(() => {
     if (account) {
+      // Contas antigas podem ter o código junto ("748 - Sicredi")
+      const savedBank =
+        cleanBankName(account.bank);
+
+      const listedBank =
+        findBank(savedBank);
+
+      setIsOtherBank(
+        Boolean(savedBank) && !listedBank
+      );
+
       setFormData({
         name: account.name,
-        bank: account.bank ?? "",
+        bank: listedBank ?? savedBank,
         agency: account.agency ?? "",
         accountNumber:
           account.account_number ?? "",
@@ -60,6 +85,7 @@ function BankAccountForm({
           Number(account.overdraft_limit || 0)
       });
     } else {
+      setIsOtherBank(false);
       setFormData(emptyForm);
     }
 
@@ -90,13 +116,25 @@ function BankAccountForm({
       return;
     }
 
+    const bankName =
+      cleanBankName(formData.bank);
+
+    if (!bankName) {
+      setErrorMessage(
+        isOtherBank
+          ? "Digite o nome do banco, sem o código."
+          : "Selecione o banco."
+      );
+      return;
+    }
+
     try {
       setSubmitting(true);
       setErrorMessage("");
 
       const normalizedData: BankAccountFormData = {
         name: formData.name.trim(),
-        bank: formData.bank.trim(),
+        bank: findBank(bankName) ?? bankName,
         agency: formData.agency.trim(),
         accountNumber:
           formData.accountNumber.trim(),
@@ -162,19 +200,67 @@ function BankAccountForm({
             Banco
           </label>
 
-          <input
+          <select
             id="bank-account-bank"
-            type="text"
-            value={formData.bank}
-            onChange={event =>
-              updateField(
-                "bank",
-                event.target.value
-              )
+            value={
+              isOtherBank
+                ? OTHER_BANK
+                : formData.bank
             }
-            placeholder="Ex.: Sicoob"
-          />
+            onChange={event => {
+              const choice =
+                event.target.value;
+
+              if (choice === OTHER_BANK) {
+                setIsOtherBank(true);
+                updateField("bank", "");
+              } else {
+                setIsOtherBank(false);
+                updateField("bank", choice);
+              }
+            }}
+            required
+          >
+            <option value="">
+              Selecione o banco
+            </option>
+
+            {BANKS.map(bank => (
+              <option
+                key={bank}
+                value={bank}
+              >
+                {bank}
+              </option>
+            ))}
+
+            <option value={OTHER_BANK}>
+              Outro banco
+            </option>
+          </select>
         </div>
+
+        {isOtherBank && (
+          <div className="bank-account-field bank-account-field-full">
+            <label htmlFor="bank-account-other-bank">
+              Nome do banco
+            </label>
+
+            <input
+              id="bank-account-other-bank"
+              type="text"
+              value={formData.bank}
+              onChange={event =>
+                updateField(
+                  "bank",
+                  event.target.value
+                )
+              }
+              placeholder="Só o nome, sem o código"
+              required
+            />
+          </div>
+        )}
 
         <div className="bank-account-field">
           <label htmlFor="bank-account-agency">
