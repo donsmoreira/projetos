@@ -1,6 +1,13 @@
+/** "banco" = conta bancária · "caixa" = dinheiro físico */
+export type AccountKind =
+  | "banco"
+  | "caixa";
+
 export interface BankAccount {
   id: string;
   user_id: string;
+
+  account_type: AccountKind;
 
   name: string;
   bank: string | null;
@@ -15,6 +22,7 @@ export interface BankAccount {
 }
 
 export interface BankAccountFormData {
+  accountType?: AccountKind;
   name: string;
   bank: string;
   agency: string;
@@ -37,4 +45,9 @@ export interface BankTransaction {
   reference_id: string | null;
 
   created_at?: string;
+}
+
+export interface AccountWithBalance extends BankAccount {
+  balance: number;
+  transactionCount: number;
 }

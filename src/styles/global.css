@@ -130,6 +130,43 @@ input:-webkit-autofill:focus {
   background: rgba(26, 124, 255, 0.35);
 }
 
+/* Seletor de conta gerencial (contas a pagar e a receber) */
+.management-account-empty {
+  padding: 10px 12px;
+
+  border: 1px dashed var(--border-strong);
+  border-radius: 6px;
+
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.management-account-empty a {
+  color: var(--arc-blue-bright);
+  font-weight: 700;
+}
+
+.management-account-hint {
+  color: var(--warning);
+  font-size: 12px;
+}
+
+.management-account-error {
+  color: var(--danger);
+  font-size: 12px;
+}
+
+/* Saldo do caixa nos pagamentos e recebimentos */
+.account-balance-hint {
+  color: var(--arc-cyan);
+  font-size: 12px;
+}
+
+.account-balance-hint-danger {
+  color: var(--danger);
+  font-weight: 700;
+}
+
 /* Barras de rolagem escuras */
 * {
   scrollbar-color: var(--border-strong) transparent;

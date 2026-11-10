@@ -91,7 +91,7 @@ function CreditCardForm({
         setLoadingAccounts(true);
 
         const data =
-          await listBankAccounts();
+          await listBankAccounts("banco");
 
         setBankAccounts(data);
       } catch (error) {

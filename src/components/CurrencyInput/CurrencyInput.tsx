@@ -68,11 +68,17 @@ function CurrencyInput({
       inputMode={allowNegative ? "text" : "decimal"}
       autoComplete="off"
       value={
-        editing?.text ?? formatCurrencyInput(value)
+        editing
+          ? editing.text
+          : formatCurrencyInput(value)
       }
       onFocus={() =>
         setEditing({
-          text: formatCurrencyInput(value)
+          // Valor zerado começa vazio, para digitar direto (ex.: "50" → 50,00).
+          // Valores preenchidos continuam editáveis em qualquer casa.
+          text: value === 0
+            ? ""
+            : formatCurrencyInput(value)
         })
       }
       onChange={event => {

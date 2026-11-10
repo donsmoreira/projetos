@@ -88,8 +88,20 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | CRUD de contas | ✅ | nome, banco, agência, número, saldo inicial, limite de cheque especial |
 | Extrato da conta (lista de lançamentos) | 🟡 | o service tem `listBankTransactions`, mas **nenhuma tela usa** |
 | Lançamento manual (entrada/saída avulsa) | 🟡 | o service tem `createBankTransaction` e `deleteBankTransaction`, mas **sem tela** |
-| Transferência entre contas | ❌ | |
+| Transferência entre contas | 🟡 | função `transfer_between_accounts` no banco; usada na tela do Caixa (banco ↔ caixa). Falta transferência banco ↔ banco |
 | Conciliação / importação de extrato (OFX/CSV) | ❌ | |
+
+### 3.4b Caixa — dinheiro físico (`/caixa`)
+| Item | Status | Observação |
+|---|---|---|
+| Cadastro de caixas | ✅ | é uma conta em `bank_accounts` com `account_type = 'caixa'` (sem banco, sem cheque especial) |
+| Saldo atual e total em dinheiro | ✅ | saldo inicial + movimentações |
+| Entrada e saída avulsas | ✅ | `transaction_type = 'manual'` |
+| Transferência banco ↔ caixa (saque/depósito) | ✅ | duas movimentações gravadas juntas (`transaction_type = 'transfer'`); não conta como receita/despesa |
+| Pagamento e recebimento em dinheiro | ✅ | nas telas de baixa, o caixa aparece junto das contas, com saldo antes/depois |
+| Fluxo de caixa por período | ✅ | saldo anterior, entradas, saídas, saldo linha a linha |
+| Saldo nunca negativo | ✅ | regra no banco (inclusive ao desfazer um recebimento) |
+| Fechamento de caixa diário / conferência | ❌ | |
 
 ### 3.5 Contas a pagar (`/contas-pagar`)
 | Item | Status | Observação |
@@ -97,18 +109,19 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | CRUD (apenas enquanto pendente) | ✅ | |
 | Parcelamento | ✅ | gera N registros ligados por `installment_group_id` |
 | Juros e multa | ✅ | informados manualmente |
-| Baixa (pagamento) via conta bancária | ✅ | gera `bank_transaction` negativa |
+| Baixa (pagamento) via conta bancária ou caixa | ✅ | gera `bank_transaction` negativa; `payment_method` = `banco` ou `caixa` |
 | Estorno de pagamento | ✅ | apaga a transação e volta para pendente |
 | Pagamento com cartão de crédito | 🟡 | colunas `card_id` e `card_transaction_id` existem, **sem uso** |
 | Status "vencido" | ❌ | só existem `pendente` e `pago` |
 | Pagamento parcial | ❌ | |
-| Categoria | 🟡 | texto livre, sem cadastro |
+| Conta gerencial | ✅ | obrigatória; só contas de **despesa** (regra no banco). O caminho da conta fica guardado em `category` |
 | Recorrência (contas fixas mensais) | ❌ | |
 | Anexos (boleto, comprovante) | ❌ | |
 
 ### 3.6 Contas a receber (`/contas-receber`)
-Espelha as contas a pagar: CRUD, parcelamento, juros e multa, baixa via conta bancária (transação positiva) e estorno. ✅
-Mesmas lacunas: status vencido, recebimento parcial, categorias cadastradas, recorrência. ❌
+Espelha as contas a pagar: CRUD, parcelamento, juros e multa, baixa via conta bancária ou caixa (transação positiva) e estorno. ✅
+Conta gerencial obrigatória, só contas de **receita** (regra no banco). ✅
+Mesmas lacunas: status vencido, recebimento parcial, recorrência. ❌
 
 ### 3.7 Cartões de crédito (`/cartoes`)
 | Item | Status | Observação |
@@ -132,9 +145,15 @@ Mesmas lacunas: status vencido, recebimento parcial, categorias cadastradas, rec
 | Entradas x saídas por período | ✅ | baseado em `bank_transactions` |
 | Filtro entrada/saída/todos | ✅ | |
 | Resumo (receitas, despesas, saldo, quantidade) | ✅ | |
-| Relatório por categoria | ❌ | |
+| Descritivo (tabela) | ✅ | agora com conta/caixa e conta gerencial |
+| Torres (barras entradas x saídas) | ✅ | por dia até 62 dias; acima, por mês |
+| Curvas (linhas + resultado acumulado) | ✅ | |
+| Pizza | ✅ | saídas, entradas ou entradas x saídas; fatias por conta gerencial (principal/subconta), fornecedor/cliente, lançamento, conta/caixa ou origem; até 8 fatias + "Outros" |
+| Torres agrupadas ("Ver por") | ✅ | mesmas formas de agrupar da pizza, além do período; até 12 grupos + "Outros" |
+| Filtros do relatório | ✅ | conta/caixa, conta gerencial (com subcontas), fornecedor/cliente, origem; valem para tabela, resumo e gráficos |
+| Atalhos de período | ✅ | hoje, este mês, mês passado, 30/90 dias, este ano, ano passado |
+| Transferências fora dos totais | ✅ | banco ↔ caixa não conta como entrada/saída |
 | Fluxo de caixa projetado (pendentes futuros) | ❌ | |
-| Gráficos | ❌ | |
 | Exportação (PDF / Excel) | ❌ | |
 
 ### 3.9 Layout e responsividade
@@ -183,7 +202,7 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 | `card_settlements` (pagamento de fatura) | settlement_date, value | card_id, bank_account_id, bank_transaction_id |
 | `profiles` | full_name, company_name, phone, preferred_theme, currency | user_id (criado automaticamente no cadastro) |
 | `appointments` (agenda) | appointment_date, start_time, end_time, status (agendado/confirmado), confirmed_at | user_id, client_id |
-| `management_accounts` (contas gerenciais) — **nova, criar com o SQL** | name, type (`receita`/`despesa`), nature (`fixa`/`variavel`). Subconta tem o mesmo tipo da conta pai; nome único por nível; sem ciclos (regras no banco) | user_id, parent_id → management_accounts |
+| `management_accounts` (contas gerenciais) — usada em `payables` / `receivables.management_account_id` | name, type (`receita`/`despesa`), nature (`fixa`/`variavel`). Subconta tem o mesmo tipo da conta pai; nome único por nível; sem ciclos (regras no banco) | user_id, parent_id → management_accounts |
 
 **Princípio central:** `bank_transactions` é o **razão** do sistema. Todo dinheiro que entra ou sai de uma conta vira uma linha nessa tabela, e saldos e relatórios saem dela.
 
@@ -304,7 +323,7 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 
 **Categorias → Contas Gerenciais** (v0.6.0)
 - [x] Cadastro de contas gerenciais (`/contas-gerenciais`): nome, tipo receita/despesa, fixa/variável, conta pai e subcontas em quantos níveis quiser (adiantado; precisa rodar `supabase/migrations/20261110_contas_gerenciais.sql`)
-- [ ] Substituir o campo texto livre "Categoria" de contas a pagar/receber pela escolha de uma conta gerencial
+- [x] Substituir o campo texto livre "Categoria" de contas a pagar/receber pela escolha de uma conta gerencial (despesa/receita)
 
 **Cartões de crédito** (v0.7.0)
 - [ ] Lançamento de compras (à vista e parceladas)
@@ -315,8 +334,8 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 
 ### Fase 3 — Dashboard e relatórios · v0.8.0
 - [ ] Destaque de contas vencidas e que vencem hoje
-- [ ] Gráfico de entradas x saídas por mês
-- [ ] Despesas por categoria
+- [x] Gráfico de entradas x saídas (torres e curvas)
+- [x] Despesas/receitas por conta gerencial (pizza)
 - [ ] Fluxo de caixa projetado (saldo atual + pendentes futuros)
 - [ ] Exportação PDF e Excel
 

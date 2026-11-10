@@ -4,6 +4,8 @@ export type PayableStatus =
 
 export type PayablePaymentMethod =
   | "banco"
+  | "caixa"
+  | "cartao"
   | null;
 
 export interface PayableSupplier {
@@ -15,6 +17,14 @@ export interface PayableBankAccount {
   id: string;
   name: string;
   bank: string | null;
+  account_type?: "banco" | "caixa";
+}
+
+export interface EntryManagementAccount {
+  id: string;
+  name: string;
+  parent_id: string | null;
+  type: "receita" | "despesa";
 }
 
 export interface Payable {
@@ -24,6 +34,7 @@ export interface Payable {
   supplier_id: string;
   description: string;
   category: string | null;
+  management_account_id: string | null;
 
   original_value: number;
   interest: number;
@@ -53,6 +64,7 @@ export interface Payable {
 
   suppliers: PayableSupplier | null;
   bank_accounts: PayableBankAccount | null;
+  management_accounts: EntryManagementAccount | null;
 
   created_at?: string;
   updated_at?: string;
@@ -61,7 +73,9 @@ export interface Payable {
 export interface PayableFormData {
   supplierId: string;
   description: string;
+  /** Caminho da conta gerencial, guardado como texto (ex.: "DESPESAS › INTERNET") */
   category: string;
+  managementAccountId: string;
 
   value: number;
   interest: number;

@@ -5,15 +5,25 @@ type AccountLike = {
   bank?: string | null;
   agency?: string | null;
   account_number?: string | null;
+  account_type?: string | null;
 };
+
+export function isCashAccount(account: AccountLike | null | undefined): boolean {
+  return account?.account_type === "caixa";
+}
 
 /**
  * Banco da conta no formato de identificação: "748 - SICREDI".
  * Contas antigas sem banco preenchido usam o nome da conta.
+ * Caixa (dinheiro físico) aparece como "CAIXA · Nome do caixa".
  */
 export function formatAccountBank(account: AccountLike | null | undefined): string {
   if (!account) {
     return "";
+  }
+
+  if (isCashAccount(account)) {
+    return `CAIXA · ${account.name?.trim() || "Dinheiro"}`;
   }
 
   return formatBankLabel(
@@ -28,6 +38,10 @@ export function formatAccountBank(account: AccountLike | null | undefined): stri
 export function formatAccountLabel(account: AccountLike | null | undefined): string {
   if (!account) {
     return "";
+  }
+
+  if (isCashAccount(account)) {
+    return formatAccountBank(account);
   }
 
   return [

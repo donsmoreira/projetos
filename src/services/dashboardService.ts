@@ -58,6 +58,7 @@ type BankAccountRow = {
   bank: string | null;
   agency: string | null;
   account_number: string | null;
+  account_type?: string | null;
   initial_balance: number | string | null;
 };
 
@@ -167,6 +168,7 @@ async function getBankAccounts() {
       bank,
       agency,
       account_number,
+      account_type,
       initial_balance
     `)
     .order("name", {
@@ -220,8 +222,9 @@ function buildBankAccounts(
 
     return {
       id: account.id,
-      account:
-        [
+      account: account.account_type === "caixa"
+        ? "Dinheiro físico"
+        : [
           account.agency?.trim()
             ? `Ag. ${account.agency.trim()}`
             : "",

@@ -9,7 +9,7 @@ import type {
 } from "react";
 
 import {
-  listBankAccounts
+  listAccountsWithBalance
 } from "../../../services/bankAccountsService";
 
 import {
@@ -17,10 +17,12 @@ import {
 } from "../../../services/receivablesService";
 
 import type {
-  BankAccount
+  AccountWithBalance
 } from "../../../types/bankAccount";
 
-import { formatAccountLabel } from "../../../utils/bank";
+import AccountOptions, {
+  AccountBalanceHint
+} from "../../../components/AccountOptions/AccountOptions";
 
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
 
@@ -63,7 +65,7 @@ function ReceiptForm({
   );
 
   const [bankAccounts, setBankAccounts] =
-    useState<BankAccount[]>([]);
+    useState<AccountWithBalance[]>([]);
 
   const [formData, setFormData] =
     useState<ReceivableReceiptData>({
@@ -89,7 +91,7 @@ function ReceiptForm({
         setErrorMessage("");
 
         const data =
-          await listBankAccounts();
+          await listAccountsWithBalance();
 
         setBankAccounts(data);
       } catch (error) {
@@ -137,7 +139,7 @@ function ReceiptForm({
 
     if (!formData.bankAccountId) {
       setErrorMessage(
-        "Selecione a conta bancária."
+        "Selecione a conta bancária ou o caixa."
       );
       return;
     }
@@ -167,7 +169,7 @@ function ReceiptForm({
 
     if (!selectedAccount) {
       setErrorMessage(
-        "A conta bancária selecionada não foi encontrada."
+        "A conta selecionada não foi encontrada."
       );
       return;
     }
@@ -175,7 +177,8 @@ function ReceiptForm({
     const bankAccount: ReceivableBankAccount = {
       id: selectedAccount.id,
       name: selectedAccount.name,
-      bank: selectedAccount.bank
+      bank: selectedAccount.bank,
+      account_type: selectedAccount.account_type
     };
 
     try {
@@ -236,7 +239,7 @@ function ReceiptForm({
       <div className="receipt-form-grid">
         <div className="receipt-field receipt-field-full">
           <label htmlFor="receipt-bank-account">
-            Conta bancária
+            Receber em (conta bancária ou caixa)
           </label>
 
           <select
@@ -254,18 +257,19 @@ function ReceiptForm({
             <option value="">
               {loadingAccounts
                 ? "Carregando contas..."
-                : "Selecione a conta bancária"}
+                : "Selecione a conta ou o caixa"}
             </option>
 
-            {bankAccounts.map(account => (
-              <option
-                key={account.id}
-                value={account.id}
-              >
-                {formatAccountLabel(account)}
-              </option>
-            ))}
+            <AccountOptions accounts={bankAccounts} />
           </select>
+
+          <AccountBalanceHint
+            account={bankAccounts.find(
+              account => account.id === formData.bankAccountId
+            )}
+            value={Number(formData.receivedValue || 0)}
+            direction="entrada"
+          />
         </div>
 
         <div className="receipt-field">

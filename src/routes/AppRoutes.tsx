@@ -20,6 +20,7 @@ import Receivables from "../pages/Receivables/Receivables";
 import CreditCards from "../pages/CreditCards/CreditCards";
 import Reports from "../pages/Reports/Reports";
 import ManagementAccounts from "../pages/ManagementAccounts/ManagementAccounts";
+import Cash from "../pages/Cash/Cash";
 
 function AppRoutes() {
   return (
@@ -60,6 +61,11 @@ function AppRoutes() {
             <Route
               path="bancos"
               element={<BankAccounts />}
+            />
+
+            <Route
+              path="caixa"
+              element={<Cash />}
             />
 
             <Route

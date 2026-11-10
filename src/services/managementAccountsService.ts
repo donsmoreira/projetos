@@ -13,6 +13,10 @@ function translateError(message: string): string {
     return "Já existe uma conta com esse nome nesse mesmo nível.";
   }
 
+  if (/foreign key/i.test(message) && /payables|receivables/i.test(message)) {
+    return "Essa conta já é usada em contas a pagar ou a receber, por isso não pode ser excluída.";
+  }
+
   if (/foreign key|violates foreign key/i.test(message)) {
     return "Essa conta tem subcontas. Exclua ou mova as subcontas antes.";
   }

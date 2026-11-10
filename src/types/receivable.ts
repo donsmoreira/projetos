@@ -1,9 +1,12 @@
+import type { EntryManagementAccount } from "./payable";
+
 export type ReceivableStatus =
   | "pendente"
   | "recebido";
 
 export type ReceivablePaymentMethod =
   | "banco"
+  | "caixa"
   | null;
 
 export interface ReceivableClient {
@@ -15,6 +18,7 @@ export interface ReceivableBankAccount {
   id: string;
   name: string;
   bank: string | null;
+  account_type?: "banco" | "caixa";
 }
 
 export interface Receivable {
@@ -24,6 +28,7 @@ export interface Receivable {
   client_id: string;
   description: string;
   category: string | null;
+  management_account_id: string | null;
 
   original_value: number;
   interest: number;
@@ -51,6 +56,7 @@ export interface Receivable {
 
   clients: ReceivableClient | null;
   bank_accounts: ReceivableBankAccount | null;
+  management_accounts: EntryManagementAccount | null;
 
   created_at?: string;
   updated_at?: string;
@@ -59,7 +65,9 @@ export interface Receivable {
 export interface ReceivableFormData {
   clientId: string;
   description: string;
+  /** Caminho da conta gerencial, guardado como texto (ex.: "RECEITAS › TRABALHO CLT") */
   category: string;
+  managementAccountId: string;
 
   value: number;
   interest: number;

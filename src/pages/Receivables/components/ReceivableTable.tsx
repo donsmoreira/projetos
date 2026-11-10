@@ -78,7 +78,7 @@ function ReceivableTable({
           <tr>
             <th>Cliente</th>
             <th>Descrição</th>
-            <th>Categoria</th>
+            <th>Conta gerencial</th>
             <th>Vencimento</th>
             <th>Parcela</th>
 

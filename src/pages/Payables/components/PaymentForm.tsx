@@ -9,7 +9,7 @@ import type {
 } from "react";
 
 import {
-  listBankAccounts
+  listAccountsWithBalance
 } from "../../../services/bankAccountsService";
 
 import {
@@ -17,10 +17,12 @@ import {
 } from "../../../services/payablesService";
 
 import type {
-  BankAccount
+  AccountWithBalance
 } from "../../../types/bankAccount";
 
-import { formatAccountLabel } from "../../../utils/bank";
+import AccountOptions, {
+  AccountBalanceHint
+} from "../../../components/AccountOptions/AccountOptions";
 
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
 
@@ -63,7 +65,7 @@ function PaymentForm({
   );
 
   const [bankAccounts, setBankAccounts] =
-    useState<BankAccount[]>([]);
+    useState<AccountWithBalance[]>([]);
 
   const [formData, setFormData] =
     useState<PayablePaymentData>({
@@ -89,7 +91,7 @@ function PaymentForm({
         setErrorMessage("");
 
         const data =
-          await listBankAccounts();
+          await listAccountsWithBalance();
 
         setBankAccounts(data);
       } catch (error) {
@@ -137,7 +139,7 @@ function PaymentForm({
 
     if (!formData.bankAccountId) {
       setErrorMessage(
-        "Selecione a conta bancária."
+        "Selecione a conta bancária ou o caixa."
       );
       return;
     }
@@ -167,7 +169,17 @@ function PaymentForm({
 
     if (!selectedAccount) {
       setErrorMessage(
-        "A conta bancária selecionada não foi encontrada."
+        "A conta selecionada não foi encontrada."
+      );
+      return;
+    }
+
+    if (
+      selectedAccount.account_type === "caixa" &&
+      Number(formData.paidValue) > selectedAccount.balance
+    ) {
+      setErrorMessage(
+        "Saldo insuficiente no caixa para este pagamento."
       );
       return;
     }
@@ -175,7 +187,8 @@ function PaymentForm({
     const bankAccount: PayableBankAccount = {
       id: selectedAccount.id,
       name: selectedAccount.name,
-      bank: selectedAccount.bank
+      bank: selectedAccount.bank,
+      account_type: selectedAccount.account_type
     };
 
     try {
@@ -236,7 +249,7 @@ function PaymentForm({
       <div className="payment-form-grid">
         <div className="payment-field payment-field-full">
           <label htmlFor="payment-bank-account">
-            Conta bancária
+            Pagar com (conta bancária ou caixa)
           </label>
 
           <select
@@ -254,18 +267,19 @@ function PaymentForm({
             <option value="">
               {loadingAccounts
                 ? "Carregando contas..."
-                : "Selecione a conta bancária"}
+                : "Selecione a conta ou o caixa"}
             </option>
 
-            {bankAccounts.map(account => (
-              <option
-                key={account.id}
-                value={account.id}
-              >
-                {formatAccountLabel(account)}
-              </option>
-            ))}
+            <AccountOptions accounts={bankAccounts} />
           </select>
+
+          <AccountBalanceHint
+            account={bankAccounts.find(
+              account => account.id === formData.bankAccountId
+            )}
+            value={Number(formData.paidValue || 0)}
+            direction="saida"
+          />
         </div>
 
         <div className="payment-field">

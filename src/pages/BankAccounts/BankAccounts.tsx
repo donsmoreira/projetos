@@ -48,7 +48,7 @@ function BankAccounts() {
       setLoading(true);
       setErrorMessage("");
 
-      const data = await listBankAccounts();
+      const data = await listBankAccounts("banco");
 
       setAccounts(data);
     } catch (error) {

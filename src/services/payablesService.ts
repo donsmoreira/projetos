@@ -49,7 +49,14 @@ export async function listPayables(): Promise<Payable[]> {
       bank_accounts (
         id,
         name,
-        bank
+        bank,
+        account_type
+      ),
+      management_accounts (
+        id,
+        name,
+        parent_id,
+        type
       )
     `)
     .order("due_date", {
@@ -102,6 +109,9 @@ export async function createPayables(
 
         category:
           payable.category || null,
+
+        management_account_id:
+          payable.managementAccountId || null,
 
         original_value:
           Number(payable.value || 0),
@@ -158,7 +168,14 @@ export async function createPayables(
       bank_accounts (
         id,
         name,
-        bank
+        bank,
+        account_type
+      ),
+      management_accounts (
+        id,
+        name,
+        parent_id,
+        type
       )
     `);
 
@@ -184,6 +201,9 @@ export async function updatePayable(
 
       category:
         payable.category || null,
+
+      management_account_id:
+        payable.managementAccountId || null,
 
       original_value:
         Number(payable.value || 0),
@@ -217,7 +237,14 @@ export async function updatePayable(
       bank_accounts (
         id,
         name,
-        bank
+        bank,
+        account_type
+      ),
+      management_accounts (
+        id,
+        name,
+        parent_id,
+        type
       )
     `)
     .single();
@@ -304,7 +331,9 @@ export async function payPayable(
         "pago",
 
       payment_method:
-        "banco",
+        bankAccount.account_type === "caixa"
+          ? "caixa"
+          : "banco",
 
       payment_date:
         payment.paymentDate,
@@ -335,7 +364,14 @@ export async function payPayable(
       bank_accounts (
         id,
         name,
-        bank
+        bank,
+        account_type
+      ),
+      management_accounts (
+        id,
+        name,
+        parent_id,
+        type
       )
     `)
     .single();
@@ -410,7 +446,14 @@ export async function reversePayablePayment(
       bank_accounts (
         id,
         name,
-        bank
+        bank,
+        account_type
+      ),
+      management_accounts (
+        id,
+        name,
+        parent_id,
+        type
       )
     `)
     .single();

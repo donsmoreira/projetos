@@ -26,6 +26,7 @@ import type {
 } from "../../../types/supplier";
 
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
+import ManagementAccountSelect from "../../../components/ManagementAccountSelect/ManagementAccountSelect";
 
 type PayableFormProps = {
   payable: Payable | null;
@@ -43,6 +44,7 @@ const emptyForm: PayableFormData = {
   supplierId: "",
   description: "",
   category: "",
+  managementAccountId: "",
   value: 0,
   interest: 0,
   penalty: 0,
@@ -107,6 +109,9 @@ function PayableForm({
 
         category:
           payable.category ?? "",
+
+        managementAccountId:
+          payable.management_account_id ?? "",
 
         value:
           Number(
@@ -176,6 +181,13 @@ function PayableForm({
       return;
     }
 
+    if (!formData.managementAccountId) {
+      setErrorMessage(
+        "Escolha a conta gerencial de despesa."
+      );
+      return;
+    }
+
     if (
       Number(formData.value) <= 0
     ) {
@@ -212,6 +224,9 @@ function PayableForm({
 
         category:
           formData.category.trim(),
+
+        managementAccountId:
+          formData.managementAccountId,
 
         value:
           Number(formData.value || 0),
@@ -325,22 +340,31 @@ function PayableForm({
         </div>
 
         <div className="payable-field payable-field-full">
-          <label htmlFor="payable-category">
-            Categoria
+          <label htmlFor="payable-management-account">
+            Conta gerencial (despesa)
           </label>
 
-          <input
-            id="payable-category"
-            type="text"
-            value={formData.category}
-            onChange={event =>
-              updateField(
-                "category",
-                event.target.value
-              )
+          <ManagementAccountSelect
+            id="payable-management-account"
+            type="despesa"
+            value={formData.managementAccountId}
+            onChange={(accountId, path) =>
+              setFormData(current => ({
+                ...current,
+                managementAccountId: accountId,
+                category: path
+              }))
             }
-            placeholder="Ex.: Moradia, internet, veículo..."
+            required
           />
+
+          {payable &&
+            !payable.management_account_id &&
+            payable.category && (
+              <small className="management-account-hint">
+                Categoria antiga: "{payable.category}". Escolha a conta gerencial correspondente.
+              </small>
+            )}
         </div>
 
         <div className="payable-field">

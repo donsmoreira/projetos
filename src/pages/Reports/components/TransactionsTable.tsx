@@ -38,7 +38,13 @@ function formatTransactionType(
       "Recebimento de conta",
 
     manual:
-      "Movimentação manual"
+      "Movimentação manual",
+
+    transfer:
+      "Transferência entre contas",
+
+    card_settlement:
+      "Pagamento de fatura"
   };
 
   return labels[value] || value;
@@ -68,7 +74,9 @@ function TransactionsTable({
           <tr>
             <th>Data</th>
             <th>Descrição</th>
-            <th>Conta bancária</th>
+            <th>Fornecedor / cliente</th>
+            <th>Conta / caixa</th>
+            <th>Conta gerencial</th>
             <th>Origem</th>
             <th>Tipo</th>
 
@@ -95,6 +103,10 @@ function TransactionsTable({
                 </td>
 
                 <td>
+                  {transaction.counterpartyName || "—"}
+                </td>
+
+                <td>
                   <div className="reports-account-cell">
                     <span>
                       {transaction.accountName}
@@ -106,6 +118,10 @@ function TransactionsTable({
                       </small>
                     )}
                   </div>
+                </td>
+
+                <td>
+                  {transaction.managementAccountName || "—"}
                 </td>
 
                 <td>

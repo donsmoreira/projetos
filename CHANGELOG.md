@@ -6,6 +6,18 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 ## [Não lançado]
 
 ### Adicionado
+- Conta gerencial obrigatória nos lançamentos: contas a pagar só aceitam contas de **despesa** e contas a receber só de **receita** (regra também no banco de dados). Contas que têm subcontas aparecem como título; o lançamento vai na subconta. A coluna "Categoria" virou "Conta gerencial".
+- Caixa (`/caixa`): cadastro de caixas de dinheiro físico, com saldo, entradas e saídas avulsas, transferência banco ↔ caixa (saque/depósito) e fluxo de caixa por período (saldo anterior, entradas, saídas, saldo linha a linha). O caixa nunca fica negativo.
+- Pagamentos e recebimentos podem ser feitos pelo caixa, mostrando o saldo antes e depois.
+- Relatórios com 4 visões: Descritivo (tabela, agora com a conta gerencial), Torres (barras de entradas x saídas), Curvas (linhas com resultado acumulado) e Pizza (despesas ou receitas por conta gerencial, por conta principal ou subconta). Transferências não contam como entrada nem saída.
+- SQL `supabase/migrations/20261110_lancamentos_e_caixa.sql`.
+- Lançamentos antigos (só com categoria em texto) aparecem nos relatórios como "NOME (categoria antiga)".
+- Relatórios com filtros amplos, que valem para a tabela, o resumo e todos os gráficos: conta/caixa, conta gerencial (inclui as subcontas), fornecedor/cliente e origem. Atalhos de período: hoje, este mês, mês passado, últimos 30/90 dias, este ano, ano passado.
+- Torres com "Ver por": período, conta gerencial (principal ou subconta), fornecedor/cliente, lançamento (parcelas juntas), conta/caixa ou origem. Pizza com "Mostrar" (saídas, entradas ou entradas x saídas) e "Fatias por" com as mesmas opções. Cada item mantém a mesma cor ao filtrar.
+- Tabela do relatório com a coluna "Fornecedor / cliente".
+
+### Corrigido
+- Campo de valor zerado: ao clicar, o campo fica vazio para digitar direto (antes, digitar "50" em "0,00" não fazia nada).
 - Contas Gerenciais (`/contas-gerenciais`): plano de contas de receitas e despesas. Cada conta tem nome, tipo (receita ou despesa) e se é fixa ou variável, e pode ter subcontas em vários níveis (ex.: RECEITA TRABALHO › Empresa X). A subconta herda o tipo da conta pai; nomes repetidos no mesmo nível e exclusão de conta com subcontas são bloqueados. Tabela criada por `supabase/migrations/20261110_contas_gerenciais.sql`.
 - Identidade visual ARC em todo o sistema: tema escuro com azul elétrico e brilho, baseado na logo da ARC (D&C). Cores centralizadas em variáveis em `src/styles/global.css`; fontes Inter, Exo 2 e Michroma.
 - Logo ARC na tela de entrada, símbolo de circuito no menu lateral e no ícone da aba do navegador; título da aba "Razão Finance ARC".

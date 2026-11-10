@@ -1,4 +1,5 @@
 import {
+  Banknote,
   BarChart3,
   CreditCard,
   FolderTree,
@@ -62,6 +63,12 @@ function Sidebar() {
           icon={<Landmark size={18} />}
           title="Contas Bancárias"
           to="/bancos"
+        />
+
+        <SidebarItem
+          icon={<Banknote size={18} />}
+          title="Caixa"
+          to="/caixa"
         />
 
         <SidebarItem

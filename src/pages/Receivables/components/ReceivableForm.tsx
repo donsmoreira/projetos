@@ -26,6 +26,7 @@ import type {
 } from "../../../types/client";
 
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
+import ManagementAccountSelect from "../../../components/ManagementAccountSelect/ManagementAccountSelect";
 
 type ReceivableFormProps = {
   receivable: Receivable | null;
@@ -43,6 +44,7 @@ const emptyForm: ReceivableFormData = {
   clientId: "",
   description: "",
   category: "",
+  managementAccountId: "",
   value: 0,
   interest: 0,
   penalty: 0,
@@ -109,6 +111,9 @@ function ReceivableForm({
 
         category:
           receivable.category ?? "",
+
+        managementAccountId:
+          receivable.management_account_id ?? "",
 
         value:
           Number(
@@ -178,6 +183,13 @@ function ReceivableForm({
       return;
     }
 
+    if (!formData.managementAccountId) {
+      setErrorMessage(
+        "Escolha a conta gerencial de receita."
+      );
+      return;
+    }
+
     if (
       Number(formData.value) <= 0
     ) {
@@ -214,6 +226,9 @@ function ReceivableForm({
 
         category:
           formData.category.trim(),
+
+        managementAccountId:
+          formData.managementAccountId,
 
         value:
           Number(formData.value || 0),
@@ -327,22 +342,31 @@ function ReceivableForm({
         </div>
 
         <div className="receivable-field receivable-field-full">
-          <label htmlFor="receivable-category">
-            Categoria
+          <label htmlFor="receivable-management-account">
+            Conta gerencial (receita)
           </label>
 
-          <input
-            id="receivable-category"
-            type="text"
-            value={formData.category}
-            onChange={event =>
-              updateField(
-                "category",
-                event.target.value
-              )
+          <ManagementAccountSelect
+            id="receivable-management-account"
+            type="receita"
+            value={formData.managementAccountId}
+            onChange={(accountId, path) =>
+              setFormData(current => ({
+                ...current,
+                managementAccountId: accountId,
+                category: path
+              }))
             }
-            placeholder="Ex.: Salário, venda, empréstimo..."
+            required
           />
+
+          {receivable &&
+            !receivable.management_account_id &&
+            receivable.category && (
+              <small className="management-account-hint">
+                Categoria antiga: "{receivable.category}". Escolha a conta gerencial correspondente.
+              </small>
+            )}
         </div>
 
         <div className="receivable-field">

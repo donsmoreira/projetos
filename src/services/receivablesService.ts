@@ -57,7 +57,14 @@ export async function listReceivables(): Promise<
       bank_accounts (
         id,
         name,
-        bank
+        bank,
+        account_type
+      ),
+      management_accounts (
+        id,
+        name,
+        parent_id,
+        type
       )
     `)
     .order("due_date", {
@@ -114,6 +121,9 @@ export async function createReceivables(
 
         category:
           receivable.category || null,
+
+        management_account_id:
+          receivable.managementAccountId || null,
 
         original_value:
           Number(receivable.value || 0),
@@ -181,7 +191,14 @@ export async function createReceivables(
       bank_accounts (
         id,
         name,
-        bank
+        bank,
+        account_type
+      ),
+      management_accounts (
+        id,
+        name,
+        parent_id,
+        type
       )
     `);
 
@@ -209,6 +226,9 @@ export async function updateReceivable(
 
       category:
         receivable.category || null,
+
+      management_account_id:
+        receivable.managementAccountId || null,
 
       original_value:
         Number(receivable.value || 0),
@@ -242,7 +262,14 @@ export async function updateReceivable(
       bank_accounts (
         id,
         name,
-        bank
+        bank,
+        account_type
+      ),
+      management_accounts (
+        id,
+        name,
+        parent_id,
+        type
       )
     `)
     .single();
@@ -329,7 +356,9 @@ export async function receiveReceivable(
         "recebido",
 
       payment_method:
-        "banco",
+        bankAccount.account_type === "caixa"
+          ? "caixa"
+          : "banco",
 
       payment_date:
         receipt.receiptDate,
@@ -363,7 +392,14 @@ export async function receiveReceivable(
       bank_accounts (
         id,
         name,
-        bank
+        bank,
+        account_type
+      ),
+      management_accounts (
+        id,
+        name,
+        parent_id,
+        type
       )
     `)
     .single();
@@ -441,7 +477,14 @@ export async function reverseReceivableReceipt(
       bank_accounts (
         id,
         name,
-        bank
+        bank,
+        account_type
+      ),
+      management_accounts (
+        id,
+        name,
+        parent_id,
+        type
       )
     `)
     .single();

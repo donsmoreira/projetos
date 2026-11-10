@@ -1,0 +1,490 @@
+.cash-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  padding: 16px;
+}
+
+.cash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+
+  padding: 18px;
+
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.cash-header h2 {
+  color: var(--text);
+  font-size: 24px;
+}
+
+.cash-header p {
+  margin-top: 4px;
+
+  color: var(--text-light);
+  font-size: 13px;
+}
+
+.cash-new-button {
+  min-height: 42px;
+
+  padding: 0 18px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: var(--primary);
+  color: var(--on-primary);
+
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.cash-new-button:hover {
+  background: var(--primary-hover);
+}
+
+/* ESTADOS */
+
+.cash-state {
+  min-height: 140px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+
+  padding: 24px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  color: var(--text-light);
+  font-size: 13px;
+  text-align: center;
+}
+
+.cash-state h3 {
+  color: var(--text);
+  font-size: 16px;
+}
+
+.cash-state svg {
+  color: var(--arc-cyan);
+}
+
+.cash-state-error {
+  min-height: 0;
+  color: var(--danger);
+}
+
+/* CARTÕES DOS CAIXAS */
+
+.cash-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.cash-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  padding: 14px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.cash-card.is-selected {
+  border-color: rgba(61, 155, 255, 0.55);
+  box-shadow: 0 0 22px rgba(26, 124, 255, 0.15);
+}
+
+.cash-card-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 0;
+
+  border: none;
+  background: none;
+  color: inherit;
+
+  cursor: pointer;
+
+  text-align: left;
+}
+
+.cash-card-icon {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: 1px solid rgba(61, 155, 255, 0.35);
+  border-radius: 10px;
+
+  background: var(--primary-soft);
+  color: var(--arc-cyan);
+}
+
+.cash-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cash-card-name {
+  color: var(--text-light);
+
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.cash-card strong {
+  color: var(--text);
+
+  font-family: var(--font-display);
+  font-size: 24px;
+}
+
+.cash-card strong.is-empty {
+  color: var(--text-muted);
+}
+
+.cash-card small {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.cash-card-total {
+  justify-content: center;
+  gap: 4px;
+
+  background:
+    linear-gradient(135deg, rgba(26, 124, 255, 0.12), transparent),
+    var(--surface);
+}
+
+.cash-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.cash-action {
+  min-height: 32px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 0 10px;
+
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+
+  background: var(--surface-alt);
+  color: var(--text-light);
+
+  cursor: pointer;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cash-action:hover {
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.cash-action-in:hover {
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.cash-action-out:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.cash-icon-button {
+  width: 32px;
+  height: 32px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: var(--surface);
+  color: var(--text-light);
+
+  cursor: pointer;
+}
+
+.cash-card-actions .cash-icon-button:first-of-type {
+  margin-left: auto;
+}
+
+.cash-icon-button:hover {
+  border-color: var(--primary);
+  color: var(--arc-blue-bright);
+}
+
+.cash-icon-danger:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* FLUXO DE CAIXA */
+
+.cash-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  padding: 16px;
+
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.cash-flow-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cash-flow-header h3 {
+  color: var(--text);
+  font-size: 17px;
+}
+
+.cash-flow-header p {
+  margin-top: 3px;
+
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.cash-flow-period {
+  display: flex;
+  gap: 10px;
+}
+
+.cash-flow-period label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  color: var(--text-light);
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cash-flow-period input {
+  height: 38px;
+
+  padding: 0 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: var(--surface);
+  color: var(--text);
+}
+
+.cash-flow-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.cash-flow-summary div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  padding: 12px 14px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.cash-flow-summary span {
+  color: var(--text-light);
+
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cash-flow-summary strong {
+  color: var(--text);
+
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+
+.cash-flow-summary .is-income,
+.cash-table .is-income {
+  color: var(--success);
+}
+
+.cash-flow-summary .is-expense,
+.cash-table .is-expense {
+  color: var(--danger);
+}
+
+.cash-table-wrapper {
+  overflow-x: auto;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.cash-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  font-size: 13px;
+}
+
+.cash-table th,
+.cash-table td {
+  padding: 10px 12px;
+
+  border-bottom: 1px solid var(--border);
+
+  text-align: left;
+  white-space: nowrap;
+}
+
+.cash-table th {
+  background: var(--surface-alt);
+  color: var(--text-light);
+
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cash-table td {
+  color: var(--text);
+}
+
+.cash-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.cash-table tbody tr:hover {
+  background: var(--surface-alt);
+}
+
+.cash-table .is-number {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.cash-table-description {
+  max-width: 320px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cash-table-actions {
+  width: 48px;
+  text-align: center !important;
+}
+
+.cash-table-locked {
+  color: var(--text-muted);
+  cursor: help;
+}
+
+.cash-origin {
+  padding: 2px 8px;
+
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+
+  color: var(--text-light);
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.cash-origin-payable_payment {
+  border-color: var(--danger-border);
+  color: var(--danger);
+}
+
+.cash-origin-receivable_receipt {
+  border-color: var(--success-border);
+  color: var(--success);
+}
+
+.cash-origin-transfer {
+  border-color: rgba(61, 155, 255, 0.4);
+  color: var(--arc-cyan);
+}
+
+@media (max-width: 760px) {
+  .cash-page {
+    padding: 10px;
+  }
+
+  .cash-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cash-flow-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cash-flow-period {
+    width: 100%;
+  }
+
+  .cash-flow-period label {
+    flex: 1;
+  }
+}

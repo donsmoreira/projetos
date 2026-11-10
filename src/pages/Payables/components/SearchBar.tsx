@@ -25,7 +25,7 @@ function SearchBar({
         onChange={event =>
           onChange(event.target.value)
         }
-        placeholder="Pesquisar por fornecedor, descrição, categoria ou status..."
+        placeholder="Pesquisar por fornecedor, descrição, conta gerencial ou status..."
         aria-label="Pesquisar contas a pagar"
       />
 

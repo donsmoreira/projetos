@@ -1,4 +1,14 @@
 /**
+ * Valor em reais para exibir em textos e tabelas: 5000 → "R$ 5.000,00".
+ */
+export function formatCurrency(value: number): string {
+  return Number(value || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  });
+}
+
+/**
  * Valor em reais no formato de exibição dos campos: 5000 → "5.000,00".
  */
 export function formatCurrencyInput(value: number): string {
