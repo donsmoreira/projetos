@@ -6,6 +6,9 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 ## [Não lançado]
 
 ### Adicionado
+- Contas bancárias: a lista mostra o código do banco ("748 - SICREDI", códigos conferidos na lista do Banco Central) e o campo "Nome da conta" foi removido; o nome passa a ser o próprio banco.
+- Contas aparecem como "748 - SICREDI · Ag. · Conta" nas baixas, nos cartões, no Dashboard e nos relatórios.
+- Todos os campos de dinheiro (conta bancária, contas a pagar/receber, juros, multa, baixas) usam o `CurrencyInput`: 2 casas decimais, edição em qualquer posição. O saldo inicial aceita valor negativo.
 - Contas bancárias: o banco é escolhido numa lista fixa de bancos do Brasil (só o nome, sem código), com a opção "Outro banco" para digitar. Contas antigas com código ("748 - Sicredi") abrem já com o banco certo selecionado.
 - Cartões: o banco é escolhido entre as contas bancárias cadastradas, em vez de digitado.
 - Cartões: lista fixa das bandeiras usadas no Brasil (Visa, Mastercard, Elo, American Express, Hipercard e outras).

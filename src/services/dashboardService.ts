@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { listCreditCards } from "./creditCardsService";
+import { formatAccountBank } from "../utils/bank";
 
 import type {
   BankAccountItem,
@@ -55,6 +56,8 @@ type BankAccountRow = {
   id: string;
   name: string;
   bank: string | null;
+  agency: string | null;
+  account_number: string | null;
   initial_balance: number | string | null;
 };
 
@@ -162,6 +165,8 @@ async function getBankAccounts() {
       id,
       name,
       bank,
+      agency,
+      account_number,
       initial_balance
     `)
     .order("name", {
@@ -215,8 +220,18 @@ function buildBankAccounts(
 
     return {
       id: account.id,
-      account: account.name,
-      bank: account.bank || "—",
+      account:
+        [
+          account.agency?.trim()
+            ? `Ag. ${account.agency.trim()}`
+            : "",
+          account.account_number?.trim()
+            ? `Conta ${account.account_number.trim()}`
+            : ""
+        ]
+          .filter(Boolean)
+          .join(" · ") || "—",
+      bank: formatAccountBank(account) || "—",
       balance:
         numberValue(account.initial_balance) +
         transactionBalance

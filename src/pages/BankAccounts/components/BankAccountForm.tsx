@@ -19,10 +19,13 @@ import type {
 
 import {
   BANKS,
-  findBank
+  findBank,
+  formatBankLabel
 } from "../../../constants/banks";
 
 import { cleanBankName } from "../../../utils/bank";
+
+import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
 
 // Valor da opção "Outro banco" na lista
 const OTHER_BANK = "__outro__";
@@ -109,13 +112,6 @@ function BankAccountForm({
   ) {
     event.preventDefault();
 
-    if (!formData.name.trim()) {
-      setErrorMessage(
-        "Informe o nome da conta."
-      );
-      return;
-    }
-
     const bankName =
       cleanBankName(formData.bank);
 
@@ -132,9 +128,13 @@ function BankAccountForm({
       setSubmitting(true);
       setErrorMessage("");
 
+      const bank =
+        findBank(bankName) ?? bankName;
+
       const normalizedData: BankAccountFormData = {
-        name: formData.name.trim(),
-        bank: findBank(bankName) ?? bankName,
+        // O nome da conta é o próprio banco
+        name: bank,
+        bank,
         agency: formData.agency.trim(),
         accountNumber:
           formData.accountNumber.trim(),
@@ -175,27 +175,6 @@ function BankAccountForm({
     >
       <div className="bank-account-form-grid">
         <div className="bank-account-field bank-account-field-full">
-          <label htmlFor="bank-account-name">
-            Nome da conta
-          </label>
-
-          <input
-            id="bank-account-name"
-            type="text"
-            value={formData.name}
-            onChange={event =>
-              updateField(
-                "name",
-                event.target.value
-              )
-            }
-            placeholder="Ex.: Conta principal"
-            autoFocus
-            required
-          />
-        </div>
-
-        <div className="bank-account-field bank-account-field-full">
           <label htmlFor="bank-account-bank">
             Banco
           </label>
@@ -219,6 +198,7 @@ function BankAccountForm({
                 updateField("bank", choice);
               }
             }}
+            autoFocus
             required
           >
             <option value="">
@@ -227,10 +207,10 @@ function BankAccountForm({
 
             {BANKS.map(bank => (
               <option
-                key={bank}
-                value={bank}
+                key={bank.name}
+                value={bank.name}
               >
-                {bank}
+                {formatBankLabel(bank.name)}
               </option>
             ))}
 
@@ -300,38 +280,34 @@ function BankAccountForm({
 
         <div className="bank-account-field">
           <label htmlFor="bank-account-balance">
-            Saldo inicial
+            Saldo inicial (R$)
           </label>
 
-          <input
+          <CurrencyInput
             id="bank-account-balance"
-            type="number"
-            step="0.01"
             value={formData.initialBalance}
-            onChange={event =>
+            onChange={value =>
               updateField(
                 "initialBalance",
-                Number(event.target.value || 0)
+                value
               )
             }
+            allowNegative
           />
         </div>
 
         <div className="bank-account-field">
           <label htmlFor="bank-account-limit">
-            Limite de cheque especial
+            Limite de cheque especial (R$)
           </label>
 
-          <input
+          <CurrencyInput
             id="bank-account-limit"
-            type="number"
-            min="0"
-            step="0.01"
             value={formData.overdraftLimit}
-            onChange={event =>
+            onChange={value =>
               updateField(
                 "overdraftLimit",
-                Number(event.target.value || 0)
+                value
               )
             }
           />

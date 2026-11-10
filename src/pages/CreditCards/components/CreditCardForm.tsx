@@ -18,7 +18,10 @@ import {
 
 import { CARD_BRANDS } from "../../../constants/cardBrands";
 
-import { cleanBankName } from "../../../utils/bank";
+import {
+  cleanBankName,
+  formatAccountLabel
+} from "../../../utils/bank";
 
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
 
@@ -324,10 +327,7 @@ function CreditCardForm({
                 key={account.id}
                 value={account.id}
               >
-                {account.name}
-                {account.bank
-                  ? ` - ${account.bank}`
-                  : ""}
+                {formatAccountLabel(account)}
               </option>
             ))}
           </select>

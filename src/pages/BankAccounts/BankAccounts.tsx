@@ -13,6 +13,11 @@ import type {
   BankAccount
 } from "../../types/bankAccount";
 
+import {
+  formatAccountBank,
+  formatAccountLabel
+} from "../../utils/bank";
+
 import SearchBar from "./components/SearchBar";
 import BankAccountTable from "./components/BankAccountTable";
 import BankAccountModal from "./components/BankAccountModal";
@@ -74,7 +79,7 @@ function BankAccounts() {
 
     return accounts.filter(account => {
       const fields = [
-        account.name,
+        formatAccountBank(account),
         account.bank,
         account.agency,
         account.account_number
@@ -110,7 +115,7 @@ function BankAccounts() {
   ) {
     const confirmed =
       window.confirm(
-        `Deseja realmente excluir a conta "${account.name}"?`
+        `Deseja realmente excluir a conta "${formatAccountLabel(account)}"?`
       );
 
     if (!confirmed) {

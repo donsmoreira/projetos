@@ -23,11 +23,13 @@ export function sanitizeCurrencyText(text: string): string {
  * - só ficam dígitos, ponto e uma única vírgula (uma segunda vírgula digitada é ignorada);
  * - no máximo 2 casas de centavos: digitar numa casa de centavo substitui o
  *   dígito seguinte, em vez de criar uma terceira casa;
- * - o cursor continua no mesmo ponto do número, mesmo quando algo é recusado.
+ * - o cursor continua no mesmo ponto do número, mesmo quando algo é recusado;
+ * - com allowNegative, aceita um sinal de menos só no início (ex.: saldo negativo).
  */
 export function applyCurrencyEdit(
   raw: string,
-  rawCursor: number
+  rawCursor: number,
+  allowNegative = false
 ): { text: string; cursor: number } {
   const commaPositions = [...raw]
     .map((char, index) => (char === "," ? index : -1))
@@ -46,9 +48,10 @@ export function applyCurrencyEdit(
 
   [...raw].forEach((char, index) => {
     const keep =
-      /[\d.,]/.test(char) &&
-      index !== droppedComma &&
-      !(char === "," && text.includes(","));
+      (/[\d.,]/.test(char) &&
+        index !== droppedComma &&
+        !(char === "," && text.includes(","))) ||
+      (char === "-" && allowNegative && text === "");
 
     if (keep) {
       text += char;
@@ -83,9 +86,12 @@ export function applyCurrencyEdit(
  * Ponto é separador de milhar e é ignorado; a primeira vírgula separa os centavos.
  * Sem vírgula, um ponto final seguido de 1 ou 2 dígitos vale como centavos
  * (quem digita "5000.50" quer 5.000,50, não 500.050).
- * "5.000,00" → 5000 · "5000" → 5000 · "1.234,5" → 1234.5 · "5000.50" → 5000.5 · "" → 0
+ * Um "-" no início deixa o valor negativo.
+ * "5.000,00" → 5000 · "5000" → 5000 · "1.234,5" → 1234.5 · "5000.50" → 5000.5 · "-150,00" → -150 · "" → 0
  */
 export function parseCurrencyText(text: string): number {
+  const sign = text.trim().startsWith("-") ? -1 : 1;
+
   let sanitized = sanitizeCurrencyText(text);
 
   if (!sanitized.includes(",")) {
@@ -110,7 +116,9 @@ export function parseCurrencyText(text: string): number {
     `${integerDigits || "0"}.${decimalDigits || "0"}`
   );
 
-  return Number.isFinite(value)
-    ? Math.round(value * 100) / 100
-    : 0;
+  if (!Number.isFinite(value) || value === 0) {
+    return 0;
+  }
+
+  return (sign * Math.round(value * 100)) / 100;
 }

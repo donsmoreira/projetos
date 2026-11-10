@@ -20,6 +20,10 @@ import type {
   BankAccount
 } from "../../../types/bankAccount";
 
+import { formatAccountLabel } from "../../../utils/bank";
+
+import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
+
 import type {
   Payable,
   PayableBankAccount,
@@ -258,10 +262,7 @@ function PaymentForm({
                 key={account.id}
                 value={account.id}
               >
-                {account.name}
-                {account.bank
-                  ? ` - ${account.bank}`
-                  : ""}
+                {formatAccountLabel(account)}
               </option>
             ))}
           </select>
@@ -288,21 +289,16 @@ function PaymentForm({
 
         <div className="payment-field">
           <label htmlFor="payment-value">
-            Valor pago
+            Valor pago (R$)
           </label>
 
-          <input
+          <CurrencyInput
             id="payment-value"
-            type="number"
-            min="0.01"
-            step="0.01"
             value={formData.paidValue}
-            onChange={event =>
+            onChange={value =>
               updateField(
                 "paidValue",
-                Number(
-                  event.target.value || 0
-                )
+                value
               )
             }
             required

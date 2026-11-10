@@ -35,8 +35,8 @@ function BankAccounts({
           <table className="dashboard-table">
             <thead>
               <tr>
-                <th>Conta</th>
                 <th>Banco</th>
+                <th>Agência / Conta</th>
 
                 <th className="table-value">
                   Saldo
@@ -57,8 +57,8 @@ function BankAccounts({
               ) : (
                 accounts.map(account => (
                   <tr key={account.id}>
-                    <td>{account.account}</td>
                     <td>{account.bank}</td>
+                    <td>{account.account}</td>
 
                     <td className="table-value bank-balance">
                       {formatCurrency(

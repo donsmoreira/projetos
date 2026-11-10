@@ -7,6 +7,8 @@ import type {
   CreditCard
 } from "../../../types/creditCard";
 
+import { formatAccountBank } from "../../../utils/bank";
+
 type CreditCardTableProps = {
   cards: CreditCard[];
   onEdit: (card: CreditCard) => void;
@@ -102,12 +104,9 @@ function CreditCardTable({
               </td>
 
               <td>
-                {card.bank_accounts
-                  ? displayValue(
-                      card.bank_accounts.bank ||
-                        card.bank_accounts.name
-                    )
-                  : "—"}
+                {formatAccountBank(
+                  card.bank_accounts
+                ) || "—"}
               </td>
 
               <td>

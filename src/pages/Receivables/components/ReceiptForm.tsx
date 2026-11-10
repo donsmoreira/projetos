@@ -20,6 +20,10 @@ import type {
   BankAccount
 } from "../../../types/bankAccount";
 
+import { formatAccountLabel } from "../../../utils/bank";
+
+import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
+
 import type {
   Receivable,
   ReceivableBankAccount,
@@ -258,10 +262,7 @@ function ReceiptForm({
                 key={account.id}
                 value={account.id}
               >
-                {account.name}
-                {account.bank
-                  ? ` - ${account.bank}`
-                  : ""}
+                {formatAccountLabel(account)}
               </option>
             ))}
           </select>
@@ -288,21 +289,16 @@ function ReceiptForm({
 
         <div className="receipt-field">
           <label htmlFor="receipt-value">
-            Valor recebido
+            Valor recebido (R$)
           </label>
 
-          <input
+          <CurrencyInput
             id="receipt-value"
-            type="number"
-            min="0.01"
-            step="0.01"
             value={formData.receivedValue}
-            onChange={event =>
+            onChange={value =>
               updateField(
                 "receivedValue",
-                Number(
-                  event.target.value || 0
-                )
+                value
               )
             }
             required

@@ -7,6 +7,8 @@ import type {
   BankAccount
 } from "../../../types/bankAccount";
 
+import { formatAccountBank } from "../../../utils/bank";
+
 type BankAccountTableProps = {
   accounts: BankAccount[];
   onEdit: (account: BankAccount) => void;
@@ -51,7 +53,6 @@ function BankAccountTable({
       <table className="bank-accounts-table">
         <thead>
           <tr>
-            <th>Nome</th>
             <th>Banco</th>
             <th>Agência</th>
             <th>Conta</th>
@@ -68,14 +69,14 @@ function BankAccountTable({
         </thead>
 
         <tbody>
-          {accounts.map(account => (
+          {accounts.map(account => {
+            const bankLabel =
+              formatAccountBank(account);
+
+            return (
             <tr key={account.id}>
               <td>
-                <strong>{account.name}</strong>
-              </td>
-
-              <td>
-                {displayValue(account.bank)}
+                <strong>{bankLabel || "—"}</strong>
               </td>
 
               <td>
@@ -105,8 +106,8 @@ function BankAccountTable({
                   type="button"
                   className="bank-accounts-action-button"
                   onClick={() => onEdit(account)}
-                  title={`Editar ${account.name}`}
-                  aria-label={`Editar ${account.name}`}
+                  title={`Editar ${bankLabel}`}
+                  aria-label={`Editar ${bankLabel}`}
                 >
                   <Pencil size={16} />
                 </button>
@@ -115,14 +116,15 @@ function BankAccountTable({
                   type="button"
                   className="bank-accounts-action-button bank-accounts-action-danger"
                   onClick={() => onDelete(account)}
-                  title={`Excluir ${account.name}`}
-                  aria-label={`Excluir ${account.name}`}
+                  title={`Excluir ${bankLabel}`}
+                  aria-label={`Excluir ${bankLabel}`}
                 >
                   <Trash2 size={16} />
                 </button>
               </td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
     </div>

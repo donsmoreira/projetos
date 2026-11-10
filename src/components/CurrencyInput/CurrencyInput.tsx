@@ -16,6 +16,8 @@ type CurrencyInputProps = {
   onChange: (value: number) => void;
   placeholder?: string;
   required?: boolean;
+  // Aceita "-" no início (ex.: saldo inicial negativo)
+  allowNegative?: boolean;
 };
 
 /**
@@ -28,7 +30,8 @@ function CurrencyInput({
   value,
   onChange,
   placeholder = "0,00",
-  required
+  required,
+  allowNegative = false
 }: CurrencyInputProps) {
   const inputRef =
     useRef<HTMLInputElement>(null);
@@ -62,7 +65,7 @@ function CurrencyInput({
       ref={inputRef}
       id={id}
       type="text"
-      inputMode="decimal"
+      inputMode={allowNegative ? "text" : "decimal"}
       autoComplete="off"
       value={
         editing?.text ?? formatCurrencyInput(value)
@@ -77,7 +80,8 @@ function CurrencyInput({
           applyCurrencyEdit(
             event.target.value,
             event.target.selectionStart ??
-              event.target.value.length
+              event.target.value.length,
+            allowNegative
           );
 
         pendingCursor.current = cursor;

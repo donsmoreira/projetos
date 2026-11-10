@@ -25,6 +25,8 @@ import type {
   Client
 } from "../../../types/client";
 
+import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
+
 type ReceivableFormProps = {
   receivable: Receivable | null;
   onCancel: () => void;
@@ -345,21 +347,16 @@ function ReceivableForm({
 
         <div className="receivable-field">
           <label htmlFor="receivable-value">
-            Valor
+            Valor (R$)
           </label>
 
-          <input
+          <CurrencyInput
             id="receivable-value"
-            type="number"
-            min="0"
-            step="0.01"
             value={formData.value}
-            onChange={event =>
+            onChange={value =>
               updateField(
                 "value",
-                Number(
-                  event.target.value || 0
-                )
+                value
               )
             }
             required
@@ -396,21 +393,16 @@ function ReceivableForm({
 
         <div className="receivable-field">
           <label htmlFor="receivable-interest">
-            Juros
+            Juros (R$)
           </label>
 
-          <input
+          <CurrencyInput
             id="receivable-interest"
-            type="number"
-            min="0"
-            step="0.01"
             value={formData.interest}
-            onChange={event =>
+            onChange={value =>
               updateField(
                 "interest",
-                Number(
-                  event.target.value || 0
-                )
+                value
               )
             }
           />
@@ -418,21 +410,16 @@ function ReceivableForm({
 
         <div className="receivable-field">
           <label htmlFor="receivable-penalty">
-            Multa
+            Multa (R$)
           </label>
 
-          <input
+          <CurrencyInput
             id="receivable-penalty"
-            type="number"
-            min="0"
-            step="0.01"
             value={formData.penalty}
-            onChange={event =>
+            onChange={value =>
               updateField(
                 "penalty",
-                Number(
-                  event.target.value || 0
-                )
+                value
               )
             }
           />

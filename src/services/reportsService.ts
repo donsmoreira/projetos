@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { formatAccountBank } from "../utils/bank";
 
 import type {
   FinancialReportData,
@@ -74,11 +75,12 @@ function normalizeTransaction(
       transaction.description,
 
     accountName:
-      account?.name ||
+      formatAccountBank(account) ||
       "Conta não informada",
 
+    // O banco já aparece em accountName ("748 - SICREDI")
     accountBank:
-      account?.bank || null,
+      null,
 
     type:
       getTransactionType(value),

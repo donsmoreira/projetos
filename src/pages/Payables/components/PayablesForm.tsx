@@ -25,6 +25,8 @@ import type {
   Supplier
 } from "../../../types/supplier";
 
+import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
+
 type PayableFormProps = {
   payable: Payable | null;
   onCancel: () => void;
@@ -343,21 +345,16 @@ function PayableForm({
 
         <div className="payable-field">
           <label htmlFor="payable-value">
-            Valor
+            Valor (R$)
           </label>
 
-          <input
+          <CurrencyInput
             id="payable-value"
-            type="number"
-            min="0"
-            step="0.01"
             value={formData.value}
-            onChange={event =>
+            onChange={value =>
               updateField(
                 "value",
-                Number(
-                  event.target.value || 0
-                )
+                value
               )
             }
             required
@@ -394,21 +391,16 @@ function PayableForm({
 
         <div className="payable-field">
           <label htmlFor="payable-interest">
-            Juros
+            Juros (R$)
           </label>
 
-          <input
+          <CurrencyInput
             id="payable-interest"
-            type="number"
-            min="0"
-            step="0.01"
             value={formData.interest}
-            onChange={event =>
+            onChange={value =>
               updateField(
                 "interest",
-                Number(
-                  event.target.value || 0
-                )
+                value
               )
             }
           />
@@ -416,21 +408,16 @@ function PayableForm({
 
         <div className="payable-field">
           <label htmlFor="payable-penalty">
-            Multa
+            Multa (R$)
           </label>
 
-          <input
+          <CurrencyInput
             id="payable-penalty"
-            type="number"
-            min="0"
-            step="0.01"
             value={formData.penalty}
-            onChange={event =>
+            onChange={value =>
               updateField(
                 "penalty",
-                Number(
-                  event.target.value || 0
-                )
+                value
               )
             }
           />
