@@ -102,7 +102,12 @@ function CreditCardTable({
               </td>
 
               <td>
-                {displayValue(card.bank)}
+                {card.bank_accounts
+                  ? displayValue(
+                      card.bank_accounts.bank ||
+                        card.bank_accounts.name
+                    )
+                  : "—"}
               </td>
 
               <td>

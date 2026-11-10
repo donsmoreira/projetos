@@ -409,14 +409,42 @@
   grid-column: 1 / -1;
 }
 
-.credit-card-field label {
+.credit-card-field label,
+.credit-card-field-label {
   color: var(--text);
 
   font-size: 12px;
   font-weight: 700;
 }
 
+.credit-card-readonly-value {
+  min-height: 42px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+
+  padding: 6px 11px;
+
+  border-radius: 6px;
+
+  background: #eef3f1;
+  color: var(--text);
+}
+
+.credit-card-readonly-value strong {
+  font-size: 15px;
+}
+
+.credit-card-readonly-value small {
+  color: var(--text-light);
+
+  font-size: 11px;
+}
+
 .credit-card-field input,
+.credit-card-field select,
 .credit-card-field textarea {
   width: 100%;
 
@@ -431,7 +459,8 @@
   font-size: 13px;
 }
 
-.credit-card-field input {
+.credit-card-field input,
+.credit-card-field select {
   height: 42px;
 
   padding: 0 11px;
@@ -450,6 +479,7 @@
 }
 
 .credit-card-field input:focus,
+.credit-card-field select:focus,
 .credit-card-field textarea:focus {
   border-color: var(--primary);
 

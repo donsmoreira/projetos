@@ -8,39 +8,62 @@ import type {
 
 const CARD_SELECT = `
   *,
+  bank_accounts (
+    id,
+    name,
+    bank
+  ),
   card_transactions (
-    value,
-    settled
+    value
+  ),
+  card_settlements (
+    value
   )
 `;
 
-type CardTransactionRow = {
+type ValueRow = {
   value: number | string | null;
-  settled: boolean;
 };
+
+function sumValues(rows: ValueRow[] | undefined) {
+  return (rows ?? []).reduce(
+    (total, row) =>
+      total + Number(row.value || 0),
+    0
+  );
+}
 
 function normalizeCreditCard(
   card: Record<string, unknown>
 ): CreditCard {
-  const { card_transactions, ...cardData } =
-    card as Record<string, unknown> & {
-      card_transactions?: CardTransactionRow[];
-    };
+  const {
+    card_transactions,
+    card_settlements,
+    bank_accounts,
+    ...cardData
+  } = card as Record<string, unknown> & {
+    card_transactions?: ValueRow[];
+    card_settlements?: ValueRow[];
+    bank_accounts?: unknown;
+  };
 
   const limitTotal =
     Number(cardData.credit_limit || 0);
 
-  // Compras ainda não pagas na fatura ocupam o limite
-  const usedLimit = (card_transactions ?? [])
-    .filter(transaction => !transaction.settled)
-    .reduce(
-      (total, transaction) =>
-        total + Number(transaction.value || 0),
-      0
-    );
+  // Utilizado = total gasto no cartão - baixas (pagamentos de fatura)
+  const usedLimit = Math.max(
+    sumValues(card_transactions) -
+      sumValues(card_settlements),
+    0
+  );
 
   return {
     ...cardData,
+
+    bank_accounts:
+      Array.isArray(bank_accounts)
+        ? bank_accounts[0] ?? null
+        : bank_accounts ?? null,
 
     limit_total:
       limitTotal,
@@ -103,8 +126,8 @@ export async function createCreditCard(
       name:
         card.name,
 
-      bank:
-        card.bank || null,
+      bank_account_id:
+        card.bankAccountId || null,
 
       brand:
         card.brand || null,
@@ -153,8 +176,8 @@ export async function updateCreditCard(
       name:
         card.name,
 
-      bank:
-        card.bank || null,
+      bank_account_id:
+        card.bankAccountId || null,
 
       brand:
         card.brand || null,

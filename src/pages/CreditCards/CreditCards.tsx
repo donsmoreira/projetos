@@ -76,7 +76,8 @@ function CreditCards() {
     return cards.filter(card => {
       const fields = [
         card.name,
-        card.bank,
+        card.bank_accounts?.name,
+        card.bank_accounts?.bank,
         card.brand,
         card.final_digits,
         card.holder_name

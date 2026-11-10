@@ -6,6 +6,8 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 ## [Não lançado]
 
 ### Adicionado
+- Cartões: o banco é escolhido entre as contas bancárias cadastradas, em vez de digitado.
+- Cartões: lista fixa das bandeiras usadas no Brasil (Visa, Mastercard, Elo, American Express, Hipercard e outras).
 - Versão do app no rodapé do menu lateral.
 - `vercel.json` para as rotas internas funcionarem ao atualizar a página na Vercel.
 - README do projeto.
@@ -13,7 +15,7 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 
 ### Corrigido
 - Tela de Cartões não funcionava: usava colunas que não existiam na tabela `credit_cards`. Agora usa `credit_limit` como limite total, e o SQL `supabase/migrations/20261110_cartoes_e_politicas.sql` cria os campos que faltavam.
-- Limite disponível do cartão passa a ser calculado pelas compras em aberto, em vez de digitado.
+- Limite disponível do cartão passa a ser só exibido, calculado como limite total − (gastos − baixas de fatura), em vez de digitado.
 - Dashboard mostrava o limite utilizado em cartões sempre como R$ 0,00.
 - Remoção de políticas de segurança duplicadas em `credit_cards` e `receivables`.
 - Parcelas com vencimento entre os dias 29 e 31 pulavam um mês (ex.: 31/01 + 1 mês virava 03/03). Agora usam o último dia do mês.

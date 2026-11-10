@@ -117,7 +117,9 @@ Mesmas lacunas: status vencido, recebimento parcial, categorias cadastradas, rec
 | Lançamento de compras no cartão | ❌ | |
 | Compras parceladas no cartão | ❌ | |
 | Faturas (abertura, fechamento, pagamento) | ❌ | |
-| Cálculo automático do limite disponível | ✅ | limite total menos as compras em aberto em `card_transactions` |
+| Cálculo automático do limite disponível | ✅ | limite total − (gastos em `card_transactions` − baixas em `card_settlements`); só exibido, não editável |
+| Banco do cartão | ✅ | escolhido entre as contas bancárias cadastradas (`bank_account_id`) |
+| Bandeiras | ✅ | lista fixa das bandeiras do Brasil (`src/constants/cardBrands.ts`) |
 
 ### 3.8 Relatórios (`/relatorios`)
 | Item | Status | Observação |

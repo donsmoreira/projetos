@@ -12,10 +12,20 @@ import {
   updateCreditCard
 } from "../../../services/creditCardsService";
 
+import {
+  listBankAccounts
+} from "../../../services/bankAccountsService";
+
+import { CARD_BRANDS } from "../../../constants/cardBrands";
+
 import type {
   CreditCard,
   CreditCardFormData
 } from "../../../types/creditCard";
+
+import type {
+  BankAccount
+} from "../../../types/bankAccount";
 
 type CreditCardFormProps = {
   card: CreditCard | null;
@@ -23,9 +33,19 @@ type CreditCardFormProps = {
   onSaved: () => Promise<void> | void;
 };
 
+function formatCurrency(value: number) {
+  return Number(value || 0).toLocaleString(
+    "pt-BR",
+    {
+      style: "currency",
+      currency: "BRL"
+    }
+  );
+}
+
 const emptyForm: CreditCardFormData = {
   name: "",
-  bank: "",
+  bankAccountId: "",
   brand: "",
   finalDigits: "",
   holderName: "",
@@ -52,11 +72,42 @@ function CreditCardForm({
   const [errorMessage, setErrorMessage] =
     useState("");
 
+  const [bankAccounts, setBankAccounts] =
+    useState<BankAccount[]>([]);
+
+  const [loadingAccounts, setLoadingAccounts] =
+    useState(true);
+
+  useEffect(() => {
+    async function loadAccounts() {
+      try {
+        setLoadingAccounts(true);
+
+        const data =
+          await listBankAccounts();
+
+        setBankAccounts(data);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Não foi possível carregar as contas bancárias.";
+
+        setErrorMessage(message);
+      } finally {
+        setLoadingAccounts(false);
+      }
+    }
+
+    loadAccounts();
+  }, []);
+
   useEffect(() => {
     if (card) {
       setFormData({
         name: card.name,
-        bank: card.bank ?? "",
+        bankAccountId:
+          card.bank_account_id ?? "",
         brand: card.brand ?? "",
         finalDigits:
           card.final_digits ?? "",
@@ -104,6 +155,13 @@ function CreditCardForm({
       return;
     }
 
+    if (!formData.bankAccountId) {
+      setErrorMessage(
+        "Selecione o banco do cartão."
+      );
+      return;
+    }
+
     if (
       Number(formData.limitTotal) < 0
     ) {
@@ -133,11 +191,11 @@ function CreditCardForm({
         name:
           formData.name.trim(),
 
-        bank:
-          formData.bank.trim(),
+        bankAccountId:
+          formData.bankAccountId,
 
         brand:
-          formData.brand.trim(),
+          formData.brand,
 
         finalDigits:
           formData.finalDigits.trim(),
@@ -223,17 +281,38 @@ function CreditCardForm({
             Banco
           </label>
 
-          <input
+          <select
             id="credit-card-bank"
-            type="text"
-            value={formData.bank}
+            value={formData.bankAccountId}
             onChange={event =>
               updateField(
-                "bank",
+                "bankAccountId",
                 event.target.value
               )
             }
-          />
+            disabled={loadingAccounts}
+            required
+          >
+            <option value="">
+              {loadingAccounts
+                ? "Carregando contas..."
+                : bankAccounts.length === 0
+                  ? "Cadastre uma conta em Contas Bancárias"
+                  : "Selecione o banco"}
+            </option>
+
+            {bankAccounts.map(account => (
+              <option
+                key={account.id}
+                value={account.id}
+              >
+                {account.name}
+                {account.bank
+                  ? ` - ${account.bank}`
+                  : ""}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="credit-card-field">
@@ -241,9 +320,8 @@ function CreditCardForm({
             Bandeira
           </label>
 
-          <input
+          <select
             id="credit-card-brand"
-            type="text"
             value={formData.brand}
             onChange={event =>
               updateField(
@@ -251,8 +329,30 @@ function CreditCardForm({
                 event.target.value
               )
             }
-            placeholder="Ex.: Mastercard"
-          />
+          >
+            <option value="">
+              Selecione a bandeira
+            </option>
+
+            {/* Mantém uma bandeira antiga que não esteja na lista */}
+            {formData.brand &&
+              !(CARD_BRANDS as readonly string[]).includes(
+                formData.brand
+              ) && (
+                <option value={formData.brand}>
+                  {formData.brand}
+                </option>
+              )}
+
+            {CARD_BRANDS.map(brand => (
+              <option
+                key={brand}
+                value={brand}
+              >
+                {brand}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="credit-card-field">
@@ -318,28 +418,31 @@ function CreditCardForm({
         </div>
 
         <div className="credit-card-field">
-          <label htmlFor="credit-card-available">
+          <span className="credit-card-field-label">
             Limite disponível
-          </label>
+          </span>
 
-          <input
-            id="credit-card-available"
-            type="text"
-            value={
-              card
-                ? card.available_limit.toLocaleString(
-                    "pt-BR",
-                    {
-                      style: "currency",
-                      currency: "BRL"
-                    }
-                  )
-                : "Igual ao limite total"
-            }
-            readOnly
-            disabled
-            title="Calculado pelas compras ainda não pagas na fatura"
-          />
+          <div
+            className="credit-card-readonly-value"
+            aria-live="polite"
+          >
+            <strong>
+              {formatCurrency(
+                Math.max(
+                  Number(formData.limitTotal || 0) -
+                    (card?.used_limit ?? 0),
+                  0
+                )
+              )}
+            </strong>
+
+            <small>
+              Limite total − (gastos − baixas)
+              {card
+                ? ` · utilizado: ${formatCurrency(card.used_limit)}`
+                : ""}
+            </small>
+          </div>
         </div>
 
         <div className="credit-card-field">
