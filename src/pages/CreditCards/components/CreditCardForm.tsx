@@ -18,6 +18,11 @@ import {
 
 import { CARD_BRANDS } from "../../../constants/cardBrands";
 
+import {
+  formatCurrencyInput,
+  parseCurrencyInput
+} from "../../../utils/currency";
+
 import type {
   CreditCard,
   CreditCardFormData
@@ -143,21 +148,36 @@ function CreditCardForm({
     }));
   }
 
+  // Nome do cartão = banco da conta selecionada + bandeira, ex.: "SICREDI VISA"
+  const selectedAccount = bankAccounts.find(
+    account =>
+      account.id === formData.bankAccountId
+  );
+
+  const cardName = [
+    selectedAccount?.bank?.trim() ||
+      selectedAccount?.name.trim(),
+    formData.brand
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toUpperCase();
+
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
 
-    if (!formData.name.trim()) {
+    if (!formData.bankAccountId) {
       setErrorMessage(
-        "Informe o nome do cartão."
+        "Selecione o banco do cartão."
       );
       return;
     }
 
-    if (!formData.bankAccountId) {
+    if (!formData.brand) {
       setErrorMessage(
-        "Selecione o banco do cartão."
+        "Selecione a bandeira do cartão."
       );
       return;
     }
@@ -189,7 +209,7 @@ function CreditCardForm({
 
       const normalizedData: CreditCardFormData = {
         name:
-          formData.name.trim(),
+          cardName,
 
         bankAccountId:
           formData.bankAccountId,
@@ -256,24 +276,22 @@ function CreditCardForm({
     >
       <div className="credit-card-form-grid">
         <div className="credit-card-field credit-card-field-full">
-          <label htmlFor="credit-card-name">
+          <span className="credit-card-field-label">
             Nome do cartão
-          </label>
+          </span>
 
-          <input
-            id="credit-card-name"
-            type="text"
-            value={formData.name}
-            onChange={event =>
-              updateField(
-                "name",
-                event.target.value
-              )
-            }
-            placeholder="Ex.: Nubank Platinum"
-            autoFocus
-            required
-          />
+          <div
+            className="credit-card-readonly-value"
+            aria-live="polite"
+          >
+            <strong>
+              {cardName || "—"}
+            </strong>
+
+            <small>
+              Preenchido sozinho: banco + bandeira
+            </small>
+          </div>
         </div>
 
         <div className="credit-card-field">
@@ -291,6 +309,7 @@ function CreditCardForm({
               )
             }
             disabled={loadingAccounts}
+            autoFocus
             required
           >
             <option value="">
@@ -329,6 +348,7 @@ function CreditCardForm({
                 event.target.value
               )
             }
+            required
           >
             <option value="">
               Selecione a bandeira
@@ -397,23 +417,25 @@ function CreditCardForm({
 
         <div className="credit-card-field">
           <label htmlFor="credit-card-limit">
-            Limite total
+            Limite total (R$)
           </label>
 
           <input
             id="credit-card-limit"
-            type="number"
-            min="0"
-            step="0.01"
-            value={formData.limitTotal}
+            type="text"
+            inputMode="numeric"
+            value={formatCurrencyInput(
+              formData.limitTotal
+            )}
             onChange={event =>
               updateField(
                 "limitTotal",
-                Number(
-                  event.target.value || 0
+                parseCurrencyInput(
+                  event.target.value
                 )
               )
             }
+            placeholder="0,00"
           />
         </div>
 
