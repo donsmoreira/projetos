@@ -120,8 +120,9 @@ Mesmas lacunas: status vencido, recebimento parcial, categorias cadastradas, rec
 | Cálculo automático do limite disponível | ✅ | limite total − (gastos em `card_transactions` − baixas em `card_settlements`); só exibido, não editável |
 | Banco do cartão | ✅ | escolhido entre as contas bancárias cadastradas (`bank_account_id`) |
 | Bandeiras | ✅ | lista fixa das bandeiras do Brasil (`src/constants/cardBrands.ts`) |
-| Nome do cartão | ✅ | automático: banco + bandeira em maiúsculas (ex.: SICREDI VISA) |
-| Valores em reais | 🟡 | máscara `5.000,00` (`src/utils/currency.ts`) no limite do cartão; aplicar nos demais formulários |
+| Nome do cartão | ✅ | automático: banco + bandeira em maiúsculas (ex.: SICREDI VISA), sem o código do banco (`src/utils/bank.ts`) |
+| Valores em reais | 🟡 | componente `CurrencyInput` (edita qualquer casa, formata 5.000,00) no limite do cartão; aplicar nos demais formulários |
+| Banco nas contas bancárias | 🟡 | ainda é texto livre e aceita o código junto (ex.: "748 - Sicredi"); trocar por lista fixa dos bancos |
 
 ### 3.8 Relatórios (`/relatorios`)
 | Item | Status | Observação |

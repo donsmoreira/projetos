@@ -18,10 +18,9 @@ import {
 
 import { CARD_BRANDS } from "../../../constants/cardBrands";
 
-import {
-  formatCurrencyInput,
-  parseCurrencyInput
-} from "../../../utils/currency";
+import { cleanBankName } from "../../../utils/bank";
+
+import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
 
 import type {
   CreditCard,
@@ -155,8 +154,8 @@ function CreditCardForm({
   );
 
   const cardName = [
-    selectedAccount?.bank?.trim() ||
-      selectedAccount?.name.trim(),
+    cleanBankName(selectedAccount?.bank) ||
+      cleanBankName(selectedAccount?.name),
     formData.brand
   ]
     .filter(Boolean)
@@ -420,22 +419,15 @@ function CreditCardForm({
             Limite total (R$)
           </label>
 
-          <input
+          <CurrencyInput
             id="credit-card-limit"
-            type="text"
-            inputMode="numeric"
-            value={formatCurrencyInput(
-              formData.limitTotal
-            )}
-            onChange={event =>
+            value={formData.limitTotal}
+            onChange={value =>
               updateField(
                 "limitTotal",
-                parseCurrencyInput(
-                  event.target.value
-                )
+                value
               )
             }
-            placeholder="0,00"
           />
         </div>
 

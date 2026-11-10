@@ -8,8 +8,8 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 ### Adicionado
 - Cartões: o banco é escolhido entre as contas bancárias cadastradas, em vez de digitado.
 - Cartões: lista fixa das bandeiras usadas no Brasil (Visa, Mastercard, Elo, American Express, Hipercard e outras).
-- Cartões: o nome é montado sozinho com banco + bandeira em maiúsculas (ex.: SICREDI VISA), sem digitação.
-- Campo de limite total com máscara de reais e 2 casas decimais (ex.: 5.000,00).
+- Cartões: o nome é montado sozinho com banco + bandeira em maiúsculas (ex.: SICREDI VISA), sem digitação e sem o código numérico do banco.
+- Campo de valor em reais (`CurrencyInput`) com 2 casas decimais: edita qualquer casa do número sem o cursor pular, centavos por substituição, e formata como 5.000,00 ao sair do campo. Usado no limite total do cartão.
 - Versão do app no rodapé do menu lateral.
 - `vercel.json` para as rotas internas funcionarem ao atualizar a página na Vercel.
 - README do projeto.
