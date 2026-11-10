@@ -5,7 +5,7 @@
 
   padding: 16px;
 
-  background: #eef1ef;
+  background: var(--surface-muted);
 }
 
 /* CABEÇALHO */
@@ -13,8 +13,8 @@
 .reports-header {
   padding: 18px;
 
-  background: #f4f6f5;
-  border: 1px solid #d9dfdc;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 6px;
 }
 
@@ -44,8 +44,8 @@
 
   padding: 16px;
 
-  background: #f4f6f5;
-  border: 1px solid #d9dfdc;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   border-radius: 6px;
 }
 
@@ -63,8 +63,8 @@
 
   padding: 16px;
 
-  background: #ffffff;
-  border: 1px solid #d8dedb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 6px;
 }
 
@@ -88,10 +88,10 @@
 
   padding: 0 11px;
 
-  border: 1px solid #cfd8d4;
+  border: 1px solid var(--border);
   border-radius: 6px;
 
-  background: #ffffff;
+  background: var(--surface);
   color: var(--text);
 
   outline: none;
@@ -103,7 +103,7 @@
 .report-filter-field select:focus {
   border-color: var(--primary);
 
-  box-shadow: 0 0 0 3px rgba(15, 76, 58, 0.1);
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .report-filter-button {
@@ -115,7 +115,7 @@
   border-radius: 6px;
 
   background: var(--primary);
-  color: #ffffff;
+  color: var(--on-primary);
 
   cursor: pointer;
 
@@ -150,8 +150,8 @@
 
   padding: 16px;
 
-  background: #ffffff;
-  border: 1px solid #d8dedb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 6px;
 }
 
@@ -211,8 +211,8 @@
 
   padding: 16px;
 
-  background: #ffffff;
-  border: 1px solid #d8dedb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 6px;
 }
 
@@ -247,8 +247,8 @@
 
   padding: 24px;
 
-  background: #ffffff;
-  border: 1px solid #d8dedb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 6px;
 
   color: var(--text-light);
@@ -280,7 +280,7 @@
 
   overflow-x: auto;
 
-  border: 1px solid #d8dedb;
+  border: 1px solid var(--border);
   border-radius: 6px;
 }
 
@@ -290,7 +290,7 @@
 
   border-collapse: collapse;
 
-  background: #ffffff;
+  background: var(--surface);
 
   font-size: 13px;
 }
@@ -299,15 +299,15 @@
 .reports-table td {
   padding: 12px 14px;
 
-  border-bottom: 1px solid #e1e5e3;
+  border-bottom: 1px solid var(--border);
 
   text-align: left;
   white-space: nowrap;
 }
 
 .reports-table th {
-  background: #f7f9f8;
-  color: #66716c;
+  background: var(--surface-alt);
+  color: var(--text-light);
 
   font-size: 10px;
   font-weight: 700;
@@ -323,7 +323,7 @@
 }
 
 .reports-table tbody tr:hover {
-  background: #f4f8f6;
+  background: var(--surface-muted);
 }
 
 .reports-table td strong {
@@ -366,13 +366,13 @@
 }
 
 .reports-transaction-entrada {
-  background: #e5f4eb;
-  color: #246b45;
+  background: var(--success-soft);
+  color: var(--success);
 }
 
 .reports-transaction-saida {
-  background: #f9e7e3;
-  color: #9a3d32;
+  background: var(--danger-soft);
+  color: var(--danger);
 }
 
 /* VALORES */

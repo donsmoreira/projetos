@@ -6,6 +6,13 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 ## [Não lançado]
 
 ### Adicionado
+- Contas Gerenciais (`/contas-gerenciais`): plano de contas de receitas e despesas. Cada conta tem nome, tipo (receita ou despesa) e se é fixa ou variável, e pode ter subcontas em vários níveis (ex.: RECEITA TRABALHO › Empresa X). A subconta herda o tipo da conta pai; nomes repetidos no mesmo nível e exclusão de conta com subcontas são bloqueados. Tabela criada por `supabase/migrations/20261110_contas_gerenciais.sql`.
+- Identidade visual ARC em todo o sistema: tema escuro com azul elétrico e brilho, baseado na logo da ARC (D&C). Cores centralizadas em variáveis em `src/styles/global.css`; fontes Inter, Exo 2 e Michroma.
+- Logo ARC na tela de entrada, símbolo de circuito no menu lateral e no ícone da aba do navegador; título da aba "Razão Finance ARC".
+- Tela "Criar conta" (`/cadastro`): e-mail, senha e confirmação; a conta é ativada com um código enviado por e-mail, com opção de reenviar (a cada 60 s) e trocar o e-mail.
+- Tela "Esqueceu a senha?" (`/esqueci-senha`): código enviado por e-mail e criação da nova senha.
+- Login com links para as duas telas; e-mail não confirmado leva direto para a digitação do código.
+- Mensagens de erro do login/cadastro traduzidas para português.
 - Contas bancárias: a lista mostra o código do banco ("748 - SICREDI", códigos conferidos na lista do Banco Central) e o campo "Nome da conta" foi removido; o nome passa a ser o próprio banco.
 - Contas aparecem como "748 - SICREDI · Ag. · Conta" nas baixas, nos cartões, no Dashboard e nos relatórios.
 - Todos os campos de dinheiro (conta bancária, contas a pagar/receber, juros, multa, baixas) usam o `CurrencyInput`: 2 casas decimais, edição em qualquer posição. O saldo inicial aceita valor negativo.

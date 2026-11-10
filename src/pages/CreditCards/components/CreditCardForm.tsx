@@ -59,7 +59,7 @@ const emptyForm: CreditCardFormData = {
   limitTotal: 0,
   closingDay: 1,
   dueDay: 1,
-  color: "#183c34",
+  color: "#1a7cff",
   notes: ""
 };
 
@@ -127,7 +127,7 @@ function CreditCardForm({
         dueDay:
           Number(card.due_day || 1),
         color:
-          card.color || "#183c34",
+          card.color || "#1a7cff",
         notes:
           card.notes ?? ""
       });

@@ -30,6 +30,7 @@ No futuro, ele será a **fonte de dados financeira** usada pelo **Assessor Finan
 | Rotas | React Router 7 |
 | Ícones | lucide-react |
 | Estilo | CSS puro, um arquivo por componente; variáveis globais em `src/styles/global.css` |
+| Identidade visual | Marca ARC (D&C): tema escuro, azul elétrico `#1a7cff` / ciano `#4fc3ff` com brilho, texto branco/prata. Fontes Inter (texto), Exo 2 (títulos) e Michroma (marca). Logo em `src/assets/arc-logo.png`, símbolo em `components/ArcMark`. Todas as cores vêm das variáveis do `global.css` (um tema claro pode ser criado só trocando essas variáveis) |
 | Backend | Supabase (Auth + Postgres), acessado direto pelo frontend via `@supabase/supabase-js` |
 | Config | `.env.local` com `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` |
 
@@ -58,8 +59,8 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Login com e-mail e senha | ✅ | `pages/Login` |
 | Rotas protegidas | ✅ | `routes/ProtectedRoute.tsx` |
 | Logout | ✅ | botão na Topbar |
-| Cadastro de usuário | ❌ | hoje os usuários são criados direto no Supabase |
-| Recuperação de senha | ❌ | |
+| Cadastro de usuário | 🟡 | `pages/Signup`: e-mail + senha, conta ativada por código enviado ao e-mail. Depende de configurar o modelo de e-mail no Supabase |
+| Recuperação de senha | 🟡 | `pages/ForgotPassword`: código por e-mail + nova senha. Mesma dependência |
 | Perfil do usuário | ❌ | a Topbar usa `full_name` ou o e-mail |
 
 ### 3.2 Dashboard (`/`)
@@ -79,6 +80,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 |---|---|---|
 | Clientes (`/clientes`) | ✅ CRUD + busca | nome, tipo (PF/PJ), documento, telefone, e-mail, observações |
 | Fornecedores (`/fornecedores`) | ✅ CRUD + busca | nome, documento, telefone, e-mail, observações |
+| Contas gerenciais (`/contas-gerenciais`) | 🟡 tela pronta, falta criar a tabela no Supabase | árvore de contas pai/subcontas; nome, receita/despesa, fixa/variável; filtro por tipo, busca, expandir/recolher |
 
 ### 3.4 Contas bancárias (`/bancos`)
 | Item | Status | Observação |
@@ -181,6 +183,7 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 | `card_settlements` (pagamento de fatura) | settlement_date, value | card_id, bank_account_id, bank_transaction_id |
 | `profiles` | full_name, company_name, phone, preferred_theme, currency | user_id (criado automaticamente no cadastro) |
 | `appointments` (agenda) | appointment_date, start_time, end_time, status (agendado/confirmado), confirmed_at | user_id, client_id |
+| `management_accounts` (contas gerenciais) — **nova, criar com o SQL** | name, type (`receita`/`despesa`), nature (`fixa`/`variavel`). Subconta tem o mesmo tipo da conta pai; nome único por nível; sem ciclos (regras no banco) | user_id, parent_id → management_accounts |
 
 **Princípio central:** `bank_transactions` é o **razão** do sistema. Todo dinheiro que entra ou sai de uma conta vira uma linha nessa tabela, e saldos e relatórios saem dela.
 
@@ -299,9 +302,9 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [ ] Filtros por período, status, fornecedor/cliente e categoria
 - [ ] Ações em lote (pagar várias)
 
-**Categorias** (v0.6.0)
-- [ ] Cadastro de categorias (receita/despesa), com subcategorias opcionais
-- [ ] Substituir o campo texto livre por seleção
+**Categorias → Contas Gerenciais** (v0.6.0)
+- [x] Cadastro de contas gerenciais (`/contas-gerenciais`): nome, tipo receita/despesa, fixa/variável, conta pai e subcontas em quantos níveis quiser (adiantado; precisa rodar `supabase/migrations/20261110_contas_gerenciais.sql`)
+- [ ] Substituir o campo texto livre "Categoria" de contas a pagar/receber pela escolha de uma conta gerencial
 
 **Cartões de crédito** (v0.7.0)
 - [ ] Lançamento de compras (à vista e parceladas)
@@ -318,7 +321,9 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [ ] Exportação PDF e Excel
 
 ### Fase 4 — Conta do usuário · v0.9.0
-- [ ] Cadastro de usuário e recuperação de senha
+- [x] Cadastro de usuário com código de verificação por e-mail (adiantado)
+- [x] "Esqueceu a senha?" com código por e-mail (adiantado)
+- [ ] SMTP próprio no Supabase (o envio padrão só manda para e-mails da equipe do projeto e tem limite por hora)
 - [ ] Tela de perfil (nome, telefone/WhatsApp, preferências)
 - [ ] *A definir:* múltiplas empresas por usuário / usuários compartilhando uma empresa
 

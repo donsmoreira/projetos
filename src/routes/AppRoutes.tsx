@@ -9,6 +9,8 @@ import MainLayout from "../layouts/MainLayout/MainLayout";
 import ProtectedRoute from "./ProtectedRoute";
 
 import Login from "../pages/Login/Login";
+import Signup from "../pages/Signup/Signup";
+import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Clients from "../pages/Clients/Clients";
 import Suppliers from "../pages/Suppliers/Suppliers";
@@ -17,6 +19,7 @@ import Payables from "../pages/Payables/Payables";
 import Receivables from "../pages/Receivables/Receivables";
 import CreditCards from "../pages/CreditCards/CreditCards";
 import Reports from "../pages/Reports/Reports";
+import ManagementAccounts from "../pages/ManagementAccounts/ManagementAccounts";
 
 function AppRoutes() {
   return (
@@ -25,6 +28,16 @@ function AppRoutes() {
         <Route
           path="/login"
           element={<Login />}
+        />
+
+        <Route
+          path="/cadastro"
+          element={<Signup />}
+        />
+
+        <Route
+          path="/esqueci-senha"
+          element={<ForgotPassword />}
         />
 
         <Route element={<ProtectedRoute />}>
@@ -62,6 +75,11 @@ function AppRoutes() {
             <Route
               path="cartoes"
               element={<CreditCards />}
+            />
+
+            <Route
+              path="contas-gerenciais"
+              element={<ManagementAccounts />}
             />
 
             <Route

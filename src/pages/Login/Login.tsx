@@ -7,13 +7,14 @@ import type {
 } from "react";
 
 import {
+  Link,
   Navigate
 } from "react-router-dom";
 
 import { supabase } from "../../services/supabase";
 import { useAuth } from "../../contexts/AuthContext";
-
-import "./Login.css";
+import AuthLayout from "../../components/AuthLayout/AuthLayout";
+import { translateAuthError } from "../../utils/authErrors";
 
 function Login() {
   const {
@@ -30,6 +31,9 @@ function Login() {
   const [errorMessage, setErrorMessage] =
     useState("");
 
+  const [emailNotConfirmed, setEmailNotConfirmed] =
+    useState(false);
+
   const [submitting, setSubmitting] =
     useState(false);
 
@@ -39,6 +43,7 @@ function Login() {
     event.preventDefault();
 
     setErrorMessage("");
+    setEmailNotConfirmed(false);
     setSubmitting(true);
 
     const { error } =
@@ -49,10 +54,12 @@ function Login() {
 
     if (error) {
       setErrorMessage(
-        error.message ===
-          "Invalid login credentials"
-          ? "E-mail ou senha incorretos."
-          : error.message
+        translateAuthError(error)
+      );
+
+      setEmailNotConfirmed(
+        error.code === "email_not_confirmed" ||
+        /email not confirmed/i.test(error.message)
       );
 
       setSubmitting(false);
@@ -73,88 +80,94 @@ function Login() {
   }
 
   return (
-    <main className="login-page">
-      <section className="login-card">
-        <div className="login-brand">
-          <span className="login-brand-mark">
-            R
-          </span>
+    <AuthLayout
+      title="Entrar"
+      subtitle="Acesse seus dados financeiros."
+    >
+      <form
+        className="login-form"
+        onSubmit={handleSubmit}
+      >
+        <div className="login-field">
+          <label htmlFor="email">
+            E-mail
+          </label>
 
-          <div>
-            <strong>
-              Razão Finance ARC
-            </strong>
-
-            <small>
-              Gestão financeira
-            </small>
-          </div>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={event =>
+              setEmail(event.target.value)
+            }
+            autoComplete="email"
+            required
+          />
         </div>
 
-        <div className="login-heading">
-          <h1>Entrar</h1>
-
-          <p>
-            Acesse seus dados financeiros.
-          </p>
-        </div>
-
-        <form
-          className="login-form"
-          onSubmit={handleSubmit}
-        >
-          <div className="login-field">
-            <label htmlFor="email">
-              E-mail
-            </label>
-
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={event =>
-                setEmail(event.target.value)
-              }
-              autoComplete="email"
-              required
-            />
-          </div>
-
-          <div className="login-field">
+        <div className="login-field">
+          <div className="login-label-row">
             <label htmlFor="password">
               Senha
             </label>
 
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={event =>
-                setPassword(event.target.value)
-              }
-              autoComplete="current-password"
-              required
-            />
+            <Link
+              to="/esqueci-senha"
+              className="login-small-link"
+            >
+              Esqueceu a senha?
+            </Link>
           </div>
 
-          {errorMessage && (
-            <p className="login-error">
-              {errorMessage}
-            </p>
-          )}
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={event =>
+              setPassword(event.target.value)
+            }
+            autoComplete="current-password"
+            required
+          />
+        </div>
 
-          <button
-            type="submit"
-            className="login-button"
-            disabled={submitting}
-          >
-            {submitting
-              ? "Entrando..."
-              : "Entrar"}
-          </button>
-        </form>
-      </section>
-    </main>
+        {errorMessage && (
+          <p className="login-error">
+            {errorMessage}
+
+            {emailNotConfirmed && (
+              <>
+                {" "}
+                <Link
+                  to="/cadastro"
+                  state={{
+                    email: email.trim(),
+                    verify: true
+                  }}
+                >
+                  Confirmar meu e-mail
+                </Link>
+              </>
+            )}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          className="login-button"
+          disabled={submitting}
+        >
+          {submitting
+            ? "Entrando..."
+            : "Entrar"}
+        </button>
+
+        <p className="login-footer">
+          Não tem conta?{" "}
+          <Link to="/cadastro">Criar conta</Link>
+        </p>
+      </form>
+    </AuthLayout>
   );
 }
 

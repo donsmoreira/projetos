@@ -1,6 +1,7 @@
 import {
   BarChart3,
   CreditCard,
+  FolderTree,
   HandCoins,
   House,
   Landmark,
@@ -10,6 +11,7 @@ import {
 } from "lucide-react";
 
 import SidebarItem from "./SidebarItem";
+import ArcMark from "../../../../components/ArcMark/ArcMark";
 
 import "./Sidebar.css";
 
@@ -17,8 +19,17 @@ function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
-        <h2>Razão ARC</h2>
-        <p>Gestão Financeira</p>
+        <ArcMark
+          size={42}
+          className="sidebar-logo-mark"
+        />
+
+        <div>
+          <h2>Razão Finance</h2>
+          <p>
+            <span>ARC</span> · Gestão financeira
+          </p>
+        </div>
       </div>
 
       <nav className="sidebar-menu">
@@ -39,6 +50,12 @@ function Sidebar() {
           icon={<Truck size={18} />}
           title="Fornecedores"
           to="/fornecedores"
+        />
+
+        <SidebarItem
+          icon={<FolderTree size={18} />}
+          title="Contas Gerenciais"
+          to="/contas-gerenciais"
         />
 
         <SidebarItem
@@ -73,7 +90,8 @@ function Sidebar() {
       </nav>
 
       <footer className="sidebar-footer">
-        v{__APP_VERSION__}
+        <span>D&amp;C · Donovan &amp; Christopher</span>
+        <span>v{__APP_VERSION__}</span>
       </footer>
     </aside>
   );

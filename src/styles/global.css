@@ -1,23 +1,68 @@
+/*
+ * Identidade visual ARC — Análises Reais e Computacionais (D&C)
+ * Fundo quase preto com toque azul, azul elétrico com brilho e texto branco/prata.
+ * Todas as cores do sistema saem daqui: para mudar o tema, mude só estas variáveis.
+ */
 :root {
-  --primary: #0f4c3a;
-  --primary-hover: #0b3c2e;
+  color-scheme: dark;
 
-  --sidebar: #183c34;
-  --sidebar-hover: #235246;
-  --sidebar-active: #2e6b58;
+  /* Marca */
+  --arc-blue: #1a7cff;
+  --arc-blue-bright: #3d9bff;
+  --arc-cyan: #4fc3ff;
+  --arc-glow: rgba(61, 155, 255, 0.45);
 
-  --background: #eef1ef;
-  --card: #ffffff;
+  /* Ações principais */
+  --primary: #1a7cff;
+  --primary-hover: #3d9bff;
+  --primary-soft: rgba(26, 124, 255, 0.12);
+  --on-primary: #ffffff;
+  --focus-ring: rgba(61, 155, 255, 0.28);
 
-  --border: #d8dedb;
+  /* Fundos */
+  --background: #05080f;
+  --surface: #0b1220;
+  --surface-alt: #0e1628;
+  --surface-muted: #121c31;
+  --card: var(--surface);
 
-  --text: #14251f;
-  --text-light: #66756f;
+  /* Menu lateral */
+  --sidebar: #070c17;
+  --sidebar-hover: rgba(26, 124, 255, 0.1);
+  --sidebar-active: rgba(26, 124, 255, 0.18);
 
-  --success: #2e7d4f;
-  --danger: #b34a3d;
-  --warning: #b7791f;
+  /* Linhas */
+  --border: #1d2b46;
+  --border-strong: #2c4068;
+
+  /* Texto */
+  --text: #e8eef8;
+  --text-light: #9aa9c2;
+  --text-muted: #6c7c97;
+
+  /* Estados */
+  --success: #2fd28a;
+  --success-soft: rgba(47, 210, 138, 0.12);
+  --success-border: rgba(47, 210, 138, 0.35);
+
+  --danger: #f0565a;
+  --danger-hover: #ff6f72;
+  --danger-soft: rgba(240, 86, 90, 0.1);
+  --danger-border: rgba(240, 86, 90, 0.35);
+
+  --warning: #f5b83d;
+  --warning-soft: rgba(245, 184, 61, 0.12);
+
+  /* Sobreposições */
+  --overlay: rgba(2, 5, 12, 0.75);
+  --shadow-color: rgba(0, 0, 0, 0.55);
+
+  /* Fontes */
+  --font-body: "Inter", "Segoe UI", Tahoma, sans-serif;
+  --font-display: "Exo 2", "Segoe UI", sans-serif;
+  --font-brand: "Michroma", "Exo 2", sans-serif;
 }
+
 * {
   margin: 0;
   padding: 0;
@@ -34,15 +79,18 @@ body,
 body {
   margin: 0;
 
-  background: #dfe8e4;
+  background: var(--background);
   color: var(--text);
 
-  font-family:
-    "Segoe UI",
-    Tahoma,
-    Geneva,
-    Verdana,
-    sans-serif;
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
 }
 
 button,
@@ -50,4 +98,39 @@ input,
 select,
 textarea {
   font: inherit;
+}
+
+input,
+select,
+textarea {
+  color: var(--text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+}
+
+select option {
+  background: var(--surface);
+  color: var(--text);
+}
+
+/* Preenchimento automático do navegador sem fundo claro */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-alt) inset;
+  caret-color: var(--text);
+  transition: background-color 9999s;
+}
+
+::selection {
+  background: rgba(26, 124, 255, 0.35);
+}
+
+/* Barras de rolagem escuras */
+* {
+  scrollbar-color: var(--border-strong) transparent;
 }

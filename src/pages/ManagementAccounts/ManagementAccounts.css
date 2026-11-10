@@ -1,0 +1,809 @@
+.accounts-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  padding: 16px;
+}
+
+/* CABEÇALHO */
+
+.accounts-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+
+  padding: 18px;
+
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.accounts-header h2 {
+  color: var(--text);
+
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.accounts-header p {
+  margin-top: 4px;
+
+  color: var(--text-light);
+
+  font-size: 13px;
+}
+
+.accounts-new-button {
+  min-height: 42px;
+
+  padding: 0 18px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: var(--primary);
+  color: var(--on-primary);
+
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  transition: background-color 0.2s;
+}
+
+.accounts-new-button:hover {
+  background: var(--primary-hover);
+}
+
+/* RESUMO */
+
+.accounts-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.accounts-summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  padding: 12px 14px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.accounts-summary-card span {
+  color: var(--text-light);
+
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.accounts-summary-card strong {
+  color: var(--text);
+
+  font-family: var(--font-display);
+  font-size: 22px;
+}
+
+.accounts-summary-card .accounts-summary-receita {
+  color: var(--success);
+}
+
+.accounts-summary-card .accounts-summary-despesa {
+  color: var(--danger);
+}
+
+/* CONTEÚDO */
+
+.accounts-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  padding: 16px;
+
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.accounts-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.accounts-filter {
+  display: flex;
+
+  padding: 3px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.accounts-filter button {
+  min-height: 34px;
+
+  padding: 0 14px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: transparent;
+  color: var(--text-light);
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.accounts-filter button:hover {
+  color: var(--text);
+}
+
+.accounts-filter button.is-active {
+  background: var(--primary-soft);
+  color: var(--arc-blue-bright);
+
+  box-shadow: inset 0 0 0 1px rgba(61, 155, 255, 0.35);
+}
+
+.accounts-search {
+  min-width: 220px;
+  min-height: 42px;
+  flex: 1;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 0 12px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.accounts-search:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.accounts-search-icon {
+  flex-shrink: 0;
+  color: var(--text-light);
+}
+
+.accounts-search input {
+  min-width: 0;
+  flex: 1;
+
+  height: 40px;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+  color: var(--text);
+
+  font-size: 13px;
+}
+
+.accounts-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.accounts-search-clear {
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+  border-radius: 5px;
+
+  background: transparent;
+  color: var(--text-light);
+
+  cursor: pointer;
+}
+
+.accounts-search-clear:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.accounts-tree-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.accounts-tree-controls button {
+  min-height: 34px;
+
+  padding: 0 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: var(--surface);
+  color: var(--text-light);
+
+  cursor: pointer;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.accounts-tree-controls button:hover {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+/* ESTADOS */
+
+.accounts-state {
+  min-height: 160px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+
+  padding: 24px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  color: var(--text-light);
+  font-size: 13px;
+  text-align: center;
+}
+
+.accounts-state h3 {
+  color: var(--text);
+  font-size: 16px;
+}
+
+.accounts-state-error {
+  color: var(--danger);
+}
+
+/* ÁRVORE */
+
+.account-tree,
+.account-tree ul {
+  list-style: none;
+}
+
+.account-tree {
+  overflow: hidden;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.account-row {
+  min-height: 52px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding-right: 12px;
+
+  border-bottom: 1px solid var(--border);
+
+  transition: background-color 0.15s;
+}
+
+/* A última linha já desenha a borda de baixo da lista */
+.account-tree {
+  border-bottom: none;
+}
+
+.account-row:hover {
+  background: var(--surface-alt);
+}
+
+.account-row-root {
+  background: var(--surface-alt);
+}
+
+.account-row-root:hover {
+  background: var(--surface-muted);
+}
+
+.account-toggle {
+  width: 26px;
+  height: 26px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 5px;
+
+  background: transparent;
+  color: var(--text-light);
+
+  cursor: pointer;
+}
+
+.account-toggle:disabled {
+  cursor: default;
+}
+
+.account-toggle:not(:disabled):hover {
+  background: var(--primary-soft);
+  color: var(--arc-blue-bright);
+}
+
+/* Bolinha de "nó de circuito" com a cor do tipo */
+.account-dot {
+  width: 9px;
+  height: 9px;
+
+  flex-shrink: 0;
+
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.account-row-receita .account-dot {
+  color: var(--success);
+  box-shadow: 0 0 8px var(--success-border);
+}
+
+.account-row-despesa .account-dot {
+  color: var(--danger);
+  box-shadow: 0 0 8px var(--danger-border);
+}
+
+.account-name {
+  min-width: 0;
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.account-name strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: var(--text);
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.account-row-root .account-name strong {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.account-name small {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.account-badges {
+  display: flex;
+  gap: 6px;
+
+  flex-shrink: 0;
+}
+
+.account-badge {
+  min-width: 70px;
+
+  padding: 3px 8px;
+
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+
+  color: var(--text-light);
+
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.account-badge-receita {
+  background: var(--success-soft);
+  border-color: var(--success-border);
+  color: var(--success);
+}
+
+.account-badge-despesa {
+  background: var(--danger-soft);
+  border-color: var(--danger-border);
+  color: var(--danger);
+}
+
+.account-actions {
+  display: flex;
+  gap: 6px;
+
+  flex-shrink: 0;
+}
+
+.account-action-button {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border);
+  border-radius: 5px;
+
+  background: var(--surface);
+  color: var(--text-light);
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.account-action-button:hover {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--arc-blue-bright);
+}
+
+.account-action-danger:hover {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* MODAL */
+
+.account-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: var(--overlay);
+  backdrop-filter: blur(2px);
+}
+
+.account-modal {
+  width: 100%;
+  max-width: 560px;
+  max-height: calc(100vh - 48px);
+
+  overflow: hidden;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  box-shadow: 0 24px 70px var(--shadow-color);
+}
+
+.account-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 16px 18px;
+
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--border);
+}
+
+.account-modal-header h2 {
+  color: var(--text);
+
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.account-modal-header p {
+  margin-top: 3px;
+
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.account-modal-close {
+  width: 36px;
+  height: 36px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: var(--surface);
+  color: var(--text-light);
+
+  cursor: pointer;
+}
+
+.account-modal-close:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.account-modal-body {
+  max-height: calc(100vh - 150px);
+
+  overflow-y: auto;
+
+  padding: 18px;
+}
+
+/* FORMULÁRIO */
+
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.account-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.account-field label,
+.account-field-label {
+  color: var(--text);
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.account-field input[type="text"],
+.account-field select {
+  width: 100%;
+  height: 42px;
+
+  padding: 0 11px;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: var(--surface-alt);
+  color: var(--text);
+
+  outline: none;
+
+  font-size: 13px;
+}
+
+.account-field input[type="text"]:focus,
+.account-field select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.account-hint {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.account-choice-group {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.account-field .account-choice {
+  min-height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+
+  background: var(--surface-alt);
+  color: var(--text-light);
+
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.account-choice input {
+  accent-color: var(--primary);
+}
+
+.account-field .account-choice:hover {
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+.account-field .account-choice.is-selected {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--text);
+
+  box-shadow: 0 0 14px rgba(26, 124, 255, 0.18);
+}
+
+.account-field .account-choice-receita.is-selected {
+  background: var(--success-soft);
+  border-color: var(--success);
+  color: var(--success);
+  box-shadow: none;
+}
+
+.account-field .account-choice-despesa.is-selected {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+  color: var(--danger);
+  box-shadow: none;
+}
+
+.account-field .account-choice.is-locked {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.account-field .account-choice.is-locked.is-selected {
+  opacity: 1;
+}
+
+.account-form-error {
+  padding: 10px 12px;
+
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-border);
+  border-radius: 6px;
+
+  color: var(--danger);
+  font-size: 12px;
+}
+
+.account-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.account-button {
+  min-height: 42px;
+
+  padding: 0 18px;
+
+  border-radius: 6px;
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.account-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.account-button-primary {
+  border: 1px solid var(--primary);
+
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.account-button-primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+.account-button-secondary {
+  border: 1px solid var(--border);
+
+  background: var(--surface);
+  color: var(--text);
+}
+
+.account-button-secondary:hover:not(:disabled) {
+  background: var(--primary-soft);
+  border-color: var(--border-strong);
+}
+
+/* RESPONSIVO */
+
+@media (max-width: 760px) {
+  .accounts-page {
+    padding: 10px;
+  }
+
+  .accounts-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .accounts-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .accounts-filter,
+  .accounts-tree-controls {
+    width: 100%;
+  }
+
+  .accounts-filter button,
+  .accounts-tree-controls button {
+    flex: 1;
+  }
+
+  .account-row {
+    flex-wrap: wrap;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  .account-badges {
+    order: 3;
+    width: 100%;
+    padding-left: 45px;
+  }
+
+  .account-badge {
+    min-width: 0;
+  }
+
+  .account-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .account-button {
+    width: 100%;
+  }
+}

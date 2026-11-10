@@ -87,7 +87,7 @@ function CreditCardTable({
                     className="credit-card-color"
                     style={{
                       background:
-                        card.color || "#183c34"
+                        card.color || "#1a7cff"
                     }}
                   />
 

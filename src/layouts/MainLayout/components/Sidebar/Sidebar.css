@@ -1,97 +1,92 @@
-.sidebar{
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
 
-    width:250px;
+  display: flex;
+  flex-direction: column;
 
-    background:#183C34;
+  background:
+    radial-gradient(
+      circle at 50% 0,
+      rgba(26, 124, 255, 0.16),
+      transparent 55%
+    ),
+    var(--sidebar);
+  border-right: 1px solid var(--border);
 
-    color:#F4F8F6;
-
-    display:flex;
-
-    flex-direction:column;
-
+  color: var(--text);
 }
 
-.sidebar-footer{
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 
-    margin-top:auto;
+  padding: 26px 20px;
 
-    padding:16px 24px;
-
-    border-top:1px solid #2A5148;
-
-    color:#B9CBC4;
-
-    font-size:12px;
-
+  border-bottom: 1px solid var(--border);
 }
 
-.sidebar-logo{
-
-    padding:32px 24px;
-
-    border-bottom:1px solid #2A5148;
-
+.sidebar-logo-mark {
+  flex-shrink: 0;
 }
 
-.sidebar-logo h2{
+.sidebar-logo h2 {
+  color: var(--text);
 
-    color:white;
-
-    font-size:18px;
-
-    font-weight:700;
-
+  font-family: var(--font-brand);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  text-transform: uppercase;
 }
 
-.sidebar-logo p{
+.sidebar-logo p {
+  margin-top: 4px;
 
-    color:#B9CBC4;
+  color: var(--text-light);
 
-    font-size:13px;
-
+  font-size: 12px;
 }
 
-.sidebar-menu{
+.sidebar-logo p span {
+  color: var(--arc-blue-bright);
 
-    display:flex;
-
-    flex-direction:column;
-
-    gap:6px;
-
-    padding:18px;
-
+  font-family: var(--font-brand);
+  font-size: 11px;
+  letter-spacing: 0.1em;
 }
 
-.sidebar-item{
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 
-    color:#E8F1EE;
-
+  padding: 18px 14px;
 }
 
-.sidebar-item:hover{
+.sidebar-footer {
+  margin-top: auto;
 
-    background:#235246;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 
+  padding: 16px 24px;
+
+  border-top: 1px solid var(--border);
+
+  color: var(--text-muted);
+
+  font-size: 11px;
+  letter-spacing: 0.06em;
 }
 
-.sidebar-item.active{
-
-    background:#2E6B58;
-
-    color:white;
-
-}
-
-.sidebar-item svg{
-
-    color:#D6E5DF;
-
-}
-
-.sidebar-item.active svg{
-
-    color:white;
-
+.sidebar-footer span:first-child {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  text-transform: uppercase;
 }

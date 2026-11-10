@@ -1,6 +1,8 @@
 .sidebar-item {
+  position: relative;
+
   width: 100%;
-  min-height: 46px;
+  min-height: 44px;
 
   display: flex;
   align-items: center;
@@ -8,29 +10,57 @@
 
   padding: 0 14px;
 
+  border: 1px solid transparent;
   border-radius: 8px;
 
-  color: #e5e7eb;
+  color: var(--text-light);
   text-decoration: none;
 
-  font-size: 15px;
+  font-size: 14px;
 
   transition:
     background-color 0.2s,
+    border-color 0.2s,
     color 0.2s;
 }
 
 .sidebar-item:hover {
-  background: #34373d;
+  background: var(--sidebar-hover);
+  color: var(--text);
 }
 
 .sidebar-item.active {
-  background: var(--primary);
-  color: #ffffff;
+  background: var(--sidebar-active);
+  border-color: rgba(61, 155, 255, 0.35);
+
+  color: var(--on-primary);
+
+  box-shadow: 0 0 18px rgba(26, 124, 255, 0.18);
+}
+
+/* Traço azul de "circuito" no item ativo */
+.sidebar-item.active::before {
+  content: "";
+
+  position: absolute;
+  left: -14px;
+  top: 10px;
+  bottom: 10px;
+
+  width: 3px;
+
+  border-radius: 0 3px 3px 0;
+
+  background: var(--arc-cyan);
+  box-shadow: 0 0 10px var(--arc-glow);
 }
 
 .sidebar-icon {
   display: flex;
   align-items: center;
   flex-shrink: 0;
+}
+
+.sidebar-item.active .sidebar-icon {
+  color: var(--arc-cyan);
 }
