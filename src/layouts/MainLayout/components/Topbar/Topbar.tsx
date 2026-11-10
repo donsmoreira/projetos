@@ -1,7 +1,8 @@
-import { LogOut } from "lucide-react";
+import { LogOut, Moon, Sun } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
 import { useAuth } from "../../../../contexts/AuthContext";
+import { useTheme } from "../../../../hooks/useTheme";
 
 import "./Topbar.css";
 
@@ -25,6 +26,16 @@ function Topbar() {
     user,
     signOut
   } = useAuth();
+
+  const {
+    theme,
+    toggleTheme
+  } = useTheme();
+
+  const themeLabel =
+    theme === "light"
+      ? "Ativar modo escuro"
+      : "Ativar modo claro";
 
   const pageTitle =
     pageTitles[location.pathname] ??
@@ -63,6 +74,18 @@ function Topbar() {
       </div>
 
       <div className="topbar-user">
+        <button
+          type="button"
+          className="topbar-icon-button"
+          onClick={toggleTheme}
+          title={themeLabel}
+          aria-label={themeLabel}
+        >
+          {theme === "light"
+            ? <Moon size={18} />
+            : <Sun size={18} />}
+        </button>
+
         <div className="topbar-user-info">
           <span className="topbar-user-name">
             {userName}
@@ -80,7 +103,7 @@ function Topbar() {
 
         <button
           type="button"
-          className="topbar-logout"
+          className="topbar-icon-button"
           onClick={handleSignOut}
           title="Sair do sistema"
           aria-label="Sair do sistema"

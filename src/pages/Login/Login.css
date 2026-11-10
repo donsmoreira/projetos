@@ -22,7 +22,7 @@
 
   padding: 32px 36px 36px;
 
-  background: rgba(11, 18, 32, 0.92);
+  background: var(--surface-glass);
   border: 1px solid var(--border);
   border-radius: 14px;
 
@@ -50,6 +50,23 @@
   margin: -18px 0 -8px;
 
   mix-blend-mode: screen;
+}
+
+/*
+ * Modo claro: a arte da logo foi feita sobre preto e some no branco,
+ * então ela fica numa placa escura (como um selo da marca).
+ */
+:root[data-theme="light"] .login-brand-logo {
+  width: 200px;
+
+  margin: 0 0 12px;
+  padding: 0 8px;
+
+  background: #05080f;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(23, 105, 224, 0.18);
+
+  mix-blend-mode: normal;
 }
 
 .login-brand strong {

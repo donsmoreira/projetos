@@ -13,10 +13,11 @@
   border: 1px solid transparent;
   border-radius: 8px;
 
-  color: var(--text-light);
+  color: var(--sidebar-text);
   text-decoration: none;
 
   font-size: 14px;
+  font-weight: 500;
 
   transition:
     background-color 0.2s,
@@ -26,16 +27,20 @@
 
 .sidebar-item:hover {
   background: var(--sidebar-hover);
+  border-color: var(--border);
   color: var(--text);
 }
 
-.sidebar-item.active {
-  background: var(--sidebar-active);
-  border-color: rgba(61, 155, 255, 0.35);
+/* Item selecionado: botão azul sólido, texto e ícone brancos (nos dois temas) */
+.sidebar-item.active,
+.sidebar-item.active:hover {
+  background: var(--primary);
+  border-color: var(--primary);
 
   color: var(--on-primary);
+  font-weight: 600;
 
-  box-shadow: 0 0 18px rgba(26, 124, 255, 0.18);
+  box-shadow: 0 4px 16px var(--arc-glow);
 }
 
 /* Traço azul de "circuito" no item ativo */
@@ -62,5 +67,5 @@
 }
 
 .sidebar-item.active .sidebar-icon {
-  color: var(--arc-cyan);
+  color: var(--on-primary);
 }

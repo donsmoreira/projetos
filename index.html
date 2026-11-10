@@ -12,6 +12,15 @@
       rel="stylesheet"
     />
     <title>Razão Finance ARC</title>
+    <script>
+      // Aplica o tema salvo antes de a tela aparecer (evita piscar no tema errado)
+      try {
+        if (localStorage.getItem("arc-theme") === "light") {
+          document.documentElement.dataset.theme = "light";
+          document.querySelector('meta[name="theme-color"]').content = "#f2f6fc";
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

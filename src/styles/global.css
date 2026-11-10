@@ -30,6 +30,7 @@
   --sidebar: #070c17;
   --sidebar-hover: rgba(26, 124, 255, 0.1);
   --sidebar-active: rgba(26, 124, 255, 0.18);
+  --sidebar-text: #c3cfe2;
 
   /* Linhas */
   --border: #1d2b46;
@@ -61,6 +62,83 @@
   --font-body: "Inter", "Segoe UI", Tahoma, sans-serif;
   --font-display: "Exo 2", "Segoe UI", sans-serif;
   --font-brand: "Michroma", "Exo 2", sans-serif;
+
+  /* Cartão das telas de entrada (levemente transparente) */
+  --surface-glass: rgba(11, 18, 32, 0.92);
+
+  /* Gráficos (eixos, grade e fundo; as cores das séries são iguais nos dois temas) */
+  --chart-grid: #1d2b46;
+  --chart-axis: #2c4068;
+  --chart-tick: #8b9ab5;
+  --chart-surface: #0b1220;
+  --chart-cursor: rgba(61, 155, 255, 0.08);
+}
+
+/*
+ * Modo claro: fundo branco, tons claros de azul e o mesmo azul ARC,
+ * um pouco mais escuro para o texto continuar legível no branco.
+ * Ativado pelo botão do topo (atributo data-theme="light" no <html>).
+ */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --arc-blue: #1769e0;
+  --arc-blue-bright: #1769e0;
+  --arc-cyan: #0a74b0;
+  --arc-glow: rgba(26, 124, 255, 0.3);
+
+  --primary: #1769e0;
+  --primary-hover: #0f57c2;
+  --primary-soft: rgba(23, 105, 224, 0.09);
+  --on-primary: #ffffff;
+  --focus-ring: rgba(23, 105, 224, 0.22);
+
+  --background: #f2f6fc;
+  --surface: #ffffff;
+  --surface-alt: #f7faff;
+  --surface-muted: #eaf1fb;
+
+  --sidebar: #ffffff;
+  --sidebar-hover: #e8f0fc;
+  --sidebar-active: #dbe8fb;
+  --sidebar-text: #26344f;
+
+  --border: #dce5f2;
+  --border-strong: #b8c8df;
+
+  --text: #142038;
+  --text-light: #4a5b78;
+  --text-muted: #66768f;
+
+  --success: #12865a;
+  --success-soft: rgba(18, 134, 90, 0.1);
+  --success-border: rgba(18, 134, 90, 0.3);
+
+  --danger: #d0353b;
+  --danger-hover: #b5262c;
+  --danger-soft: rgba(208, 53, 59, 0.08);
+  --danger-border: rgba(208, 53, 59, 0.3);
+
+  --warning: #a86c00;
+  --warning-soft: rgba(201, 133, 0, 0.12);
+
+  --overlay: rgba(20, 32, 56, 0.4);
+  --shadow-color: rgba(30, 60, 110, 0.12);
+
+  --surface-glass: rgba(255, 255, 255, 0.94);
+
+  --chart-grid: #e3eaf4;
+  --chart-axis: #c3d1e4;
+  --chart-tick: #5b6b86;
+  --chart-surface: #ffffff;
+  --chart-cursor: rgba(23, 105, 224, 0.06);
+}
+
+/* Troca suave de tema */
+body,
+.sidebar,
+.topbar {
+  transition: background-color 0.2s, color 0.2s;
 }
 
 * {

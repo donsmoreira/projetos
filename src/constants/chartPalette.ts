@@ -1,6 +1,6 @@
 /**
- * Cores dos gráficos no fundo escuro ARC (#0b1220).
- * Ordem fixa e validada para daltonismo e contraste (dataviz validate_palette, modo escuro):
+ * Cores dos gráficos ARC — as mesmas no modo escuro (#0b1220) e no claro (#ffffff).
+ * Ordem fixa e validada para daltonismo e contraste (dataviz validate_palette, nos dois modos):
  * nunca reordenar nem gerar cores novas — acima de 8 fatias vira "Outros".
  */
 export const SERIES_COLORS = [
@@ -21,9 +21,10 @@ export const CHART_COLORS = {
   entradas: SERIES_COLORS[0],
   saidas: SERIES_COLORS[1],
   resultado: SERIES_COLORS[2],
-  grid: "#1d2b46",
-  axis: "#2c4068",
-  tick: "#8b9ab5",
-  surface: "#0b1220",
-  cursor: "rgba(61, 155, 255, 0.08)"
+  // Eixos, grade e fundo mudam com o tema claro/escuro (variáveis em global.css)
+  grid: "var(--chart-grid)",
+  axis: "var(--chart-axis)",
+  tick: "var(--chart-tick)",
+  surface: "var(--chart-surface)",
+  cursor: "var(--chart-cursor)"
 } as const;
