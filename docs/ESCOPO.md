@@ -183,6 +183,24 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 | Nome da variável da chave do Supabase | ⚠️ o código usa `VITE_SUPABASE_PUBLISHABLE_KEY`, e o histórico orientava `VITE_SUPABASE_ANON_KEY`. A Vercel precisa usar o nome novo |
 | `.env.local` fora do git | ✅ coberto pela regra `*.local` do `.gitignore` |
 
+### 3.11 Segurança — diagnóstico de 10/11/2026 (antes do teste com outra pessoa)
+| Ponto | Situação |
+|---|---|
+| Criptografia na transmissão | ✅ HTTPS no Supabase e na Vercel |
+| Criptografia no armazenamento | ✅ disco e backups criptografados pelo Supabase; senhas guardadas só como hash. Dados **não** são criptografados campo a campo: o dono do projeto vê os dados no painel (avisar o testador) |
+| Acesso sem login | ✅ testado: as 12 tabelas e a função de transferência negam leitura e gravação |
+| Isolamento entre usuários | ✅ RLS `auth.uid() = user_id` em todas as operações de todas as tabelas |
+| Chaves | ✅ o site usa só a chave pública; `.env.local` nunca foi para o git (histórico conferido) |
+| Código do site | ✅ sem `dangerouslySetInnerHTML`/`eval`; dependências do site final com 0 vulnerabilidades |
+| Cabeçalhos de segurança | ✅ `vercel.json`: Content-Security-Policy (só o próprio site, Supabase e Google Fonts; nada de script embutido), bloqueio de exibição dentro de outro site, HSTS, nosniff, Referrer-Policy, Permissions-Policy. O script do tema saiu do `index.html` para `public/theme-init.js` |
+| Ferramentas de desenvolvimento | 🟡 `npm audit fix`: as 5 altas resolvidas (Vite 8.3.7); sobram 10 moderadas só no ESLint, que exigiriam rebaixar versão |
+| E-mail dos códigos (SMTP) | ❌ o envio padrão do Supabase só chega a quem é da equipe do projeto. Para o teste: e-mail próprio (Resend/Brevo) ou criar a conta do testador à mão |
+| Cadastro público | ❌ aberto; fechar durante o teste (Authentication → Sign In / Providers) |
+| Senha mínima no Supabase | ❓ conferir se está em 8 (igual à tela) e "Confirm email" ligado |
+| Verificação em duas etapas | ❓ ligar no Supabase, GitHub, Vercel e no e-mail |
+| Chaves estrangeiras entre usuários | 🟡 um cadastro poderia apontar para o fornecedor/conta de outro usuário; risco quase nulo (UUIDs) |
+| LGPD | 🟡 falta termo de consentimento simples para o testador; apagar o usuário apaga todos os dados dele |
+
 ---
 
 ## 4. Modelo de dados (Supabase)

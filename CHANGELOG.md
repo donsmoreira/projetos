@@ -19,6 +19,12 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 - Menu lateral: o item selecionado é um botão azul sólido com texto branco, e os demais itens têm texto mais forte.
 - Menu lateral recolhível, com botão à esquerda do título no topo. No computador, recolhe para uma faixa só com ícones (o nome aparece ao passar o mouse) e o conteúdo ocupa o espaço liberado; a escolha fica salva. No celular (até 768px), o menu vira uma gaveta que abre por cima da tela e fecha ao escolher uma tela, ao tocar no fundo escuro ou com Esc.
 
+### Segurança
+- Cabeçalhos de segurança no `vercel.json`: Content-Security-Policy (o site só carrega coisas dele mesmo, do Supabase e das fontes do Google, e não aceita script embutido), proibição de abrir o sistema dentro de outro site, HTTPS obrigatório (HSTS), `nosniff`, `Referrer-Policy` e `Permissions-Policy`.
+- O script que aplica o tema saiu de dentro do `index.html` para `public/theme-init.js`, para a regra acima poder bloquear scripts embutidos.
+- Ferramentas de desenvolvimento atualizadas com `npm audit fix` (Vite 8.3.7): as 5 vulnerabilidades altas foram resolvidas; sobram 10 moderadas só no ESLint.
+- Diagnóstico de segurança registrado no `docs/ESCOPO.md` (seção 3.11).
+
 ### Corrigido
 - Campo de valor zerado: ao clicar, o campo fica vazio para digitar direto (antes, digitar "50" em "0,00" não fazia nada).
 - Contas Gerenciais (`/contas-gerenciais`): plano de contas de receitas e despesas. Cada conta tem nome, tipo (receita ou despesa) e se é fixa ou variável, e pode ter subcontas em vários níveis (ex.: RECEITA TRABALHO › Empresa X). A subconta herda o tipo da conta pai; nomes repetidos no mesmo nível e exclusão de conta com subcontas são bloqueados. Tabela criada por `supabase/migrations/20261110_contas_gerenciais.sql`.

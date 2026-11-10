@@ -12,16 +12,7 @@
       rel="stylesheet"
     />
     <title>Razão Finance ARC</title>
-    <script>
-      // Aplica o tema salvo antes de a tela aparecer (evita piscar no tema errado).
-      // O padrão é o modo claro; o escuro só vale se a pessoa escolheu.
-      try {
-        if (localStorage.getItem("arc-theme") === "dark") {
-          delete document.documentElement.dataset.theme;
-          document.querySelector('meta[name="theme-color"]').content = "#05080f";
-        }
-      } catch (e) {}
-    </script>
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>
