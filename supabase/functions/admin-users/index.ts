@@ -8,7 +8,7 @@
 // As chaves (SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY) já
 // existem dentro do Supabase; não é preciso configurar nada.
 
-import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const ALLOWED_ORIGINS = [
   "https://razao-finance-arc.vercel.app",
@@ -134,9 +134,9 @@ Deno.serve(async request => {
     }
 
     const url = Deno.env.get("SUPABASE_URL")!;
-    // Chaves novas (publishable/secret) ou as antigas (anon/service_role)
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || firstKey("SUPABASE_PUBLISHABLE_KEYS");
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || firstKey("SUPABASE_SECRET_KEYS");
+    // Chaves novas (publishable/secret) primeiro; as antigas (anon/service_role) só de reserva
+    const anonKey = firstKey("SUPABASE_PUBLISHABLE_KEYS") || Deno.env.get("SUPABASE_ANON_KEY");
+    const serviceKey = firstKey("SUPABASE_SECRET_KEYS") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
     if (!url || !anonKey || !serviceKey) {
       throw new Error("Chaves do Supabase não encontradas na função.");
@@ -158,11 +158,15 @@ Deno.serve(async request => {
     const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
 
     // ID EMPRESA com que quem pede entrou
-    const { data: callerProfile } = await admin
+    const { data: callerProfile, error: profileReadError } = await admin
       .from("profiles")
       .select("active_group_id")
       .eq("user_id", callerId)
       .maybeSingle();
+
+    if (profileReadError) {
+      throw new Error(`leitura do perfil: ${profileReadError.message}`);
+    }
 
     const groupId = callerProfile?.active_group_id as number | null | undefined;
 
@@ -407,6 +411,8 @@ Deno.serve(async request => {
     }
 
     console.error(error);
-    return reply({ error: "Não foi possível concluir. Tente de novo em instantes." }, 500);
+    // Mostra o motivo técnico para facilitar o suporte (só administradores chegam aqui)
+    const detail = error instanceof Error ? error.message : String(error);
+    return reply({ error: `Não foi possível concluir (${detail}).` }, 500);
   }
 });
