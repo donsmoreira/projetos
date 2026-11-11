@@ -104,7 +104,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Saldo nunca negativo | ✅ | regra no banco (inclusive ao desfazer um recebimento) |
 | Fechamento de caixa diário / conferência | ❌ | planejado: valor contado obrigatório, diferença esperado × contado, destino (retaguarda ou banco) e troco reservado para o dia seguinte |
 | Agenda com horários | ❌ | planejado: agendamentos puxando o cadastro do cliente (tabela `appointments` já existe); depois, integração com Google Agenda |
-| Cadastro da empresa | ✅ | Configurações → Empresas → Cadastro (por empresa da lista): CPF/CNPJ pelo número de dígitos, PF/PJ, razão social, nome fantasia, regime tributário, inscrições, contato, endereço |
+| Cadastro da empresa | ✅ | Configurações → Empresas → Cadastro (por empresa da lista) ou Nova empresa; CNPJ busca os dados na Receita (CNPJ.ws, reserva BrasilAPI), inclusive a inscrição estadual; CPF/CNPJ pelo número de dígitos, PF/PJ, razão social, nome fantasia, regime tributário, inscrições, contato, endereço |
 
 ### 3.5 Contas a pagar (`/contas-pagar`)
 | Item | Status | Observação |
