@@ -7,6 +7,8 @@ import type {
   Client
 } from "../../../types/client";
 
+import { formatCityState } from "../../../utils/address";
+
 type ClientTableProps = {
   clients: Client[];
   onEdit: (client: Client) => void;
@@ -46,6 +48,7 @@ function ClientTable({
             <th>CPF/CNPJ</th>
             <th>Telefone</th>
             <th>E-mail</th>
+            <th>Cidade/UF</th>
             <th className="clients-actions-column">
               Ações
             </th>
@@ -73,6 +76,10 @@ function ClientTable({
 
               <td>
                 {displayValue(client.email)}
+              </td>
+
+              <td>
+                {displayValue(formatCityState(client.city, client.state))}
               </td>
 
               <td className="clients-actions">

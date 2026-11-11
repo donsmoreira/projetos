@@ -78,8 +78,8 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 ### 3.3 Cadastros
 | Módulo | Status | Campos |
 |---|---|---|
-| Clientes (`/clientes`) | ✅ CRUD + busca | nome, tipo (PF/PJ), documento, telefone, e-mail, observações |
-| Fornecedores (`/fornecedores`) | ✅ CRUD + busca | nome, documento, telefone, e-mail, observações |
+| Clientes (`/clientes`) | ✅ CRUD + busca + filtro por UF/cidade | nome, tipo (PF/PJ), documento, telefone, e-mail, observações, endereço opcional (CEP com preenchimento automático pelo ViaCEP) |
+| Fornecedores (`/fornecedores`) | ✅ CRUD + busca + filtro por UF/cidade | nome, documento, telefone, e-mail, observações, endereço opcional (CEP com preenchimento automático pelo ViaCEP) |
 | Contas gerenciais (`/contas-gerenciais`) | ✅ CRUD + busca | árvore de contas pai/subcontas; nome, receita/despesa, fixa/variável; filtro por tipo, busca, expandir/recolher |
 
 ### 3.4 Contas bancárias (`/bancos`)
@@ -101,7 +101,9 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Pagamento e recebimento em dinheiro | ✅ | nas telas de baixa, o caixa aparece junto das contas, com saldo antes/depois |
 | Fluxo de caixa por período | ✅ | saldo anterior, entradas, saídas, saldo linha a linha |
 | Saldo nunca negativo | ✅ | regra no banco (inclusive ao desfazer um recebimento) |
-| Fechamento de caixa diário / conferência | ❌ | |
+| Fechamento de caixa diário / conferência | ❌ | planejado: valor contado obrigatório, diferença esperado × contado, destino (retaguarda ou banco) e troco reservado para o dia seguinte |
+| Agenda com horários | ❌ | planejado: agendamentos puxando o cadastro do cliente (tabela `appointments` já existe); depois, integração com Google Agenda |
+| Minha empresa | ❌ | planejado: cadastro da própria empresa/pessoa (PF/PJ), base das notas fiscais (tabela `profiles` já existe) |
 
 ### 3.5 Contas a pagar (`/contas-pagar`)
 | Item | Status | Observação |
@@ -150,7 +152,8 @@ Mesmas lacunas: status vencido, recebimento parcial, recorrência. ❌
 | Curvas (linhas + resultado acumulado) | ✅ | |
 | Pizza | ✅ | saídas, entradas ou entradas x saídas; fatias por conta gerencial (principal/subconta), fornecedor/cliente, lançamento, conta/caixa ou origem; até 8 fatias + "Outros" |
 | Torres agrupadas ("Ver por") | ✅ | mesmas formas de agrupar da pizza, além do período; até 12 grupos + "Outros" |
-| Filtros do relatório | ✅ | conta/caixa, conta gerencial (com subcontas), fornecedor/cliente, origem; valem para tabela, resumo e gráficos |
+| Filtros do relatório | ✅ | conta/caixa, conta gerencial (com subcontas), estado e cidade do fornecedor/cliente, fornecedor/cliente, origem; valem para tabela, resumo e gráficos |
+| Agrupar por estado/cidade | ✅ | Torres e Pizza por UF ou cidade do fornecedor/cliente |
 | Atalhos de período | ✅ | hoje, este mês, mês passado, 30/90 dias, este ano, ano passado |
 | Transferências fora dos totais | ✅ | banco ↔ caixa não conta como entrada/saída |
 | Fluxo de caixa projetado (pendentes futuros) | ❌ | |
@@ -209,8 +212,8 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 
 | Tabela | Campos principais | Relações |
 |---|---|---|
-| `clients` | name, type, document, phone, email, notes | user_id |
-| `suppliers` | name, document, phone, email, notes | user_id |
+| `clients` | name, type, document, phone, email, notes, zip_code, street, address_number, complement, neighborhood, city, state | user_id |
+| `suppliers` | name, document, phone, email, notes, zip_code, street, address_number, complement, neighborhood, city, state | user_id |
 | `bank_accounts` | name, bank, agency, account_number, initial_balance, overdraft_limit | user_id |
 | `bank_transactions` | transaction_date, description, value (+ entrada / − saída), transaction_type (`manual`, `payable_payment`, ...), reference_type, reference_id | bank_account_id, payable_id |
 | `payables` | description, category, original_value, interest, penalty, issue_date, due_date, status, payment_*, paid_value, installment_* | supplier_id, bank_account_id, bank_transaction_id, card_id, card_transaction_id |

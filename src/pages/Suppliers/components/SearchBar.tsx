@@ -25,7 +25,7 @@ function SearchBar({
         onChange={event =>
           onChange(event.target.value)
         }
-        placeholder="Pesquisar por nome, documento, telefone ou e-mail..."
+        placeholder="Pesquisar por nome, documento, telefone, e-mail ou endereço..."
         aria-label="Pesquisar fornecedores"
       />
 

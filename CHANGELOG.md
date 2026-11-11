@@ -6,6 +6,9 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 ## [Não lançado]
 
 ### Adicionado
+- Endereço opcional em clientes e fornecedores (CEP, rua, número, complemento, bairro, cidade e UF). Ao digitar o CEP, rua, bairro, cidade e UF se preenchem sozinhos pelo ViaCEP (base dos Correios) e o cursor vai para o número; CEP inexistente ou serviço fora do ar só avisam, sem travar o cadastro. SQL `supabase/migrations/20261111_endereco_clientes_fornecedores.sql`.
+- Listas de clientes e fornecedores com filtro por Estado (UF) e Cidade (só aparecem os que têm cadastro, com a quantidade; opção "Sem endereço"), coluna Cidade/UF e busca também por rua, bairro e cidade. Cidades iguais com grafias diferentes ("São Paulo" e "sao paulo") contam como uma só.
+- Relatórios com filtro por Estado e Cidade do fornecedor/cliente, e Torres e Pizza agrupadas por estado ou por cidade.
 - Conta gerencial obrigatória nos lançamentos: contas a pagar só aceitam contas de **despesa** e contas a receber só de **receita** (regra também no banco de dados). Contas que têm subcontas aparecem como título; o lançamento vai na subconta. A coluna "Categoria" virou "Conta gerencial".
 - Caixa (`/caixa`): cadastro de caixas de dinheiro físico, com saldo, entradas e saídas avulsas, transferência banco ↔ caixa (saque/depósito) e fluxo de caixa por período (saldo anterior, entradas, saídas, saldo linha a linha). O caixa nunca fica negativo.
 - Pagamentos e recebimentos podem ser feitos pelo caixa, mostrando o saldo antes e depois.

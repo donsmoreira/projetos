@@ -18,6 +18,16 @@ import type {
   ClientType
 } from "../../../types/client";
 
+import type { AddressFormData } from "../../../types/address";
+import { EMPTY_ADDRESS } from "../../../types/address";
+
+import {
+  addressFromDb,
+  validateAddress
+} from "../../../utils/address";
+
+import AddressSection from "../../../components/AddressSection/AddressSection";
+
 type ClientFormProps = {
   client: Client | null;
   onCancel: () => void;
@@ -30,7 +40,8 @@ const emptyForm: ClientFormData = {
   document: "",
   phone: "",
   email: "",
-  notes: ""
+  notes: "",
+  address: EMPTY_ADDRESS
 };
 
 function ClientForm({
@@ -55,7 +66,8 @@ function ClientForm({
         document: client.document ?? "",
         phone: client.phone ?? "",
         email: client.email ?? "",
-        notes: client.notes ?? ""
+        notes: client.notes ?? "",
+        address: addressFromDb(client)
       });
     } else {
       setFormData(emptyForm);
@@ -74,6 +86,15 @@ function ClientForm({
     }));
   }
 
+  function updateAddress(
+    update: (current: AddressFormData) => AddressFormData
+  ) {
+    setFormData(current => ({
+      ...current,
+      address: update(current.address)
+    }));
+  }
+
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
   ) {
@@ -83,6 +104,13 @@ function ClientForm({
       setErrorMessage(
         "Informe o nome do cliente."
       );
+      return;
+    }
+
+    const addressError = validateAddress(formData.address);
+
+    if (addressError) {
+      setErrorMessage(addressError);
       return;
     }
 
@@ -231,6 +259,13 @@ function ClientForm({
             }
           />
         </div>
+
+        <AddressSection
+          value={formData.address}
+          onChange={updateAddress}
+          classPrefix="client"
+          idPrefix="client"
+        />
 
         <div className="client-field client-field-full">
           <label htmlFor="client-notes">

@@ -17,6 +17,16 @@ import type {
   SupplierFormData
 } from "../../../types/supplier";
 
+import type { AddressFormData } from "../../../types/address";
+import { EMPTY_ADDRESS } from "../../../types/address";
+
+import {
+  addressFromDb,
+  validateAddress
+} from "../../../utils/address";
+
+import AddressSection from "../../../components/AddressSection/AddressSection";
+
 type SupplierFormProps = {
   supplier: Supplier | null;
   onCancel: () => void;
@@ -28,7 +38,8 @@ const emptyForm: SupplierFormData = {
   document: "",
   phone: "",
   email: "",
-  notes: ""
+  notes: "",
+  address: EMPTY_ADDRESS
 };
 
 function SupplierForm({
@@ -52,7 +63,8 @@ function SupplierForm({
         document: supplier.document ?? "",
         phone: supplier.phone ?? "",
         email: supplier.email ?? "",
-        notes: supplier.notes ?? ""
+        notes: supplier.notes ?? "",
+        address: addressFromDb(supplier)
       });
     } else {
       setFormData(emptyForm);
@@ -71,6 +83,15 @@ function SupplierForm({
     }));
   }
 
+  function updateAddress(
+    update: (current: AddressFormData) => AddressFormData
+  ) {
+    setFormData(current => ({
+      ...current,
+      address: update(current.address)
+    }));
+  }
+
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
   ) {
@@ -83,6 +104,13 @@ function SupplierForm({
       return;
     }
 
+    const addressError = validateAddress(formData.address);
+
+    if (addressError) {
+      setErrorMessage(addressError);
+      return;
+    }
+
     try {
       setSubmitting(true);
       setErrorMessage("");
@@ -92,7 +120,8 @@ function SupplierForm({
         document: formData.document.trim(),
         phone: formData.phone.trim(),
         email: formData.email.trim(),
-        notes: formData.notes.trim()
+        notes: formData.notes.trim(),
+        address: formData.address
       };
 
       if (supplier) {
@@ -196,6 +225,13 @@ function SupplierForm({
             }
           />
         </div>
+
+        <AddressSection
+          value={formData.address}
+          onChange={updateAddress}
+          classPrefix="supplier"
+          idPrefix="supplier"
+        />
 
         <div className="supplier-field supplier-field-full">
           <label htmlFor="supplier-notes">

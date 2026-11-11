@@ -16,6 +16,9 @@ import {
 
 import { getOriginLabel } from "../../../utils/cashFlow";
 import { EMPTY_DETAIL_FILTERS } from "../../../utils/reportCharts";
+import { matchesLocation } from "../../../utils/address";
+
+import LocationFilter from "../../../components/LocationFilter/LocationFilter";
 
 type ReportDetailFiltersBarProps = {
   filters: ReportDetailFilters;
@@ -42,10 +45,26 @@ function ReportDetailFiltersBar({
   managementAccounts,
   onChange
 }: ReportDetailFiltersBarProps) {
+  /** Cada fornecedor/cliente uma vez só, com a cidade e a UF do cadastro */
+  const parties = useMemo(() => {
+    const map = new Map<string, { key: string; name: string; city: string | null; state: string | null }>();
+
+    for (const transaction of transactions) {
+      if (transaction.counterpartyKey && !map.has(transaction.counterpartyKey)) {
+        map.set(transaction.counterpartyKey, {
+          key: transaction.counterpartyKey,
+          name: transaction.counterpartyName ?? "Sem nome",
+          city: transaction.counterpartyCity,
+          state: transaction.counterpartyState
+        });
+      }
+    }
+
+    return [...map.values()];
+  }, [transactions]);
+
   const options = useMemo(() => {
     const accounts = new Map<string, string>();
-    const suppliers = new Map<string, string>();
-    const clients = new Map<string, string>();
     const origins = new Set<string>();
 
     for (const transaction of transactions) {
@@ -53,27 +72,37 @@ function ReportDetailFiltersBar({
         accounts.set(transaction.accountId, transaction.accountName);
       }
 
-      if (transaction.counterpartyKey?.startsWith("fornecedor:")) {
-        suppliers.set(transaction.counterpartyKey, transaction.counterpartyName ?? "Sem nome");
-      }
-
-      if (transaction.counterpartyKey?.startsWith("cliente:")) {
-        clients.set(transaction.counterpartyKey, transaction.counterpartyName ?? "Sem nome");
-      }
-
       origins.add(transaction.transactionType);
     }
 
-    const toList = (map: Map<string, string>) =>
-      sortByName([...map.entries()].map(([value, name]) => ({ value, name })));
+    // Fornecedores/clientes só do estado/cidade escolhidos
+    const visibleParties = parties.filter(party =>
+      matchesLocation(party, filters.state, filters.city)
+    );
+
+    const toList = (items: { key: string; name: string }[]) =>
+      sortByName(items.map(item => ({ value: item.key, name: item.name })));
 
     return {
-      accounts: toList(accounts),
-      suppliers: toList(suppliers),
-      clients: toList(clients),
+      accounts: sortByName([...accounts.entries()].map(([value, name]) => ({ value, name }))),
+      suppliers: toList(visibleParties.filter(party => party.key.startsWith("fornecedor:"))),
+      clients: toList(visibleParties.filter(party => party.key.startsWith("cliente:"))),
       origins: sortByName([...origins].map(value => ({ value, name: getOriginLabel(value) })))
     };
-  }, [transactions]);
+  }, [transactions, parties, filters.state, filters.city]);
+
+  function handleLocationChange(state: string, city: string) {
+    // Se o fornecedor/cliente escolhido não é do novo estado/cidade, solta ele
+    const selected = parties.find(party => party.key === filters.counterparty);
+    const keepCounterparty = !selected || matchesLocation(selected, state, city);
+
+    onChange({
+      ...filters,
+      state,
+      city,
+      counterparty: keepCounterparty ? filters.counterparty : ""
+    });
+  }
 
   const managementOptions = useMemo(
     () => flattenAccountTree(buildAccountTree(managementAccounts)),
@@ -128,6 +157,15 @@ function ReportDetailFiltersBar({
           ))}
         </select>
       </div>
+
+      <LocationFilter
+        items={parties}
+        state={filters.state}
+        city={filters.city}
+        onChange={handleLocationChange}
+        idPrefix="report"
+        fieldClassName="report-filter-field"
+      />
 
       <div className="report-filter-field">
         <label htmlFor="report-filter-counterparty">

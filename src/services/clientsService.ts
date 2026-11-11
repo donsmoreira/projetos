@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { getAuthenticatedUser } from "./auth";
+import { addressToDb } from "../utils/address";
 
 import type {
   Client,
@@ -42,7 +43,9 @@ export async function createClient(
 
       email: client.email || null,
 
-      notes: client.notes || null
+      notes: client.notes || null,
+
+      ...addressToDb(client.address)
     })
     .select()
     .single();
@@ -74,6 +77,8 @@ export async function updateClient(
       email: client.email || null,
 
       notes: client.notes || null,
+
+      ...addressToDb(client.address),
 
       updated_at: new Date().toISOString()
 

@@ -24,6 +24,10 @@ export interface ReportDetailFilters {
   /** "fornecedor:<id>" ou "cliente:<id>" */
   counterparty: string;
   origin: string;
+  /** UF do fornecedor/cliente (ou NO_STATE para "sem endereço") */
+  state: string;
+  /** Cidade do fornecedor/cliente (chave sem acento, ver cityKey) */
+  city: string;
 }
 
 /**
@@ -35,6 +39,8 @@ export type ReportDimension =
   | "conta_principal"
   | "subconta"
   | "contraparte"
+  | "estado"
+  | "cidade"
   | "lancamento"
   | "conta"
   | "origem";
@@ -57,6 +63,9 @@ export interface ReportTransaction {
   /** Fornecedor (contas a pagar) ou cliente (contas a receber) */
   counterpartyKey: string | null;
   counterpartyName: string | null;
+  /** Cidade e UF do cadastro do fornecedor/cliente */
+  counterpartyCity: string | null;
+  counterpartyState: string | null;
   /** Lançamento de origem; parcelas da mesma compra/venda ficam juntas */
   entryKey: string | null;
   entryName: string | null;

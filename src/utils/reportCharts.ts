@@ -6,6 +6,7 @@ import type {
 } from "../types/report";
 
 import { getOriginLabel } from "./cashFlow";
+import { cityKey, matchesLocation } from "./address";
 
 type AccountRef = {
   id: string;
@@ -48,6 +49,8 @@ export const DIMENSION_LABELS: Record<ReportDimension, string> = {
   conta_principal: "Conta gerencial principal",
   subconta: "Conta gerencial (subconta)",
   contraparte: "Fornecedor / cliente",
+  estado: "Estado (UF) do fornecedor/cliente",
+  cidade: "Cidade do fornecedor/cliente",
   lancamento: "Lançamento",
   conta: "Conta bancária / caixa",
   origem: "Origem da movimentação"
@@ -57,7 +60,9 @@ export const EMPTY_DETAIL_FILTERS: ReportDetailFilters = {
   accountId: "",
   managementAccountId: "",
   counterparty: "",
-  origin: ""
+  origin: "",
+  state: "",
+  city: ""
 };
 
 const MONTHS = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
@@ -145,6 +150,7 @@ function getDescendants(accounts: AccountRef[], id: string): Set<string> {
 
 /**
  * Aplica os filtros extras. A conta gerencial inclui as subcontas dela.
+ * Estado e cidade são os do cadastro do fornecedor/cliente da movimentação.
  */
 export function applyDetailFilters(
   transactions: ReportTransaction[],
@@ -159,7 +165,12 @@ export function applyDetailFilters(
     (!filters.accountId || transaction.accountId === filters.accountId) &&
     (!managementIds || (transaction.managementAccountId !== null && managementIds.has(transaction.managementAccountId))) &&
     (!filters.counterparty || transaction.counterpartyKey === filters.counterparty) &&
-    (!filters.origin || transaction.transactionType === filters.origin)
+    (!filters.origin || transaction.transactionType === filters.origin) &&
+    matchesLocation(
+      { city: transaction.counterpartyCity, state: transaction.counterpartyState },
+      filters.state,
+      filters.city
+    )
   );
 }
 
@@ -294,6 +305,24 @@ export function getGroup(
       return transaction.counterpartyKey
         ? { key: transaction.counterpartyKey, name: transaction.counterpartyName ?? "Sem nome" }
         : { key: "sem-contraparte", name: "Sem fornecedor/cliente" };
+
+    case "estado":
+      return transaction.counterpartyState
+        ? { key: `uf:${transaction.counterpartyState}`, name: transaction.counterpartyState }
+        : { key: "sem-uf", name: "Sem UF informada" };
+
+    case "cidade": {
+      const key = cityKey(transaction.counterpartyCity);
+
+      return key
+        ? {
+          key: `cidade:${transaction.counterpartyState ?? ""}:${key}`,
+          name: transaction.counterpartyState
+            ? `${transaction.counterpartyCity!.trim()}/${transaction.counterpartyState}`
+            : transaction.counterpartyCity!.trim()
+        }
+        : { key: "sem-cidade", name: "Sem cidade informada" };
+    }
 
     case "lancamento":
       return transaction.entryKey

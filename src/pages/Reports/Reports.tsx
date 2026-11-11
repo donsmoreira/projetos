@@ -72,6 +72,8 @@ const BAR_DIMENSIONS: ReportDimension[] = [
   "conta_principal",
   "subconta",
   "contraparte",
+  "estado",
+  "cidade",
   "lancamento",
   "conta",
   "origem"
@@ -82,6 +84,8 @@ const PIE_DIMENSIONS: ReportDimension[] = [
   "conta_principal",
   "subconta",
   "contraparte",
+  "estado",
+  "cidade",
   "lancamento",
   "conta",
   "origem"

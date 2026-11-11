@@ -1,6 +1,11 @@
+import type {
+  AddressFields,
+  AddressFormData
+} from "./address";
+
 export type ClientType = "Pessoa Física" | "Pessoa Jurídica";
 
-export interface Client {
+export interface Client extends AddressFields {
   id: string;
 
   user_id: string;
@@ -34,4 +39,6 @@ export interface ClientFormData {
   email: string;
 
   notes: string;
+
+  address: AddressFormData;
 }

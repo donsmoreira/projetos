@@ -1,5 +1,6 @@
 import { supabase } from "./supabase";
 import { getAuthenticatedUser } from "./auth";
+import { addressToDb } from "../utils/address";
 
 import type {
   Supplier,
@@ -34,7 +35,8 @@ export async function createSupplier(
       document: supplier.document || null,
       phone: supplier.phone || null,
       email: supplier.email || null,
-      notes: supplier.notes || null
+      notes: supplier.notes || null,
+      ...addressToDb(supplier.address)
     })
     .select()
     .single();
@@ -58,6 +60,7 @@ export async function updateSupplier(
       phone: supplier.phone || null,
       email: supplier.email || null,
       notes: supplier.notes || null,
+      ...addressToDb(supplier.address),
       updated_at: new Date().toISOString()
     })
     .eq("id", id)

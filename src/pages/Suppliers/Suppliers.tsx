@@ -13,6 +13,9 @@ import type {
   Supplier
 } from "../../types/supplier";
 
+import { matchesLocation } from "../../utils/address";
+
+import LocationFilter from "../../components/LocationFilter/LocationFilter";
 import SearchBar from "./components/SearchBar";
 import SupplierTable from "./components/SupplierTable";
 import SupplierModal from "./components/SupplierModal";
@@ -24,6 +27,12 @@ function Suppliers() {
     useState<Supplier[]>([]);
 
   const [searchTerm, setSearchTerm] =
+    useState("");
+
+  const [stateFilter, setStateFilter] =
+    useState("");
+
+  const [cityFilter, setCityFilter] =
     useState("");
 
   const [loading, setLoading] =
@@ -68,16 +77,23 @@ function Suppliers() {
         .trim()
         .toLowerCase();
 
-    if (!normalizedSearch) {
-      return suppliers;
-    }
-
     return suppliers.filter(supplier => {
+      if (!matchesLocation(supplier, stateFilter, cityFilter)) {
+        return false;
+      }
+
+      if (!normalizedSearch) {
+        return true;
+      }
+
       const fields = [
         supplier.name,
         supplier.document,
         supplier.phone,
-        supplier.email
+        supplier.email,
+        supplier.city,
+        supplier.neighborhood,
+        supplier.street
       ];
 
       return fields.some(field =>
@@ -86,7 +102,9 @@ function Suppliers() {
           .includes(normalizedSearch)
       );
     });
-  }, [suppliers, searchTerm]);
+  }, [suppliers, searchTerm, stateFilter, cityFilter]);
+
+  const hasLocationFilter = Boolean(stateFilter || cityFilter);
 
   function handleNewSupplier() {
     setSelectedSupplier(null);
@@ -156,10 +174,38 @@ function Suppliers() {
       </section>
 
       <section className="suppliers-content">
-        <SearchBar
-          value={searchTerm}
-          onChange={setSearchTerm}
-        />
+        <div className="list-filters">
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+          />
+
+          <LocationFilter
+            items={suppliers}
+            state={stateFilter}
+            city={cityFilter}
+            onChange={(state, city) => {
+              setStateFilter(state);
+              setCityFilter(city);
+            }}
+            idPrefix="suppliers"
+          />
+        </div>
+
+        {!loading && hasLocationFilter && (
+          <div className="list-filters-note">
+            {filteredSuppliers.length} de {suppliers.length} fornecedores
+            <button
+              type="button"
+              onClick={() => {
+                setStateFilter("");
+                setCityFilter("");
+              }}
+            >
+              Limpar estado e cidade
+            </button>
+          </div>
+        )}
 
         {loading && (
           <div className="suppliers-state">

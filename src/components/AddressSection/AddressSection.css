@@ -1,0 +1,70 @@
+/* Título do bloco de endereço dentro do formulário */
+.address-section-title {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 7px !important;
+
+  margin-top: 4px;
+  padding-top: 14px;
+
+  border-top: 1px solid var(--border);
+
+  color: var(--text);
+
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.address-section-title svg {
+  color: var(--primary);
+}
+
+.address-section-title small {
+  color: var(--text-muted);
+
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.address-cep-input {
+  position: relative;
+}
+
+.address-cep-spinner {
+  position: absolute;
+  top: 50%;
+  right: 11px;
+
+  margin-top: -8px;
+
+  color: var(--primary);
+
+  animation: address-spin 0.8s linear infinite;
+}
+
+@keyframes address-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.address-hint {
+  color: var(--text-light);
+  font-size: 11px;
+}
+
+.address-hint-ok {
+  color: var(--success);
+}
+
+.address-hint-warn {
+  color: var(--warning);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .address-cep-spinner {
+    animation: none;
+  }
+}

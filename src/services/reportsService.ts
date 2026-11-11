@@ -23,6 +23,11 @@ type NamedRow = {
   name: string;
 };
 
+type PartyRow = NamedRow & {
+  city: string | null;
+  state: string | null;
+};
+
 type EntryRow = {
   id: string;
   description: string | null;
@@ -30,8 +35,8 @@ type EntryRow = {
   management_account_id: string | null;
   category: string | null;
   management_accounts: Relation<NamedRow>;
-  suppliers?: Relation<NamedRow>;
-  clients?: Relation<NamedRow>;
+  suppliers?: Relation<PartyRow>;
+  clients?: Relation<PartyRow>;
 };
 
 type BankTransactionRow = {
@@ -109,6 +114,10 @@ function normalizeTransaction(
       supplier ? `fornecedor:${supplier.id}` : client ? `cliente:${client.id}` : null,
     counterpartyName:
       supplier?.name ?? client?.name ?? null,
+    counterpartyCity:
+      supplier?.city ?? client?.city ?? null,
+    counterpartyState:
+      supplier?.state ?? client?.state ?? null,
     entryKey:
       entry ? `${payable ? "pagar" : "receber"}:${entry.installment_group_id ?? entry.id}` : null,
     entryName:
@@ -144,7 +153,7 @@ export async function getFinancialReport(
         management_account_id,
         category,
         management_accounts ( id, name ),
-        suppliers ( id, name )
+        suppliers ( id, name, city, state )
       ),
       receivables!bank_transactions_receivable_id_fkey (
         id,
@@ -153,7 +162,7 @@ export async function getFinancialReport(
         management_account_id,
         category,
         management_accounts ( id, name ),
-        clients ( id, name )
+        clients ( id, name, city, state )
       )
     `)
     .gte("transaction_date", filters.startDate)

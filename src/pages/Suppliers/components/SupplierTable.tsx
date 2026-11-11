@@ -7,6 +7,8 @@ import type {
   Supplier
 } from "../../../types/supplier";
 
+import { formatCityState } from "../../../utils/address";
+
 type SupplierTableProps = {
   suppliers: Supplier[];
   onEdit: (supplier: Supplier) => void;
@@ -45,6 +47,7 @@ function SupplierTable({
             <th>CPF/CNPJ</th>
             <th>Telefone</th>
             <th>E-mail</th>
+            <th>Cidade/UF</th>
 
             <th className="suppliers-actions-column">
               Ações
@@ -69,6 +72,10 @@ function SupplierTable({
 
               <td>
                 {displayValue(supplier.email)}
+              </td>
+
+              <td>
+                {displayValue(formatCityState(supplier.city, supplier.state))}
               </td>
 
               <td className="suppliers-actions">

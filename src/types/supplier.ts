@@ -1,4 +1,9 @@
-export interface Supplier {
+import type {
+  AddressFields,
+  AddressFormData
+} from "./address";
+
+export interface Supplier extends AddressFields {
   id: string;
   user_id: string;
 
@@ -18,4 +23,5 @@ export interface SupplierFormData {
   phone: string;
   email: string;
   notes: string;
+  address: AddressFormData;
 }

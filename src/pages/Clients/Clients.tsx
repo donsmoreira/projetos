@@ -13,6 +13,9 @@ import type {
   Client
 } from "../../types/client";
 
+import { matchesLocation } from "../../utils/address";
+
+import LocationFilter from "../../components/LocationFilter/LocationFilter";
 import SearchBar from "./components/SearchBar";
 import ClientTable from "./components/ClientTable";
 import ClientModal from "./components/ClientModal";
@@ -24,6 +27,12 @@ function Clients() {
     useState<Client[]>([]);
 
   const [searchTerm, setSearchTerm] =
+    useState("");
+
+  const [stateFilter, setStateFilter] =
+    useState("");
+
+  const [cityFilter, setCityFilter] =
     useState("");
 
   const [loading, setLoading] =
@@ -68,17 +77,24 @@ function Clients() {
         .trim()
         .toLowerCase();
 
-    if (!normalizedSearch) {
-      return clients;
-    }
-
     return clients.filter(client => {
+      if (!matchesLocation(client, stateFilter, cityFilter)) {
+        return false;
+      }
+
+      if (!normalizedSearch) {
+        return true;
+      }
+
       const fields = [
         client.name,
         client.type,
         client.document,
         client.phone,
-        client.email
+        client.email,
+        client.city,
+        client.neighborhood,
+        client.street
       ];
 
       return fields.some(field =>
@@ -87,7 +103,9 @@ function Clients() {
           .includes(normalizedSearch)
       );
     });
-  }, [clients, searchTerm]);
+  }, [clients, searchTerm, stateFilter, cityFilter]);
+
+  const hasLocationFilter = Boolean(stateFilter || cityFilter);
 
   function handleNewClient() {
     setSelectedClient(null);
@@ -157,10 +175,38 @@ function Clients() {
       </section>
 
       <section className="clients-content">
-        <SearchBar
-          value={searchTerm}
-          onChange={setSearchTerm}
-        />
+        <div className="list-filters">
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+          />
+
+          <LocationFilter
+            items={clients}
+            state={stateFilter}
+            city={cityFilter}
+            onChange={(state, city) => {
+              setStateFilter(state);
+              setCityFilter(city);
+            }}
+            idPrefix="clients"
+          />
+        </div>
+
+        {!loading && hasLocationFilter && (
+          <div className="list-filters-note">
+            {filteredClients.length} de {clients.length} clientes
+            <button
+              type="button"
+              onClick={() => {
+                setStateFilter("");
+                setCityFilter("");
+              }}
+            >
+              Limpar estado e cidade
+            </button>
+          </div>
+        )}
 
         {loading && (
           <div className="clients-state">

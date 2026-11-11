@@ -376,9 +376,9 @@ const modules = [
     ["Total a pagar e a receber", 1], ["Saldo em contas e no caixa", 1], ["Próximos vencimentos", 1], ["Saldo por conta bancária", 1],
     ["Limite usado nos cartões", 1], ["Contas vencidas em destaque", 0], ["Gráficos no painel", 0, "já existem em Relatórios"] ] },
   { name: "Clientes", route: "/clientes", items: [
-    ["Cadastro completo (PF/PJ)", 1], ["Busca", 1] ] },
+    ["Cadastro completo (PF/PJ)", 1], ["Busca", 1], ["Endereço com CEP automático (ViaCEP)", 1], ["Filtro por estado e cidade", 1] ] },
   { name: "Fornecedores", route: "/fornecedores", items: [
-    ["Cadastro completo", 1], ["Busca", 1] ] },
+    ["Cadastro completo", 1], ["Busca", 1], ["Endereço com CEP automático (ViaCEP)", 1], ["Filtro por estado e cidade", 1] ] },
   { name: "Contas gerenciais", route: "/contas-gerenciais", items: [
     ["Plano de contas de receita e despesa", 1], ["Fixa ou variável", 1], ["Conta pai e subcontas em vários níveis", 1],
     ["Busca, filtro por tipo, expandir/recolher", 1], ["Bloqueios no banco (tipo, nome repetido, conta em uso)", 1] ] },
@@ -401,7 +401,7 @@ const modules = [
     ["Limite calculado sozinho", 1], ["Lançar compras", 0], ["Compras parceladas", 0], ["Faturas", 0] ] },
   { name: "Relatórios", route: "/relatorios", items: [
     ["Descritivo (tabela) com resumo", 1], ["Torres (barras)", 1], ["Curvas (linhas e acumulado)", 1], ["Pizza", 1],
-    ["Filtros: conta, caixa, conta gerencial, fornecedor/cliente, origem", 1], ["Atalhos de período", 1],
+    ["Filtros: conta, caixa, conta gerencial, fornecedor/cliente, origem", 1], ["Filtro e gráficos por estado e cidade", 1], ["Atalhos de período", 1],
     ["Fluxo de caixa projetado", 0], ["Exportar PDF/Excel", 0] ] },
   { name: "Visual e celular", route: "todas as telas", items: [
     ["Identidade visual ARC", 1], ["Modo claro e escuro (chave no topo)", 1], ["Menu recolhível no computador", 1],
@@ -419,7 +419,8 @@ const phases = [
     ["Telas", ["✓ Menu lateral recolhível com botão no topo (gaveta no celular, só ícones no computador)", "Tabelas viram lista de cartões", "Formulários em tela cheia", "Botões e campos do tamanho certo para o dedo", "Instalar como app (PWA)"]] ] },
   { n: 2, v: "v0.4 → v0.7", title: "Completar os módulos", desc: "Fechar o que ficou pela metade", groups: [
     ["Bancos · v0.4.0",["Tela de extrato", "Lançamento manual para bancos", "✓ Transferência banco ↔ caixa", "Transferência banco ↔ banco", "Saldo calculado no banco de dados"]],
-    ["Caixa", ["✓ Caixa de dinheiro físico com fluxo de caixa", "✓ Pagar e receber pelo caixa", "Fechamento de caixa diário"]],
+    ["Caixa", ["✓ Caixa de dinheiro físico com fluxo de caixa", "✓ Pagar e receber pelo caixa", "Fechamento de caixa: valor contado obrigatório, diferença (sobra/falta), envio para retaguarda ou banco e troco para o dia seguinte"]],
+    ["Agenda", ["Agenda com horários (dia, semana, mês) puxando o cadastro do cliente", "Integração com o Google Agenda"]],
     ["Contas · v0.5.0", ["Status vencido", "Pagamento e recebimento parcial", "Contas recorrentes", "Filtros por período, status e conta gerencial", "Pagar várias de uma vez"]],
     ["Contas gerenciais · v0.6.0", ["✓ Plano de contas de receita e despesa, com subcontas", "✓ Conta gerencial obrigatória nos lançamentos"]],
     ["Cartões · v0.7.0", ["Lançar compras à vista e parceladas", "Faturas: fechar e pagar", "Pagar conta com cartão", "✓ Limite calculado sozinho"]] ] },
@@ -427,7 +428,7 @@ const phases = [
     ["Painel", ["Contas vencidas e de hoje em destaque", "Gráficos no painel inicial"]],
     ["Relatórios", ["✓ Torres, curvas e pizza", "✓ Despesas e receitas por conta gerencial", "✓ Filtros amplos e atalhos de período", "Fluxo de caixa projetado", "Exportar PDF e Excel"]] ] },
   { n: 4, v: "v0.9.0", title: "Conta do usuário", desc: "Cadastro, senha e perfil", groups: [
-    ["Itens", ["✓ Criar conta e recuperar senha com código no e-mail", "E-mail próprio (SMTP) para os códigos chegarem a qualquer pessoa", "Perfil com telefone/WhatsApp", "Várias empresas por usuário (a decidir)"]] ] },
+    ["Itens", ["✓ Criar conta e recuperar senha com código no e-mail", "E-mail próprio (SMTP) para os códigos chegarem a qualquer pessoa", "Minha empresa: cadastro da própria empresa ou pessoa (PF/PJ), base das notas fiscais", "Perfil com telefone/WhatsApp", "Várias empresas por usuário (a decidir)"]] ] },
   { n: 5, v: "v1.0.0", title: "Qualidade e publicação", desc: "Beta com convidados e lançamento da 1.0", groups: [
     ["Itens", ["Testes automáticos (Vitest e Playwright)", "Checagem automática a cada mudança (CI)", "Publicar com ambiente de testes e de produção", "Monitorar erros"]],
     ["Lançamento", ["Beta com usuários convidados (1.0.0-beta.N)", "Versão candidata (1.0.0-rc)", "Lançamento da v1.0.0"]] ] },

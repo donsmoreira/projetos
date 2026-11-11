@@ -1,0 +1,76 @@
+/* Linha de filtros das listas de clientes e fornecedores */
+.list-filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px 220px;
+  align-items: end;
+  gap: 12px;
+}
+
+.list-filters-note {
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.list-filters-note button {
+  margin-left: 6px;
+  padding: 0;
+
+  border: none;
+  background: none;
+  color: var(--primary);
+
+  cursor: pointer;
+
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.location-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.location-filter-field label {
+  color: var(--text-light);
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.location-filter-field select {
+  width: 100%;
+  height: 44px;
+
+  padding: 0 11px;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  outline: none;
+
+  font-size: 13px;
+}
+
+.location-filter-field select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.location-filter-field select:disabled {
+  opacity: 0.6;
+}
+
+@media (max-width: 760px) {
+  .list-filters {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .list-filters > :first-child {
+    grid-column: 1 / -1;
+  }
+}
