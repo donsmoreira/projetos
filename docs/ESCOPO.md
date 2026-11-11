@@ -104,7 +104,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Saldo nunca negativo | ✅ | regra no banco (inclusive ao desfazer um recebimento) |
 | Fechamento de caixa diário / conferência | ❌ | planejado: valor contado obrigatório, diferença esperado × contado, destino (retaguarda ou banco) e troco reservado para o dia seguinte |
 | Agenda com horários | ❌ | planejado: agendamentos puxando o cadastro do cliente (tabela `appointments` já existe); depois, integração com Google Agenda |
-| Minha empresa | ✅ | Configurações → Minha empresa: CPF/CNPJ pelo número de dígitos, PF/PJ, razão social, nome fantasia, regime tributário, inscrições, contato, endereço |
+| Cadastro da empresa | ✅ | Configurações → Empresas → Cadastro (por empresa da lista): CPF/CNPJ pelo número de dígitos, PF/PJ, razão social, nome fantasia, regime tributário, inscrições, contato, endereço |
 
 ### 3.5 Contas a pagar (`/contas-pagar`)
 | Item | Status | Observação |
@@ -374,7 +374,7 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [ ] SMTP próprio no Supabase (o envio padrão só manda para e-mails da equipe do projeto e tem limite por hora)
 - [x] Tela de perfil (nome, telefone/WhatsApp, CPF, endereço) (adiantado)
 - [x] Multiempresa e multiusuário, com permissões e convite por código (adiantado)
-- [x] Minha empresa: cadastro da própria empresa/pessoa (adiantado)
+- [x] Cadastro da empresa: dados da própria empresa/pessoa, em Configurações → Empresas (adiantado)
 - [ ] Convite por e-mail (depende do SMTP)
 - [ ] Logo da empresa
 

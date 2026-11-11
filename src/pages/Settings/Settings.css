@@ -1,4 +1,4 @@
-/* Telas de Configurações: Minha empresa, Usuários, Meu perfil, Empresas */
+/* Telas de Configurações: Empresas (e cadastro de cada uma), Usuários, Meu perfil */
 .settings-page {
   display: flex;
   flex-direction: column;
@@ -407,6 +407,26 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
+}
+
+.settings-company-list .settings-company-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.settings-company-actions .settings-badge {
+  flex-direction: row;
+}
+
+a.settings-button {
+  text-decoration: none;
+}
+
+.settings-header-badges {
+  margin-top: 10px;
 }
 
 .settings-company-list small {

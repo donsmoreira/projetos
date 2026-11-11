@@ -102,11 +102,17 @@ function AppRoutes() {
 
             <Route
               path="configuracoes"
-              element={<Navigate to="/configuracoes/empresa" replace />}
+              element={<Navigate to="/configuracoes/empresas" replace />}
+            />
+
+            {/* Endereço antigo da "Minha empresa" */}
+            <Route
+              path="configuracoes/empresa"
+              element={<Navigate to="/configuracoes/empresas" replace />}
             />
 
             <Route
-              path="configuracoes/empresa"
+              path="configuracoes/empresas/:id"
               element={<CompanySettings />}
             />
 

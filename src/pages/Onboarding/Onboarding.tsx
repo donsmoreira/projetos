@@ -119,7 +119,7 @@ function Onboarding() {
 
             <p className="onboarding-hint">
               Você será o administrador. O CNPJ ou CPF e o restante dos dados ficam em
-              Configurações → Minha empresa.
+              Configurações → Empresas → Cadastro.
             </p>
 
             <button type="submit" className="login-button" disabled={Boolean(busy)}>

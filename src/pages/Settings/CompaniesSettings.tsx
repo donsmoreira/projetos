@@ -1,7 +1,9 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 
-import { Building2, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
+
+import { Building2, Eye, Pencil, Plus } from "lucide-react";
 
 import { useCompany } from "../../hooks/useCompany";
 import { acceptInvite, createCompany } from "../../services/companyService";
@@ -18,12 +20,13 @@ function CompaniesSettings() {
   const [busy, setBusy] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
+  /** Executa e recarrega o sistema; a ação pode devolver para onde ir depois */
   async function run(key: string, action: () => Promise<unknown>) {
     try {
       setBusy(key);
       setErrorMessage("");
-      await action();
-      window.location.assign("/");
+      const destination = await action();
+      window.location.assign(typeof destination === "string" ? destination : "/");
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Não foi possível concluir.");
       setBusy("");
@@ -38,7 +41,11 @@ function CompaniesSettings() {
       return;
     }
 
-    void run("create", () => createCompany(newName.trim()));
+    // Cria, abre e já leva para o cadastro da nova empresa
+    void run("create", async () => {
+      const id = await createCompany(newName.trim());
+      return `/configuracoes/empresas/${id}`;
+    });
   }
 
   function handleCode(event: FormEvent<HTMLFormElement>) {
@@ -49,7 +56,9 @@ function CompaniesSettings() {
       return;
     }
 
-    void run("code", () => acceptInvite(code));
+    void run("code", async () => {
+      await acceptInvite(code);
+    });
   }
 
   return (
@@ -57,7 +66,10 @@ function CompaniesSettings() {
       <section className="settings-header">
         <div>
           <h2>Empresas</h2>
-          <p>As empresas de que você participa. Cada uma tem seus próprios dados.</p>
+          <p>
+            As empresas de que você participa. Cada uma tem seus próprios dados.
+            Clique em Cadastro para ver ou alterar os dados de uma empresa.
+          </p>
         </div>
       </section>
 
@@ -81,18 +93,29 @@ function CompaniesSettings() {
                   </small>
                 </span>
 
-                {isActive ? (
-                  <span className="settings-badge">Aberta</span>
-                ) : (
-                  <button
-                    type="button"
+                <div className="settings-company-actions">
+                  <Link
+                    to={`/configuracoes/empresas/${item.company.id}`}
                     className="settings-button settings-button-secondary settings-button-small"
-                    disabled={Boolean(busy)}
-                    onClick={() => void run(`open-${item.company.id}`, () => switchCompany(item.company.id))}
+                    title={item.permissions.isAdmin ? "Ver e alterar o cadastro" : "Ver o cadastro"}
                   >
-                    Abrir
-                  </button>
-                )}
+                    {item.permissions.isAdmin ? <Pencil size={13} /> : <Eye size={13} />}
+                    Cadastro
+                  </Link>
+
+                  {isActive ? (
+                    <span className="settings-badge">Aberta</span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="settings-button settings-button-small"
+                      disabled={Boolean(busy)}
+                      onClick={() => void run(`open-${item.company.id}`, () => switchCompany(item.company.id))}
+                    >
+                      Abrir
+                    </button>
+                  )}
+                </div>
               </li>
             );
           })}
@@ -102,7 +125,7 @@ function CompaniesSettings() {
       {canCreateCompany ? (
         <section className="settings-card">
           <h3>Nova empresa</h3>
-          <p>Você será o administrador. Depois complete os dados em Minha empresa.</p>
+          <p>Você será o administrador. Ao criar, o cadastro dela abre para você completar.</p>
 
           <form className="settings-inline-form" onSubmit={handleCreate}>
             <div className="settings-field">

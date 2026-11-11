@@ -16,7 +16,7 @@ import { useLocation } from "react-router-dom";
 import { useAuth } from "../../../../contexts/AuthContext";
 import { useCompany } from "../../../../hooks/useCompany";
 import { useTheme } from "../../../../hooks/useTheme";
-import { PAGE_TITLES } from "../Sidebar/menu";
+import { pageTitleFor } from "../Sidebar/menu";
 
 import "./Topbar.css";
 
@@ -98,7 +98,7 @@ function Topbar({
       : "Ativar modo claro";
 
   const pageTitle =
-    PAGE_TITLES[location.pathname] ??
+    pageTitleFor(location.pathname) ??
     "Razão Finance ARC";
 
   const userName =

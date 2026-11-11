@@ -1,7 +1,9 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 
-import { Building2 } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+
+import { ArrowLeft, Building2 } from "lucide-react";
 
 import AddressSection from "../../components/AddressSection/AddressSection";
 import { useCompany } from "../../hooks/useCompany";
@@ -300,32 +302,64 @@ function CompanyForm({
   );
 }
 
-/** Configurações → Minha empresa */
+/** Configurações → Empresas → Cadastro de uma empresa (/configuracoes/empresas/:id) */
 function CompanySettings() {
-  const { active, permissions, reload } = useCompany();
+  const { id } = useParams();
+  const { companies, active, reload } = useCompany();
 
-  if (!active) {
-    return null;
+  const membership = companies.find(item => item.company.id === id);
+
+  const backLink = (
+    <Link
+      to="/configuracoes/empresas"
+      className="settings-button settings-button-secondary settings-button-small"
+    >
+      <ArrowLeft size={14} />
+      Empresas
+    </Link>
+  );
+
+  if (!membership) {
+    return (
+      <div className="settings-page">
+        <section className="settings-header">
+          <div>
+            <h2>Empresa não encontrada</h2>
+            <p>Ela não existe ou você não participa dela.</p>
+          </div>
+          {backLink}
+        </section>
+      </div>
+    );
   }
+
+  const { company, permissions } = membership;
+  const isActive = company.id === active?.company.id;
 
   return (
     <div className="settings-page">
       <section className="settings-header">
         <div>
-          <h2>Minha empresa</h2>
-          <p>Dados da empresa (ou da pessoa) que está aberta no sistema.</p>
+          <h2>{company.trade_name || company.name}</h2>
+          <p>
+            Cadastro da empresa (ou da pessoa).
+            {isActive ? " É a empresa aberta no sistema." : ""}
+          </p>
+          <div className="settings-header-badges">
+            <span className="settings-badge">
+              <Building2 size={13} />
+              {permissions.isAdmin ? "Você é administrador" : "Somente leitura"}
+            </span>
+          </div>
         </div>
 
-        <span className="settings-badge">
-          <Building2 size={13} />
-          {permissions.isAdmin ? "Você é administrador" : "Somente leitura"}
-        </span>
+        {backLink}
       </section>
 
       {/* key: ao trocar de empresa, o formulário recomeça com os dados dela */}
       <CompanyForm
-        key={active.company.id}
-        company={active.company}
+        key={company.id}
+        company={company}
         canEdit={permissions.isAdmin}
         onSaved={reload}
       />

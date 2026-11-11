@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import {
   Banknote,
   BarChart3,
-  Building,
   Building2,
   ClipboardList,
   CreditCard,
@@ -72,10 +71,9 @@ export const MENU: MenuEntry[] = [
     title: "Configurações",
     icon: <Settings size={18} />,
     items: [
-      { title: "Minha empresa", to: "/configuracoes/empresa", icon: <Building2 size={17} /> },
+      { title: "Empresas", to: "/configuracoes/empresas", icon: <Building2 size={17} /> },
       { title: "Usuários e permissões", to: "/configuracoes/usuarios", icon: <UserCog size={17} /> },
-      { title: "Meu perfil", to: "/configuracoes/perfil", icon: <UserRound size={17} /> },
-      { title: "Empresas", to: "/configuracoes/empresas", icon: <Building size={17} /> }
+      { title: "Meu perfil", to: "/configuracoes/perfil", icon: <UserRound size={17} /> }
     ]
   }
 ];
@@ -91,3 +89,16 @@ export const PAGE_TITLES: Record<string, string> = {
     ).filter(([to]) => to !== "/")
   )
 };
+
+/** Título da tela atual, incluindo as telas com código no endereço. */
+export function pageTitleFor(pathname: string): string | undefined {
+  if (PAGE_TITLES[pathname]) {
+    return PAGE_TITLES[pathname];
+  }
+
+  if (pathname.startsWith("/configuracoes/empresas/")) {
+    return "Cadastro da empresa";
+  }
+
+  return undefined;
+}
