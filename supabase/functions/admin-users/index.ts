@@ -44,6 +44,18 @@ function corsHeaders(origin: string | null) {
   };
 }
 
+/** Primeira chave de uma lista do Supabase (JSON {"default": "..."} ou texto puro) */
+function firstKey(name: string): string {
+  const raw = Deno.env.get(name) ?? "";
+
+  try {
+    const parsed = JSON.parse(raw) as Record<string, string>;
+    return parsed.default ?? Object.values(parsed)[0] ?? "";
+  } catch {
+    return raw;
+  }
+}
+
 function checkPassword(password: unknown): string {
   if (typeof password !== "string" || password.length < 8) {
     throw new Refusal("A senha precisa ter pelo menos 8 caracteres.");
@@ -122,8 +134,13 @@ Deno.serve(async request => {
     }
 
     const url = Deno.env.get("SUPABASE_URL")!;
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    // Chaves novas (publishable/secret) ou as antigas (anon/service_role)
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") || firstKey("SUPABASE_PUBLISHABLE_KEYS");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || firstKey("SUPABASE_SECRET_KEYS");
+
+    if (!url || !anonKey || !serviceKey) {
+      throw new Error("Chaves do Supabase não encontradas na função.");
+    }
 
     // Quem está pedindo (pelo login dele)
     const authorization = request.headers.get("Authorization") ?? "";
