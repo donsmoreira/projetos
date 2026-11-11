@@ -4,7 +4,7 @@ import {
   useState
 } from "react";
 
-import { ChevronDown, Copy, KeyRound, Trash2, UserMinus } from "lucide-react";
+import { ChevronDown, Copy, KeyRound, Trash2, UserMinus, UserPlus } from "lucide-react";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useCompany } from "../../hooks/useCompany";
@@ -71,6 +71,10 @@ function UsersSettings() {
     useState<CompanyPermissions>(defaultInvitePermissions);
   /** Usuário com a grade de permissões aberta */
   const [openUser, setOpenUser] = useState<string | null>(null);
+  /** Formulário de cadastrar usuário aberto (só aparece pelo botão) */
+  const [showNewUser, setShowNewUser] = useState(false);
+  /** Gerador de código de convite aberto (só aparece pelo botão) */
+  const [showInvite, setShowInvite] = useState(false);
   const [newCode, setNewCode] = useState("");
 
   const fetchAll = useCallback(async () => {
@@ -172,7 +176,51 @@ function UsersSettings() {
             Clique em Permissões para abrir a grade de um usuário.
           </p>
         </div>
+
+        {isAdmin && (
+          <div className="settings-header-actions">
+            {!showInvite && (
+              <button
+                type="button"
+                className="settings-button settings-button-secondary"
+                onClick={() => {
+                  setInfoMessage("");
+                  setShowInvite(true);
+                }}
+              >
+                <KeyRound size={15} />
+                Convidar por código
+              </button>
+            )}
+
+            {!showNewUser && (
+              <button
+                type="button"
+                className="settings-button"
+                onClick={() => {
+                  setInfoMessage("");
+                  setShowNewUser(true);
+                }}
+              >
+                <UserPlus size={15} />
+                Cadastrar usuário
+              </button>
+            )}
+          </div>
+        )}
       </section>
+
+      {isAdmin && showNewUser && (
+        <NewUserForm
+          onCancel={() => setShowNewUser(false)}
+          onCreated={async message => {
+            setErrorMessage("");
+            setShowNewUser(false);
+            apply(await fetchAll());
+            setInfoMessage(message);
+          }}
+        />
+      )}
 
       <section className="settings-card">
         <h3>Usuários da empresa</h3>
@@ -278,41 +326,48 @@ function UsersSettings() {
         )}
       </section>
 
-      {isAdmin && (
-        <NewUserForm
-          onCreated={async message => {
-            setErrorMessage("");
-            apply(await fetchAll());
-            setInfoMessage(message);
-          }}
-        />
-      )}
 
-      {isAdmin && (
+      {isAdmin && (showInvite || newCode || invites.length > 0) && (
         <section className="settings-card">
-          <h3>Convidar usuário com e-mail</h3>
-          <p>
-            Escolha o que a pessoa vai poder fazer e gere um código. Mande o código para ela (por
-            WhatsApp, por exemplo). Ela entra com a conta dela e digita o código. Vale 7 dias e uma vez só.
-          </p>
+          <h3>{showInvite ? "Convidar por código" : "Convites"}</h3>
 
-          <PermissionMatrix
-            idPrefix="invite"
-            value={invitePermissions}
-            disabled={Boolean(busy)}
-            onChange={setInvitePermissions}
-          />
-          <div className="settings-actions" style={{ justifyContent: "flex-start" }}>
-            <button
-              type="button"
-              className="settings-button"
-              disabled={Boolean(busy)}
-              onClick={() => void handleCreateInvite()}
-            >
-              <KeyRound size={15} />
-              {busy === "invite" ? "Gerando..." : "Gerar código de convite"}
-            </button>
-          </div>
+          {showInvite && (
+            <>
+              <p>
+                Para quem já tem conta com e-mail. Escolha o que a pessoa vai poder fazer e gere um
+                código. Mande o código para ela (por WhatsApp, por exemplo). Ela entra com a conta dela
+                e digita o código. Vale 7 dias e uma vez só.
+              </p>
+
+              <PermissionMatrix
+                idPrefix="invite"
+                value={invitePermissions}
+                disabled={Boolean(busy)}
+                onChange={setInvitePermissions}
+              />
+
+              <div className="settings-actions" style={{ justifyContent: "flex-start" }}>
+                <button
+                  type="button"
+                  className="settings-button"
+                  disabled={Boolean(busy)}
+                  onClick={() => void handleCreateInvite()}
+                >
+                  <KeyRound size={15} />
+                  {busy === "invite" ? "Gerando..." : "Gerar código de convite"}
+                </button>
+
+                <button
+                  type="button"
+                  className="settings-button settings-button-secondary"
+                  disabled={Boolean(busy)}
+                  onClick={() => setShowInvite(false)}
+                >
+                  Fechar
+                </button>
+              </div>
+            </>
+          )}
 
           {newCode && (
             <div className="settings-code">

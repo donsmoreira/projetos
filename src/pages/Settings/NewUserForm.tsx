@@ -16,10 +16,12 @@ import PermissionMatrix from "./PermissionMatrix";
 
 type NewUserFormProps = {
   onCreated: (message: string) => Promise<void>;
+  /** Fecha o formulário sem cadastrar */
+  onCancel: () => void;
 };
 
 /** Cadastrar usuário (e-mail e senha) nas empresas do ID EMPRESA aberto. */
-function NewUserForm({ onCreated }: NewUserFormProps) {
+function NewUserForm({ onCreated, onCancel }: NewUserFormProps) {
   const { companies, active, groupId } = useCompany();
   const adminCompanies = companies.filter(item => item.permissions.isAdmin);
 
@@ -89,7 +91,7 @@ function NewUserForm({ onCreated }: NewUserFormProps) {
 
   return (
     <form className="settings-card" onSubmit={handleSubmit}>
-      <h3>Cadastrar usuário</h3>
+      <h3>Novo usuário</h3>
       <p>
         Crie o acesso da pessoa com e-mail e senha. Ela entra com o ID EMPRESA {groupId},
         o e-mail e a senha. Marque as empresas em que ela vai operar: as permissões abaixo
@@ -170,6 +172,15 @@ function NewUserForm({ onCreated }: NewUserFormProps) {
         <button type="submit" className="settings-button" disabled={saving}>
           <UserPlus size={15} />
           {saving ? "Cadastrando..." : "Cadastrar usuário"}
+        </button>
+
+        <button
+          type="button"
+          className="settings-button settings-button-secondary"
+          disabled={saving}
+          onClick={onCancel}
+        >
+          Cancelar
         </button>
       </div>
     </form>
