@@ -64,6 +64,8 @@ function CompanyForm({
   const kind = documentKind(form.document);
   const isCnpj = kind === "cnpj";
   const isCpf = kind === "cpf";
+  /** Pessoa física: CPF com "PF" escolhido. Nos outros casos mostra os campos de empresa */
+  const isPf = isCpf && form.personType === "PF";
 
   function update<K extends keyof CompanyFormData>(field: K, value: CompanyFormData[K]) {
     setSavedMessage("");
@@ -157,7 +159,7 @@ function CompanyForm({
               )}
 
               <div className="settings-field settings-field-full">
-                <label htmlFor="company-name">{isCnpj ? "Razão social" : "Nome"}</label>
+                <label htmlFor="company-name">{isPf ? "Nome" : "Razão social"}</label>
                 <input
                   id="company-name"
                   type="text"
@@ -166,7 +168,8 @@ function CompanyForm({
                 />
               </div>
 
-              {isCnpj && (
+              {/* Dados de empresa: sempre visíveis, menos para pessoa física */}
+              {!isPf && (
                 <>
                   <div className="settings-field settings-field-full">
                     <label htmlFor="company-trade-name">Nome fantasia</label>
@@ -180,7 +183,7 @@ function CompanyForm({
                   </div>
 
                   <div className="settings-field settings-field-full">
-                    <label htmlFor="company-tax-regime">Regime tributário</label>
+                    <label htmlFor="company-tax-regime">Enquadramento (regime tributário)</label>
                     <select
                       id="company-tax-regime"
                       value={form.taxRegime}
@@ -194,11 +197,7 @@ function CompanyForm({
                       ))}
                     </select>
                   </div>
-                </>
-              )}
 
-              {(isCnpj || (isCpf && form.personType === "PJ")) && (
-                <>
                   <div className="settings-field">
                     <label htmlFor="company-ie">Inscrição estadual</label>
                     <input

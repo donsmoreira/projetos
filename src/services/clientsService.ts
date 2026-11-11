@@ -44,6 +44,8 @@ export async function createClient(
 
       state_registration: client.stateRegistration.trim() || null,
 
+      tax_regime: client.taxRegime || null,
+
       phone: client.phone || null,
 
       email: client.email || null,
@@ -80,6 +82,8 @@ export async function updateClient(
       trade_name: client.tradeName.trim() || null,
 
       state_registration: client.stateRegistration.trim() || null,
+
+      tax_regime: client.taxRegime || null,
 
       phone: client.phone || null,
 

@@ -2,6 +2,8 @@ import type {
   AddressFields,
   AddressFormData
 } from "./address";
+import type { ClientType } from "./client";
+import type { TaxRegime } from "./company";
 
 export interface Supplier extends AddressFields {
   id: string;
@@ -12,6 +14,9 @@ export interface Supplier extends AddressFields {
   /** Nome fantasia (vem da Receita ao buscar o CNPJ) */
   trade_name?: string | null;
   state_registration?: string | null;
+  /** Enquadramento: simples, simples_mei, normal, nao_contribuinte */
+  tax_regime?: TaxRegime | null;
+  type?: ClientType | null;
   phone: string | null;
   email: string | null;
   notes: string | null;
@@ -25,6 +30,8 @@ export interface SupplierFormData {
   document: string;
   tradeName: string;
   stateRegistration: string;
+  taxRegime: TaxRegime | "";
+  type: ClientType | null;
   phone: string;
   email: string;
   notes: string;

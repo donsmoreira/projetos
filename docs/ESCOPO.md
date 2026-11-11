@@ -79,8 +79,8 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 ### 3.3 Cadastros
 | Módulo | Status | Campos |
 |---|---|---|
-| Clientes (`/clientes`) | ✅ CRUD + busca + filtro por UF/cidade | nome/razão social, tipo (PF/PJ automático pelo documento), CPF/CNPJ (CNPJ busca os dados na Receita), nome fantasia, inscrição estadual, telefone, e-mail, observações, endereço opcional (CEP com preenchimento automático pelo ViaCEP) |
-| Fornecedores (`/fornecedores`) | ✅ CRUD + busca + filtro por UF/cidade | nome/razão social, CPF/CNPJ (CNPJ busca os dados na Receita), nome fantasia, inscrição estadual, telefone, e-mail, observações, endereço opcional (CEP com preenchimento automático pelo ViaCEP) |
+| Clientes (`/clientes`) | ✅ CRUD + busca + filtro por UF/cidade | nome/razão social, tipo (PF/PJ automático pelo documento), CPF/CNPJ (CNPJ busca os dados na Receita); com PJ: nome fantasia, enquadramento, inscrição estadual; telefone, e-mail, observações, endereço opcional (CEP com preenchimento automático pelo ViaCEP) |
+| Fornecedores (`/fornecedores`) | ✅ CRUD + busca + filtro por UF/cidade | nome/razão social, tipo (PF/PJ automático pelo documento), CPF/CNPJ (CNPJ busca os dados na Receita); com PJ: nome fantasia, enquadramento, inscrição estadual; telefone, e-mail, observações, endereço opcional (CEP com preenchimento automático pelo ViaCEP) |
 | Contas gerenciais (`/contas-gerenciais`) | ✅ CRUD + busca | árvore de contas pai/subcontas; nome, receita/despesa, fixa/variável; filtro por tipo, busca, expandir/recolher |
 
 ### 3.4 Contas bancárias (`/bancos`)

@@ -2,6 +2,7 @@ import type {
   AddressFields,
   AddressFormData
 } from "./address";
+import type { TaxRegime } from "./company";
 
 export type ClientType = "Pessoa Física" | "Pessoa Jurídica";
 
@@ -20,6 +21,9 @@ export interface Client extends AddressFields {
   trade_name?: string | null;
 
   state_registration?: string | null;
+
+  /** Enquadramento: simples, simples_mei, normal, nao_contribuinte */
+  tax_regime?: TaxRegime | null;
 
   phone: string | null;
 
@@ -42,6 +46,8 @@ export interface ClientFormData {
   tradeName: string;
 
   stateRegistration: string;
+
+  taxRegime: TaxRegime | "";
 
   phone: string;
 

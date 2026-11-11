@@ -31,6 +31,7 @@ import {
   CnpjLookupHint,
   CnpjLookupMessage
 } from "../../../components/CnpjLookup/CnpjLookupInfo";
+import CompanyDataFields from "../../../components/CnpjLookup/CompanyDataFields";
 import { useCnpjLookup } from "../../../hooks/useCnpjLookup";
 import {
   documentKind,
@@ -49,6 +50,7 @@ const emptyForm: ClientFormData = {
   document: "",
   tradeName: "",
   stateRegistration: "",
+  taxRegime: "",
   phone: "",
   email: "",
   notes: "",
@@ -77,6 +79,7 @@ function ClientForm({
         document: client.document ?? "",
         tradeName: client.trade_name ?? "",
         stateRegistration: client.state_registration ?? "",
+        taxRegime: client.tax_regime ?? "",
         phone: client.phone ?? "",
         email: client.email ?? "",
         notes: client.notes ?? "",
@@ -116,6 +119,7 @@ function ClientForm({
       type: "Pessoa Jurídica",
       tradeName: result.tradeName || current.tradeName,
       stateRegistration: result.stateRegistration || current.stateRegistration,
+      taxRegime: result.taxRegime || current.taxRegime,
       // Telefone e e-mail da Receita costumam ser do contador: só se estiver vazio
       phone: current.phone.trim() ? current.phone : result.phone,
       email: current.email.trim() ? current.email : result.email,
@@ -142,6 +146,11 @@ function ClientForm({
 
     receita.handleDocumentChange(formatted);
   }
+
+  // Campos de empresa (razão social, fantasia, enquadramento, IE) para CNPJ ou PJ
+  const isPj =
+    formData.type === "Pessoa Jurídica" ||
+    documentKind(formData.document) === "cnpj";
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
@@ -170,6 +179,10 @@ function ClientForm({
         ...formData,
         name: formData.name.trim(),
         document: formData.document.trim(),
+        // Pessoa física não guarda dados de empresa
+        tradeName: isPj ? formData.tradeName.trim() : "",
+        stateRegistration: isPj ? formData.stateRegistration.trim() : "",
+        taxRegime: isPj ? formData.taxRegime : "",
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         notes: formData.notes.trim()
@@ -203,26 +216,6 @@ function ClientForm({
       onSubmit={handleSubmit}
     >
       <div className="client-form-grid">
-        <div className="client-field client-field-full">
-          <label htmlFor="client-name">
-            Nome / razão social
-          </label>
-
-          <input
-            id="client-name"
-            type="text"
-            value={formData.name}
-            onChange={event =>
-              updateField(
-                "name",
-                event.target.value
-              )
-            }
-            autoFocus
-            required
-          />
-        </div>
-
         <div className="client-field">
           <label htmlFor="client-type">
             Tipo
@@ -269,6 +262,7 @@ function ClientForm({
             }
             placeholder="000.000.000-00 ou 00.000.000/0000-00"
             maxLength={18}
+            autoFocus
           />
 
           <CnpjLookupHint
@@ -279,41 +273,37 @@ function ClientForm({
 
         <CnpjLookupMessage lookup={receita} />
 
-        <div className="client-field">
-          <label htmlFor="client-trade-name">
-            Nome fantasia
+        <div className="client-field client-field-full">
+          <label htmlFor="client-name">
+            {isPj ? "Razão social" : "Nome"}
           </label>
 
           <input
-            id="client-trade-name"
+            id="client-name"
             type="text"
-            value={formData.tradeName}
+            value={formData.name}
             onChange={event =>
               updateField(
-                "tradeName",
+                "name",
                 event.target.value
               )
             }
+            required
           />
         </div>
 
-        <div className="client-field">
-          <label htmlFor="client-ie">
-            Inscrição estadual
-          </label>
-
-          <input
-            id="client-ie"
-            type="text"
-            value={formData.stateRegistration}
-            onChange={event =>
-              updateField(
-                "stateRegistration",
-                event.target.value
-              )
+        {isPj && (
+          <CompanyDataFields
+            classPrefix="client"
+            idPrefix="client"
+            tradeName={formData.tradeName}
+            taxRegime={formData.taxRegime}
+            stateRegistration={formData.stateRegistration}
+            onChange={(field, value) =>
+              setFormData(current => ({ ...current, [field]: value }))
             }
           />
-        </div>
+        )}
 
         <div className="client-field">
           <label htmlFor="client-phone">

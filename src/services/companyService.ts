@@ -121,6 +121,7 @@ export async function updateCompany(
   const document = documentDigits(form.document);
   const kind = documentKind(document);
   const isCnpj = kind === "cnpj";
+  const isPf = kind === "cpf" && form.personType === "PF";
 
   const { data, error } = await supabase
     .from("companies")
@@ -129,8 +130,9 @@ export async function updateCompany(
       // CNPJ é sempre PJ; com CPF a pessoa escolhe
       person_type: isCnpj ? "PJ" : form.personType || null,
       name: form.name.trim(),
-      trade_name: isCnpj ? form.tradeName.trim() || null : null,
-      tax_regime: isCnpj ? form.taxRegime || null : null,
+      // Pessoa física não tem nome fantasia nem enquadramento
+      trade_name: isPf ? null : form.tradeName.trim() || null,
+      tax_regime: isPf ? null : form.taxRegime || null,
       state_registration: form.stateRegistration.trim() || null,
       municipal_registration: form.municipalRegistration.trim() || null,
       phone: form.phone.trim() || null,

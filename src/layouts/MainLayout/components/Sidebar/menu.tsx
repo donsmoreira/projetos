@@ -47,8 +47,7 @@ export const MENU: MenuEntry[] = [
     icon: <ClipboardList size={18} />,
     items: [
       { title: "Clientes", to: "/clientes", icon: <Users size={17} /> },
-      { title: "Fornecedores", to: "/fornecedores", icon: <Truck size={17} /> },
-      { title: "Contas Gerenciais", to: "/contas-gerenciais", icon: <FolderTree size={17} /> }
+      { title: "Fornecedores", to: "/fornecedores", icon: <Truck size={17} /> }
     ]
   },
   {
@@ -61,7 +60,8 @@ export const MENU: MenuEntry[] = [
       { title: "Contas a Receber", to: "/contas-receber", icon: <HandCoins size={17} /> },
       { title: "Caixa", to: "/caixa", icon: <Banknote size={17} /> },
       { title: "Contas Bancárias", to: "/bancos", icon: <Landmark size={17} /> },
-      { title: "Cartões de Crédito", to: "/cartoes", icon: <CreditCard size={17} /> }
+      { title: "Cartões de Crédito", to: "/cartoes", icon: <CreditCard size={17} /> },
+      { title: "Contas Gerenciais", to: "/contas-gerenciais", icon: <FolderTree size={17} /> }
     ]
   },
   { kind: "link", title: "Relatórios", to: "/relatorios", icon: <BarChart3 size={18} /> },

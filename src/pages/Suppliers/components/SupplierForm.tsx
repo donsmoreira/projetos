@@ -31,7 +31,12 @@ import {
   CnpjLookupMessage
 } from "../../../components/CnpjLookup/CnpjLookupInfo";
 import { useCnpjLookup } from "../../../hooks/useCnpjLookup";
-import { formatDocument } from "../../../utils/document";
+import CompanyDataFields from "../../../components/CnpjLookup/CompanyDataFields";
+import {
+  documentKind,
+  formatDocument
+} from "../../../utils/document";
+import type { ClientType } from "../../../types/client";
 
 type SupplierFormProps = {
   supplier: Supplier | null;
@@ -44,6 +49,8 @@ const emptyForm: SupplierFormData = {
   document: "",
   tradeName: "",
   stateRegistration: "",
+  taxRegime: "",
+  type: null,
   phone: "",
   email: "",
   notes: "",
@@ -71,6 +78,8 @@ function SupplierForm({
         document: supplier.document ?? "",
         tradeName: supplier.trade_name ?? "",
         stateRegistration: supplier.state_registration ?? "",
+        taxRegime: supplier.tax_regime ?? "",
+        type: supplier.type ?? null,
         phone: supplier.phone ?? "",
         email: supplier.email ?? "",
         notes: supplier.notes ?? "",
@@ -108,7 +117,9 @@ function SupplierForm({
       ...current,
       name: result.name || current.name,
       tradeName: result.tradeName || current.tradeName,
+      type: "Pessoa Jurídica",
       stateRegistration: result.stateRegistration || current.stateRegistration,
+      taxRegime: result.taxRegime || current.taxRegime,
       // Telefone e e-mail da Receita costumam ser do contador: só se estiver vazio
       phone: current.phone.trim() ? current.phone : result.phone,
       email: current.email.trim() ? current.email : result.email,
@@ -120,9 +131,26 @@ function SupplierForm({
 
   function handleDocumentChange(value: string) {
     const formatted = formatDocument(value);
-    updateField("document", formatted);
+    const kind = documentKind(formatted);
+
+    setFormData(current => ({
+      ...current,
+      document: formatted,
+      // 11 números = CPF (pessoa física); 14 = CNPJ (pessoa jurídica)
+      type: kind === "cnpj"
+        ? "Pessoa Jurídica"
+        : kind === "cpf"
+          ? "Pessoa Física"
+          : current.type
+    }));
+
     receita.handleDocumentChange(formatted);
   }
+
+  // Campos de empresa (razão social, fantasia, enquadramento, IE) para CNPJ ou PJ
+  const isPj =
+    formData.type === "Pessoa Jurídica" ||
+    documentKind(formData.document) === "cnpj";
 
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
@@ -150,8 +178,11 @@ function SupplierForm({
       const normalizedData: SupplierFormData = {
         name: formData.name.trim(),
         document: formData.document.trim(),
-        tradeName: formData.tradeName.trim(),
-        stateRegistration: formData.stateRegistration.trim(),
+        type: formData.type,
+        // Pessoa física não guarda dados de empresa
+        tradeName: isPj ? formData.tradeName.trim() : "",
+        stateRegistration: isPj ? formData.stateRegistration.trim() : "",
+        taxRegime: isPj ? formData.taxRegime : "",
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         notes: formData.notes.trim(),
@@ -186,24 +217,35 @@ function SupplierForm({
       onSubmit={handleSubmit}
     >
       <div className="supplier-form-grid">
-        <div className="supplier-field supplier-field-full">
-          <label htmlFor="supplier-name">
-            Nome / razão social
+        <div className="supplier-field">
+          <label htmlFor="supplier-type">
+            Tipo
           </label>
 
-          <input
-            id="supplier-name"
-            type="text"
-            value={formData.name}
+          <select
+            id="supplier-type"
+            value={formData.type ?? ""}
             onChange={event =>
               updateField(
-                "name",
+                "type",
                 event.target.value
+                  ? event.target.value as ClientType
+                  : null
               )
             }
-            autoFocus
-            required
-          />
+          >
+            <option value="">
+              Não informado
+            </option>
+
+            <option value="Pessoa Física">
+              Pessoa Física
+            </option>
+
+            <option value="Pessoa Jurídica">
+              Pessoa Jurídica
+            </option>
+          </select>
         </div>
 
         <div className="supplier-field">
@@ -221,6 +263,7 @@ function SupplierForm({
             }
             placeholder="000.000.000-00 ou 00.000.000/0000-00"
             maxLength={18}
+            autoFocus
           />
 
           <CnpjLookupHint
@@ -231,41 +274,37 @@ function SupplierForm({
 
         <CnpjLookupMessage lookup={receita} />
 
-        <div className="supplier-field">
-          <label htmlFor="supplier-trade-name">
-            Nome fantasia
+        <div className="supplier-field supplier-field-full">
+          <label htmlFor="supplier-name">
+            {isPj ? "Razão social" : "Nome"}
           </label>
 
           <input
-            id="supplier-trade-name"
+            id="supplier-name"
             type="text"
-            value={formData.tradeName}
+            value={formData.name}
             onChange={event =>
               updateField(
-                "tradeName",
+                "name",
                 event.target.value
               )
             }
+            required
           />
         </div>
 
-        <div className="supplier-field">
-          <label htmlFor="supplier-ie">
-            Inscrição estadual
-          </label>
-
-          <input
-            id="supplier-ie"
-            type="text"
-            value={formData.stateRegistration}
-            onChange={event =>
-              updateField(
-                "stateRegistration",
-                event.target.value
-              )
+        {isPj && (
+          <CompanyDataFields
+            classPrefix="supplier"
+            idPrefix="supplier"
+            tradeName={formData.tradeName}
+            taxRegime={formData.taxRegime}
+            stateRegistration={formData.stateRegistration}
+            onChange={(field, value) =>
+              setFormData(current => ({ ...current, [field]: value }))
             }
           />
-        </div>
+        )}
 
         <div className="supplier-field">
           <label htmlFor="supplier-phone">

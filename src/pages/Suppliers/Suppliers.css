@@ -441,6 +441,7 @@
 }
 
 .supplier-field input,
+.supplier-field select,
 .supplier-field textarea {
   width: 100%;
 
@@ -459,7 +460,8 @@
     box-shadow 0.2s;
 }
 
-.supplier-field input {
+.supplier-field input,
+.supplier-field select {
   height: 42px;
 
   padding: 0 11px;
@@ -474,6 +476,7 @@
 }
 
 .supplier-field input:focus,
+.supplier-field select:focus,
 .supplier-field textarea:focus {
   border-color: var(--primary);
 
