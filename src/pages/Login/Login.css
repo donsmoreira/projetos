@@ -270,6 +270,10 @@
   font-weight: 700;
 }
 
+.login-card-wide {
+  max-width: 860px;
+}
+
 @media (max-width: 480px) {
   .login-page {
     padding: 16px;

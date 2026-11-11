@@ -62,7 +62,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Cadastro de usuário | 🟡 | `pages/Signup`: e-mail + senha, conta ativada por código enviado ao e-mail. Depende de configurar o modelo de e-mail no Supabase |
 | Recuperação de senha | 🟡 | `pages/ForgotPassword`: código por e-mail + nova senha. Mesma dependência |
 | Perfil do usuário | ✅ | Configurações → Meu perfil: nome, telefone/WhatsApp, CPF, endereço |
-| Multiempresa e multiusuário | ✅ | empresas, membros com permissões por tela (administrador; em cada tela Ver, Cadastrar, Alterar, Excluir e Baixar em contas a pagar/receber; grade por grupo Geral / Cadastros / Financeiro com divisão Lançamentos), convite por código com a mesma grade; cadastro de usuário com nome de usuário e senha (empresas marcadas por caixinha, troca de senha pelo administrador; Edge Function `admin-users`); login por e-mail ou usuário; empresa aberta no topo com seletor |
+| Multiempresa e multiusuário | ✅ | empresas, membros com permissões por tela (administrador; em cada tela Ver, Cadastrar, Alterar, Excluir e Baixar em contas a pagar/receber; grade por grupo Geral / Cadastros / Financeiro com divisão Lançamentos), convite por código com a mesma grade; ID EMPRESA (grupo, sequencial a partir do 2; empresas com código 1, 2, 3...); login com ID EMPRESA, e-mail e senha; escolha da empresa após o login; cadastro de usuário por e-mail e senha nas empresas marcadas (Edge Function `admin-users`); primeira empresa com cadastro completo; empresa aberta no topo com seletor |
 
 ### 3.2 Dashboard (`/`)
 | Item | Status | Observação |
@@ -229,6 +229,8 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 | `companies` (empresas) | name (nome/razão social), trade_name, document (11 = CPF, 14 = CNPJ), person_type (PF/PJ), tax_regime, inscrições, contato, endereço | created_by |
 | `company_members` (usuários da empresa) | is_admin, can_create, can_update, can_delete, can_settle | company_id, user_id |
 | `company_invites` (convites) | code, permissões, expires_at (7 dias), used_by/used_at | company_id |
+
+**ID EMPRESA (desde 11/11/2026):** `company_groups` (id a partir do 2; o 1 é reservado), `companies.group_id` + `companies.code` (1, 2, 3... dentro do ID) e `profiles.active_group_id`. O login chama `enter_group(id)`, que só aceita IDs de que a conta participa; `current_company_id()` só devolve a empresa aberta se ela for do ID com que a pessoa entrou.
 
 **Multiempresa (desde 11/11/2026):** todas as tabelas de dados têm `company_id`. As regras de acesso (RLS) mostram só a **empresa aberta** (`profiles.active_company_id`, conferida por `current_company_id()`) e checam a permissão da tela (`has_module_permission(tela, ação)`, tabela `company_member_permissions`) para cadastrar, alterar e excluir; caixa e conta bancária pela coluna `account_type`. Pagar/estornar exige "Baixar" em Contas a Pagar e receber/estornar em Contas a Receber. "Ver" controla a tela (menu e rota); a leitura dos dados continua liberada para quem é da empresa, porque uma tela usa dados de outras (ex.: fornecedores na conta a pagar). `user_id` passou a significar só "quem cadastrou".
 

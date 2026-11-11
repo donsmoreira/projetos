@@ -13,7 +13,7 @@ import "./Settings.css";
 
 /** Configurações → Empresas: abrir outra empresa, criar uma nova ou entrar com código. */
 function CompaniesSettings() {
-  const { companies, active, canCreateCompany, switchCompany } = useCompany();
+  const { companies, active, canCreateCompany, switchCompany, groupId } = useCompany();
 
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState("");
@@ -47,9 +47,10 @@ function CompaniesSettings() {
     <div className="settings-page">
       <section className="settings-header">
         <div>
-          <h2>Empresas</h2>
+          <h2>Empresas · ID EMPRESA {groupId}</h2>
           <p>
-            As empresas de que você participa. Cada uma tem seus próprios dados.
+            As empresas deste ID de que você participa. Cada uma tem seus próprios dados e um
+            código (1, 2, 3...).
             Clique em Cadastro para ver ou alterar os dados de uma empresa.
           </p>
         </div>
@@ -77,6 +78,7 @@ function CompaniesSettings() {
                     {item.company.trade_name || item.company.name}
                   </strong>
                   <small>
+                    {`Empresa ${item.company.code} · `}
                     {item.company.document ? `${formatDocument(item.company.document)} · ` : ""}
                     {item.permissions.isAdmin ? "Administrador" : "Usuário"}
                   </small>

@@ -18,6 +18,10 @@ export const TAX_REGIME_LABELS: Record<TaxRegime, string> = {
 
 export interface Company extends AddressFields {
   id: string;
+  /** ID EMPRESA (grupo) a que pertence */
+  group_id: number;
+  /** Código da empresa dentro do ID: 1, 2, 3... */
+  code: number;
   /** Nome (CPF) ou razão social (CNPJ) */
   name: string;
   trade_name: string | null;

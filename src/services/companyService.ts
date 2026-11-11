@@ -150,6 +150,17 @@ export async function getActiveCompanyId(): Promise<string | null> {
   return (data as string | null) ?? null;
 }
 
+/** ID EMPRESA com que a pessoa entrou (null = nenhum). */
+export async function getActiveGroupId(): Promise<number | null> {
+  const { data, error } = await supabase.rpc("current_group_id");
+
+  if (error) {
+    fail(error);
+  }
+
+  return (data as number | null) ?? null;
+}
+
 export async function setActiveCompany(companyId: string): Promise<void> {
   const { error } = await supabase.rpc("set_active_company", {
     p_company_id: companyId

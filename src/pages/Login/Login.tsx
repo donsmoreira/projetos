@@ -16,15 +16,20 @@ import { useAuth } from "../../contexts/AuthContext";
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
 import { translateAuthError } from "../../utils/authErrors";
 import {
-  isUsernameLogin,
-  loginToEmail
-} from "../../utils/username";
+  markMustChooseCompany,
+  parseCompanyId,
+  rememberCompanyId,
+  rememberedCompanyId
+} from "../../utils/companyLogin";
 
 function Login() {
   const {
     session,
     loading
   } = useAuth();
+
+  const [companyId, setCompanyId] =
+    useState(rememberedCompanyId);
 
   const [email, setEmail] =
     useState("");
@@ -48,22 +53,57 @@ function Login() {
 
     setErrorMessage("");
     setEmailNotConfirmed(false);
-    setSubmitting(true);
 
-    // Sem "@" é nome de usuário: vira o e-mail interno da conta
-    const byUsername = isUsernameLogin(email.trim());
+    // Em branco só para conta que ainda não tem empresa (o banco confere)
+    const typedId = companyId.trim();
+    const groupId = typedId ? parseCompanyId(typedId) : null;
+
+    if (typedId && !groupId) {
+      setErrorMessage("O ID EMPRESA tem só números.");
+      return;
+    }
+
+    setSubmitting(true);
 
     const { error } =
       await supabase.auth.signInWithPassword({
-        email: loginToEmail(email),
+        email: email.trim(),
         password
       });
 
+    if (!error) {
+      // Confere se a conta tem acesso a este ID e abre ele
+      const { data: groupResult, error: groupError } =
+        await supabase.rpc("enter_group", {
+          p_group_id: groupId
+        });
+
+      if (groupError) {
+        await supabase.auth.signOut();
+        setErrorMessage(
+          !groupId
+            ? "Informe o ID EMPRESA da sua empresa."
+            : /ID EMPRESA/i.test(groupError.message)
+              ? "ID EMPRESA incorreto ou sem acesso para este e-mail."
+              : "Não foi possível abrir o ID EMPRESA. Tente de novo."
+        );
+        setSubmitting(false);
+        return;
+      }
+
+      // Conta sem empresa vai direto criar a primeira (o ID nasce com ela)
+      if (groupResult === "ok" && groupId) {
+        rememberCompanyId(String(groupId));
+      }
+      // Depois do login a pessoa escolhe em qual empresa vai operar
+      markMustChooseCompany();
+      setSubmitting(false);
+      return;
+    }
+
     if (error) {
       setErrorMessage(
-        byUsername && /invalid login credentials/i.test(error.message)
-          ? "Usuário ou senha incorretos."
-          : translateAuthError(error)
+        translateAuthError(error)
       );
 
       setEmailNotConfirmed(
@@ -79,7 +119,8 @@ function Login() {
     return null;
   }
 
-  if (session) {
+  // Durante o login (conferindo o ID) ainda não sai desta tela
+  if (session && !submitting) {
     return (
       <Navigate
         to="/"
@@ -98,20 +139,39 @@ function Login() {
         onSubmit={handleSubmit}
       >
         <div className="login-field">
+          <label htmlFor="company-id">
+            ID EMPRESA
+          </label>
+
+          <input
+            id="company-id"
+            type="text"
+            inputMode="numeric"
+            value={companyId}
+            onChange={event =>
+              setCompanyId(event.target.value.replace(/\D/g, ""))
+            }
+            autoComplete="organization"
+            maxLength={9}
+          />
+          <small className="login-hint">
+            Primeiro acesso, sem empresa ainda? Deixe em branco: você cria a sua e recebe o ID.
+          </small>
+        </div>
+
+        <div className="login-field">
           <label htmlFor="email">
-            E-mail ou usuário
+            E-mail
           </label>
 
           <input
             id="email"
-            type="text"
+            type="email"
             value={email}
             onChange={event =>
               setEmail(event.target.value)
             }
-            autoComplete="username"
-            autoCapitalize="none"
-            spellCheck={false}
+            autoComplete="email"
             required
           />
         </div>

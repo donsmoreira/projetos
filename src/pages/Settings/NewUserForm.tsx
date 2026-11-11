@@ -4,9 +4,10 @@ import type { FormEvent } from "react";
 import { UserPlus } from "lucide-react";
 
 import { useCompany } from "../../hooks/useCompany";
-import { createUsernameUser } from "../../services/userAdminService";
+import { createCompanyUser } from "../../services/userAdminService";
 import { modulePermissionsWith } from "../../types/permissions";
-import { normalizeUsername, validateUsername } from "../../utils/username";
+
+const EMAIL_RULE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 import type { CompanyPermissions } from "../../types/company";
 
@@ -17,13 +18,13 @@ type NewUserFormProps = {
   onCreated: (message: string) => Promise<void>;
 };
 
-/** Cadastrar usuário com nome de usuário e senha (sem e-mail). */
+/** Cadastrar usuário (e-mail e senha) nas empresas do ID EMPRESA aberto. */
 function NewUserForm({ onCreated }: NewUserFormProps) {
-  const { companies, active } = useCompany();
+  const { companies, active, groupId } = useCompany();
   const adminCompanies = companies.filter(item => item.permissions.isAdmin);
 
   const [fullName, setFullName] = useState("");
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [companyIds, setCompanyIds] = useState<string[]>(active ? [active.company.id] : []);
@@ -42,14 +43,12 @@ function NewUserForm({ onCreated }: NewUserFormProps) {
       return;
     }
 
-    const usernameError = validateUsername(username);
-
-    if (usernameError) {
-      setErrorMessage(usernameError);
+    if (!EMAIL_RULE.test(email.trim())) {
+      setErrorMessage("Informe um e-mail válido.");
       return;
     }
 
-    if (password.length < 8) {
+    if (password && password.length < 8) {
       setErrorMessage("A senha precisa ter pelo menos 8 caracteres.");
       return;
     }
@@ -68,16 +67,18 @@ function NewUserForm({ onCreated }: NewUserFormProps) {
       setSaving(true);
       setErrorMessage("");
 
-      await createUsernameUser({ fullName, username, password, companyIds, permissions });
+      const existing = await createCompanyUser({ fullName, email, password, companyIds, permissions });
 
-      const login = normalizeUsername(username);
+      const login = email.trim().toLowerCase();
       setFullName("");
-      setUsername("");
+      setEmail("");
       setPassword("");
       setConfirm("");
 
       await onCreated(
-        `Usuário "${login}" cadastrado. Ele entra digitando "${login}" e a senha no campo "E-mail ou usuário".`
+        existing
+          ? `O e-mail ${login} já tinha conta: ele foi incluído nas empresas marcadas e continua com a senha dele. Ele entra com ID EMPRESA ${groupId}, o e-mail e a senha.`
+          : `Usuário ${login} cadastrado. Ele entra com ID EMPRESA ${groupId}, o e-mail e a senha que você definiu.`
       );
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Não foi possível cadastrar.");
@@ -90,9 +91,10 @@ function NewUserForm({ onCreated }: NewUserFormProps) {
     <form className="settings-card" onSubmit={handleSubmit}>
       <h3>Cadastrar usuário</h3>
       <p>
-        Crie o acesso com nome de usuário e senha, sem e-mail. No login a pessoa digita o
-        usuário no lugar do e-mail. Marque as empresas em que ela vai operar: as permissões
-        abaixo valem para todas as marcadas (depois dá para ajustar em cada empresa).
+        Crie o acesso da pessoa com e-mail e senha. Ela entra com o ID EMPRESA {groupId},
+        o e-mail e a senha. Marque as empresas em que ela vai operar: as permissões abaixo
+        valem para todas as marcadas (depois dá para ajustar em cada empresa). Se o e-mail
+        já tiver conta, ela só é incluída nas empresas e continua com a senha dela.
       </p>
 
       <div className="settings-grid">
@@ -108,19 +110,16 @@ function NewUserForm({ onCreated }: NewUserFormProps) {
         </div>
 
         <div className="settings-field settings-field-full">
-          <label htmlFor="new-user-login">Usuário (para entrar no sistema)</label>
+          <label htmlFor="new-user-email">E-mail (para entrar no sistema)</label>
           <input
-            id="new-user-login"
-            type="text"
-            value={username}
-            onChange={event => setUsername(event.target.value.toLowerCase().replace(/\s/g, ""))}
+            id="new-user-email"
+            type="email"
+            value={email}
+            onChange={event => setEmail(event.target.value)}
             autoComplete="off"
             autoCapitalize="none"
             spellCheck={false}
-            maxLength={30}
-            placeholder="ex.: joao.silva"
           />
-          <small>Letras minúsculas sem acento, números, ponto, hífen ou sublinhado.</small>
         </div>
 
         <div className="settings-field">
@@ -132,7 +131,7 @@ function NewUserForm({ onCreated }: NewUserFormProps) {
             onChange={event => setPassword(event.target.value)}
             autoComplete="new-password"
           />
-          <small>Pelo menos 8 caracteres.</small>
+          <small>Pelo menos 8 caracteres. Pode ficar em branco se o e-mail já tiver conta.</small>
         </div>
 
         <div className="settings-field">
@@ -154,7 +153,7 @@ function NewUserForm({ onCreated }: NewUserFormProps) {
             onChange={setCompanyIds}
             disabled={saving}
           />
-          <small>Aparecem só as empresas de que você é administrador.</small>
+          <small>Aparecem só as empresas deste ID de que você é administrador.</small>
         </div>
       </div>
 

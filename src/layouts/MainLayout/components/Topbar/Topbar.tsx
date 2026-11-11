@@ -17,13 +17,11 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useCompany } from "../../../../hooks/useCompany";
 import { useTheme } from "../../../../hooks/useTheme";
 import { pageTitleFor } from "../Sidebar/menu";
-import { displayLogin } from "../../../../utils/username";
-
 import "./Topbar.css";
 
 /** Nome da empresa aberta no centro do topo; com mais de uma, vira seletor. */
 function CompanySwitcher() {
-  const { companies, active, switchCompany } = useCompany();
+  const { companies, active, switchCompany, groupId } = useCompany();
   const [switching, setSwitching] = useState(false);
 
   if (!active) {
@@ -31,11 +29,13 @@ function CompanySwitcher() {
   }
 
   const label = (item: typeof active) =>
-    item.company.trade_name || item.company.name;
+    `${item.company.code} · ${item.company.trade_name || item.company.name}`;
+
+  const where = `ID EMPRESA ${groupId} · empresa ${active.company.code}`;
 
   if (companies.length <= 1) {
     return (
-      <div className="topbar-company" title="Empresa aberta">
+      <div className="topbar-company" title={where}>
         <Building2 size={16} />
         <span>{label(active)}</span>
       </div>
@@ -43,7 +43,7 @@ function CompanySwitcher() {
   }
 
   return (
-    <label className="topbar-company topbar-company-select" title="Trocar de empresa">
+    <label className="topbar-company topbar-company-select" title={`${where} · trocar de empresa`}>
       <Building2 size={16} />
 
       <select
@@ -104,7 +104,7 @@ function Topbar({
 
   const userName =
     user?.user_metadata?.full_name ||
-    displayLogin(user?.email) ||
+    user?.email ||
     "Usuário";
 
   const userInitial =

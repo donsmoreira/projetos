@@ -8,7 +8,11 @@ import type {
 export type CompanyContextValue = {
   loading: boolean;
   error: string;
-  /** Empresas de que o usuário participa */
+  /** ID EMPRESA com que entrou (null = nenhum) */
+  groupId: number | null;
+  /** A conta participa de alguma empresa (de qualquer ID)? */
+  hasAnyCompany: boolean;
+  /** Empresas do ID EMPRESA aberto de que o usuário participa */
   companies: CompanyMembership[];
   /** Empresa aberta (null = nenhuma: mostra a tela de primeira empresa/convite) */
   active: CompanyMembership | null;

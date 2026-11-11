@@ -6,8 +6,6 @@ import { useAuth } from "../../contexts/AuthContext";
 import { getMyProfile, updateMyProfile } from "../../services/companyService";
 import { addressFromDb, validateAddress } from "../../utils/address";
 import { documentDigits, formatCpf, isValidCpf } from "../../utils/document";
-import { displayLogin, isUsernameAccount } from "../../utils/username";
-
 import type { AddressFormData } from "../../types/address";
 import type { ProfileFormData, UserProfile } from "../../types/company";
 
@@ -89,11 +87,9 @@ function ProfileForm({ profile, email }: { profile: UserProfile; email: string }
           </div>
 
           <div className="settings-field">
-            <label htmlFor="profile-email">
-              {isUsernameAccount(email) ? "Usuário de acesso" : "E-mail de acesso"}
-            </label>
-            <input id="profile-email" type="text" value={displayLogin(email)} disabled />
-            <small>É o que você digita no login; não muda por aqui.</small>
+            <label htmlFor="profile-email">E-mail de acesso</label>
+            <input id="profile-email" type="email" value={email} disabled />
+            <small>É o e-mail do login; não muda por aqui.</small>
           </div>
 
           <div className="settings-field">

@@ -12,6 +12,7 @@ import { CompanyContext } from "./companyContext";
 
 import {
   getActiveCompanyId,
+  getActiveGroupId,
   listMyCompanies,
   setActiveCompany
 } from "../services/companyService";
@@ -25,23 +26,27 @@ import type {
 } from "../types/company";
 
 type LoadedState = {
-  companies: CompanyMembership[];
+  /** Todas as empresas da conta (de todos os IDs) */
+  allCompanies: CompanyMembership[];
   activeId: string | null;
+  groupId: number | null;
   error: string;
 };
 
 async function fetchCompanies(): Promise<LoadedState> {
   try {
-    const [companies, activeId] = await Promise.all([
+    const [allCompanies, activeId, groupId] = await Promise.all([
       listMyCompanies(),
-      getActiveCompanyId()
+      getActiveCompanyId(),
+      getActiveGroupId()
     ]);
 
-    return { companies, activeId, error: "" };
+    return { allCompanies, activeId, groupId, error: "" };
   } catch (error) {
     return {
-      companies: [],
+      allCompanies: [],
       activeId: null,
+      groupId: null,
       error: error instanceof Error ? error.message : "Não foi possível carregar as empresas."
     };
   }
@@ -56,8 +61,9 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
   const userId = user?.id ?? null;
 
   const [state, setState] = useState<LoadedState & { loadedFor: string | null }>({
-    companies: [],
+    allCompanies: [],
     activeId: null,
+    groupId: null,
     error: "",
     loadedFor: null
   });
@@ -95,18 +101,25 @@ export function CompanyProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo(() => {
+    // Só as empresas do ID EMPRESA com que a pessoa entrou
+    const companies = state.allCompanies.filter(
+      item => item.company.group_id === state.groupId
+    );
+
     const active =
-      state.companies.find(item => item.company.id === state.activeId) ?? null;
+      companies.find(item => item.company.id === state.activeId) ?? null;
 
     return {
       loading: Boolean(userId) && state.loadedFor !== userId,
       error: state.error,
-      companies: state.companies,
+      groupId: state.groupId,
+      hasAnyCompany: state.allCompanies.length > 0,
+      companies,
       active,
       permissions: active?.permissions ?? NO_PERMISSIONS,
       canCreateCompany:
-        state.companies.length === 0 ||
-        state.companies.some(item => item.permissions.isAdmin),
+        state.allCompanies.length === 0 ||
+        companies.some(item => item.permissions.isAdmin),
       switchCompany,
       reload
     };

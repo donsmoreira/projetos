@@ -1,0 +1,80 @@
+/* Escolha da empresa depois do login */
+.company-select-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.company-select-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  width: 100%;
+  padding: 12px 14px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  text-align: left;
+
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.company-select-item:hover:not(:disabled),
+.company-select-item:focus-visible {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  outline: none;
+}
+
+.company-select-item:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.company-select-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+
+  background: var(--primary);
+  border-radius: 8px;
+
+  color: #fff;
+  font-weight: 800;
+}
+
+.company-select-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 3px;
+  min-width: 0;
+}
+
+.company-select-text strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 14px;
+}
+
+.company-select-text small {
+  color: var(--text-light);
+  font-size: 11px;
+}

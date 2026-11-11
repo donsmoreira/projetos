@@ -10,6 +10,8 @@ type AuthLayoutProps = {
   title: string;
   subtitle: ReactNode;
   children: ReactNode;
+  /** Cartão largo (formulários grandes, como o cadastro da primeira empresa) */
+  wide?: boolean;
 };
 
 /**
@@ -18,11 +20,12 @@ type AuthLayoutProps = {
 function AuthLayout({
   title,
   subtitle,
-  children
+  children,
+  wide = false
 }: AuthLayoutProps) {
   return (
     <main className="login-page">
-      <section className="login-card">
+      <section className={wide ? "login-card login-card-wide" : "login-card"}>
         <div className="login-brand">
           <img
             src={arcLogo}

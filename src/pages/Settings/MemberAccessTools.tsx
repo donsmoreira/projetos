@@ -5,7 +5,7 @@ import { KeyRound } from "lucide-react";
 import { useCompany } from "../../hooks/useCompany";
 import {
   listUserCompanyIds,
-  resetUsernamePassword,
+  resetUserPassword,
   setUserCompanies
 } from "../../services/userAdminService";
 
@@ -13,17 +13,18 @@ import type { CompanyMember, CompanyPermissions } from "../../types/company";
 
 import CompanyChecklist from "./CompanyChecklist";
 
-type UsernameAccountToolsProps = {
+type MemberAccessToolsProps = {
   member: CompanyMember;
   /** Permissões que valem nas empresas novas (as da grade deste usuário) */
   permissions: CompanyPermissions;
   onDone: (message: string) => Promise<void>;
 };
 
-/** Para usuários com nome de usuário: trocar a senha e as empresas em que operam. */
-function UsernameAccountTools({ member, permissions, onDone }: UsernameAccountToolsProps) {
+/** Administrador: trocar a senha do usuário e as empresas do ID em que ele opera. */
+function MemberAccessTools({ member, permissions, onDone }: MemberAccessToolsProps) {
   const { companies } = useCompany();
   const adminCompanies = companies.filter(item => item.permissions.isAdmin);
+  const adminIds = adminCompanies.map(item => item.company.id).join(",");
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -34,11 +35,12 @@ function UsernameAccountTools({ member, permissions, onDone }: UsernameAccountTo
 
   useEffect(() => {
     let cancelled = false;
+    const mineIds = adminIds.split(",");
 
     listUserCompanyIds(member.userId)
       .then(ids => {
         if (!cancelled) {
-          const mine = ids.filter(id => adminCompanies.some(item => item.company.id === id));
+          const mine = ids.filter(id => mineIds.includes(id));
           setOriginal(mine);
           setSelected(mine);
         }
@@ -52,9 +54,7 @@ function UsernameAccountTools({ member, permissions, onDone }: UsernameAccountTo
     return () => {
       cancelled = true;
     };
-    // Recarrega só ao trocar de usuário
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [member.userId]);
+  }, [member.userId, adminIds]);
 
   async function run(key: string, action: () => Promise<void>, message: string) {
     try {
@@ -81,7 +81,7 @@ function UsernameAccountTools({ member, permissions, onDone }: UsernameAccountTo
     }
 
     void run("password", async () => {
-      await resetUsernamePassword(member.userId, password);
+      await resetUserPassword(member.userId, password);
       setPassword("");
       setConfirm("");
     }, "Senha trocada. Avise a pessoa da senha nova.");
@@ -105,6 +105,35 @@ function UsernameAccountTools({ member, permissions, onDone }: UsernameAccountTo
 
   return (
     <div className="settings-account-tools">
+      <div className="settings-account-tool">
+        <strong>Empresas em que opera</strong>
+        {original === null ? (
+          <small>Carregando...</small>
+        ) : (
+          <>
+            <CompanyChecklist
+              companies={adminCompanies}
+              selected={selected}
+              onChange={setSelected}
+              disabled={Boolean(busy)}
+            />
+            <small>Nas empresas novas, ele entra com as permissões da grade acima.</small>
+            {companiesChanged && (
+              <div>
+                <button
+                  type="button"
+                  className="settings-button settings-button-small"
+                  disabled={Boolean(busy)}
+                  onClick={handleCompanies}
+                >
+                  {busy === "companies" ? "Salvando..." : "Salvar empresas"}
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
       <div className="settings-account-tool">
         <strong>Trocar senha</strong>
         <div className="settings-inline-form">
@@ -138,37 +167,7 @@ function UsernameAccountTools({ member, permissions, onDone }: UsernameAccountTo
             {busy === "password" ? "Trocando..." : "Trocar senha"}
           </button>
         </div>
-      </div>
-
-      <div className="settings-account-tool">
-        <strong>Empresas em que opera</strong>
-        {original === null ? (
-          <small>Carregando...</small>
-        ) : (
-          <>
-            <CompanyChecklist
-              companies={adminCompanies}
-              selected={selected}
-              onChange={setSelected}
-              disabled={Boolean(busy)}
-            />
-            <small>
-              Nas empresas novas, ele entra com as permissões da grade acima.
-            </small>
-            {companiesChanged && (
-              <div>
-                <button
-                  type="button"
-                  className="settings-button settings-button-small"
-                  disabled={Boolean(busy)}
-                  onClick={handleCompanies}
-                >
-                  {busy === "companies" ? "Salvando..." : "Salvar empresas"}
-                </button>
-              </div>
-            )}
-          </>
-        )}
+        <small>Só para quem opera apenas em empresas que você administra.</small>
       </div>
 
       {errorMessage && <div className="settings-message settings-message-error">{errorMessage}</div>}
@@ -176,4 +175,4 @@ function UsernameAccountTools({ member, permissions, onDone }: UsernameAccountTo
   );
 }
 
-export default UsernameAccountTools;
+export default MemberAccessTools;

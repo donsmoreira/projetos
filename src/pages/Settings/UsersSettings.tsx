@@ -29,8 +29,7 @@ import {
 } from "../../types/permissions";
 import PermissionMatrix from "./PermissionMatrix";
 import NewUserForm from "./NewUserForm";
-import UsernameAccountTools from "./UsernameAccountTools";
-import { displayLogin, isUsernameAccount } from "../../utils/username";
+import MemberAccessTools from "./MemberAccessTools";
 
 import "./Settings.css";
 
@@ -56,7 +55,7 @@ function defaultInvitePermissions(): CompanyPermissions {
 /** Configurações → Usuários e permissões */
 function UsersSettings() {
   const { user } = useAuth();
-  const { active, permissions, reload } = useCompany();
+  const { active, permissions, reload, groupId } = useCompany();
   const isAdmin = permissions.isAdmin;
   const companyId = active?.company.id ?? "";
 
@@ -136,7 +135,7 @@ function UsersSettings() {
     const self = member.userId === user?.id;
     const question = self
       ? "Deseja sair desta empresa? Você perde o acesso aos dados dela."
-      : `Remover ${member.fullName || displayLogin(member.email)} desta empresa?`;
+      : `Remover ${member.fullName || member.email} desta empresa?`;
 
     if (!window.confirm(question)) {
       return;
@@ -160,7 +159,7 @@ function UsersSettings() {
 
   const inviteMessage = newCode
     ? `Você foi convidado para a empresa "${active?.company.trade_name || active?.company.name}" no Razão Finance ARC. ` +
-      `Acesse ${window.location.origin}, entre com sua conta e use o código ${newCode}. O código vale 7 dias.`
+      `Acesse ${window.location.origin}, entre com o ID EMPRESA ${groupId}, seu e-mail e senha e use o código ${newCode}. O código vale 7 dias.`
     : "";
 
   return (
@@ -194,16 +193,10 @@ function UsersSettings() {
                   <div className="settings-member-row">
                     <span className="settings-user-cell">
                       <strong>
-                        {member.fullName || displayLogin(member.email)}
+                        {member.fullName || member.email}
                         {self ? " (você)" : ""}
                       </strong>
-                      {member.fullName && (
-                        <small>
-                          {isUsernameAccount(member.email)
-                            ? `Usuário: ${displayLogin(member.email)}`
-                            : member.email}
-                        </small>
-                      )}
+                      {member.fullName && <small>{member.email}</small>}
                       <small className="settings-member-summary">{describe(draft)}</small>
                     </span>
 
@@ -263,8 +256,8 @@ function UsersSettings() {
                     />
                   )}
 
-                  {open && isAdmin && !self && isUsernameAccount(member.email) && (
-                    <UsernameAccountTools
+                  {open && isAdmin && !self && (
+                    <MemberAccessTools
                       member={member}
                       permissions={draft}
                       onDone={async message => {
