@@ -128,11 +128,80 @@
 }
 
 .sidebar-menu {
+  position: relative;
+
   display: flex;
   flex-direction: column;
   gap: 4px;
 
   padding: 18px 14px;
+}
+
+/*
+ * Pílula do item selecionado: fica atrás dos itens e desliza (esticando)
+ * de um item para o outro. A posição vem do useSlidingIndicator.
+ */
+.sidebar-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+
+  width: 0;
+  height: 0;
+
+  border-radius: 8px;
+
+  background: var(--primary);
+  box-shadow: 0 4px 16px var(--arc-glow);
+
+  opacity: 0;
+  pointer-events: none;
+
+  will-change: transform, height;
+}
+
+/* Traço ciano de "circuito" acompanha a pílula */
+.sidebar-indicator::before {
+  content: "";
+
+  position: absolute;
+  left: -14px;
+  top: 10px;
+  bottom: 10px;
+
+  width: 3px;
+
+  border-radius: 0 3px 3px 0;
+
+  background: var(--arc-cyan);
+  box-shadow: 0 0 10px var(--arc-glow);
+}
+
+.menu-collapsed .sidebar-indicator::before {
+  left: -12px;
+}
+
+/* Itens e títulos de grupo ficam na frente da pílula */
+.has-indicator .sidebar-item,
+.has-indicator .sidebar-group-header {
+  z-index: 1;
+}
+
+.has-indicator .sidebar-group-header {
+  position: relative;
+}
+
+/* Com a pílula, o item ativo não pinta o próprio fundo (a pílula faz isso) */
+.has-indicator .sidebar-item.active,
+.has-indicator .sidebar-item.active:hover {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.has-indicator .sidebar-item.active::before {
+  display: none;
 }
 
 /* Grupos com submenus (Cadastros, Financeiro, Configurações) */

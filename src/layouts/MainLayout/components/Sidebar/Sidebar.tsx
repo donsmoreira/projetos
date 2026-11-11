@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 import { ChevronDown } from "lucide-react";
@@ -7,6 +7,7 @@ import SidebarItem from "./SidebarItem";
 import ArcMark from "../../../../components/ArcMark/ArcMark";
 import { MENU } from "./menu";
 import type { MenuLink } from "./menu";
+import { useSlidingIndicator } from "./useSlidingIndicator";
 import { useCompany } from "../../../../hooks/useCompany";
 import { screenPermissions } from "../../../../types/company";
 
@@ -50,6 +51,16 @@ function Sidebar({
     onNavigate
   };
 
+  const navRef = useRef<HTMLElement>(null);
+  const indicatorRef = useRef<HTMLSpanElement>(null);
+
+  useSlidingIndicator(navRef, indicatorRef, [
+    location.pathname,
+    openGroups,
+    collapsed,
+    visibleMenu.length
+  ]);
+
   return (
     <aside
       id="menu-principal"
@@ -69,7 +80,9 @@ function Sidebar({
         </div>
       </div>
 
-      <nav className="sidebar-menu">
+      <nav className="sidebar-menu has-indicator" ref={navRef}>
+        {/* Pílula azul que desliza até o item selecionado */}
+        <span className="sidebar-indicator" ref={indicatorRef} aria-hidden="true" />
         {visibleMenu.map(entry => {
           if (entry.kind === "link") {
             return (
