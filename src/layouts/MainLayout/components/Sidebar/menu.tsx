@@ -96,6 +96,10 @@ export function pageTitleFor(pathname: string): string | undefined {
     return PAGE_TITLES[pathname];
   }
 
+  if (pathname === "/configuracoes/empresas/nova") {
+    return "Nova empresa";
+  }
+
   if (pathname.startsWith("/configuracoes/empresas/")) {
     return "Cadastro da empresa";
   }

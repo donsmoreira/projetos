@@ -10,7 +10,7 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 - Permissões por usuário em cada empresa: Administrador (pode tudo, configura a empresa e os usuários, cria empresas), Cadastrar, Alterar, Excluir e Baixar (pagar, receber e estornar). Todos podem visualizar. As telas só mostram os botões permitidos, e o banco barra o resto.
 - Convite por código (vale 7 dias, uso único), com mensagem pronta para mandar pelo WhatsApp.
 - Cadastro da empresa (Configurações → Empresas → botão Cadastro em cada empresa da lista; administradores alteram, os demais só veem): CPF ou CNPJ reconhecido pelo número de dígitos (com conferência dos dígitos verificadores); com CPF escolhe PF ou PJ; com CNPJ é PJ e pede razão social, nome fantasia e regime tributário (Simples Nacional, Simples Nacional – MEI, Regime Normal, Não contribuinte); inscrições, contato e endereço com CEP automático.
-- Configurações → Empresas (lista com Cadastro e Abrir, criar nova já abrindo o cadastro dela, entrar com código), Usuários e permissões e Meu perfil (nome, telefone/WhatsApp, CPF e endereço).
+- Configurações → Empresas (lista com Cadastro e Abrir; botão Nova empresa, que abre o cadastro completo em branco; entrar com código), Usuários e permissões e Meu perfil (nome, telefone/WhatsApp, CPF e endereço).
 - Tela de entrada para quem ainda não tem empresa: criar a primeira (vira administrador) ou entrar com código.
 - Menu lateral agrupado: Cadastros (clientes, fornecedores, contas gerenciais), Financeiro (contas a pagar e a receber, caixa, contas bancárias, cartões), Relatórios e Configurações. Recolhido, mostra os ícones separados por grupo.
 - Nome da empresa no centro do topo; com mais de uma empresa vira um seletor para trocar.

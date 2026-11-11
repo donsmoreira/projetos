@@ -425,6 +425,11 @@ a.settings-button {
   text-decoration: none;
 }
 
+.settings-header > .settings-button {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 .settings-header-badges {
   margin-top: 10px;
 }

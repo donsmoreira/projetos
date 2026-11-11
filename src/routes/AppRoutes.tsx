@@ -26,6 +26,7 @@ import CompanySettings from "../pages/Settings/CompanySettings";
 import UsersSettings from "../pages/Settings/UsersSettings";
 import ProfileSettings from "../pages/Settings/ProfileSettings";
 import CompaniesSettings from "../pages/Settings/CompaniesSettings";
+import NewCompanySettings from "../pages/Settings/NewCompanySettings";
 
 function AppRoutes() {
   return (
@@ -109,6 +110,11 @@ function AppRoutes() {
             <Route
               path="configuracoes/empresa"
               element={<Navigate to="/configuracoes/empresas" replace />}
+            />
+
+            <Route
+              path="configuracoes/empresas/nova"
+              element={<NewCompanySettings />}
             />
 
             <Route

@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { Building2, Eye, Pencil, Plus } from "lucide-react";
 
 import { useCompany } from "../../hooks/useCompany";
-import { acceptInvite, createCompany } from "../../services/companyService";
+import { acceptInvite } from "../../services/companyService";
 import { formatDocument } from "../../utils/document";
 
 import "./Settings.css";
@@ -15,37 +15,21 @@ import "./Settings.css";
 function CompaniesSettings() {
   const { companies, active, canCreateCompany, switchCompany } = useCompany();
 
-  const [newName, setNewName] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  /** Executa e recarrega o sistema; a ação pode devolver para onde ir depois */
+  /** Executa e recarrega o sistema na tela inicial */
   async function run(key: string, action: () => Promise<unknown>) {
     try {
       setBusy(key);
       setErrorMessage("");
-      const destination = await action();
-      window.location.assign(typeof destination === "string" ? destination : "/");
+      await action();
+      window.location.assign("/");
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Não foi possível concluir.");
       setBusy("");
     }
-  }
-
-  function handleCreate(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!newName.trim()) {
-      setErrorMessage("Informe o nome da nova empresa.");
-      return;
-    }
-
-    // Cria, abre e já leva para o cadastro da nova empresa
-    void run("create", async () => {
-      const id = await createCompany(newName.trim());
-      return `/configuracoes/empresas/${id}`;
-    });
   }
 
   function handleCode(event: FormEvent<HTMLFormElement>) {
@@ -56,9 +40,7 @@ function CompaniesSettings() {
       return;
     }
 
-    void run("code", async () => {
-      await acceptInvite(code);
-    });
+    void run("code", () => acceptInvite(code));
   }
 
   return (
@@ -71,6 +53,13 @@ function CompaniesSettings() {
             Clique em Cadastro para ver ou alterar os dados de uma empresa.
           </p>
         </div>
+
+        {canCreateCompany && (
+          <Link to="/configuracoes/empresas/nova" className="settings-button">
+            <Plus size={15} />
+            Nova empresa
+          </Link>
+        )}
       </section>
 
       <section className="settings-card">
@@ -122,31 +111,6 @@ function CompaniesSettings() {
         </ul>
       </section>
 
-      {canCreateCompany ? (
-        <section className="settings-card">
-          <h3>Nova empresa</h3>
-          <p>Você será o administrador. Ao criar, o cadastro dela abre para você completar.</p>
-
-          <form className="settings-inline-form" onSubmit={handleCreate}>
-            <div className="settings-field">
-              <label htmlFor="new-company-name">Nome da empresa</label>
-              <input
-                id="new-company-name"
-                type="text"
-                value={newName}
-                onChange={event => setNewName(event.target.value)}
-              />
-            </div>
-
-            <button type="submit" className="settings-button" disabled={Boolean(busy)}>
-              <Plus size={15} />
-              {busy === "create" ? "Criando..." : "Criar e abrir"}
-            </button>
-          </form>
-        </section>
-      ) : (
-        <div className="settings-note">Só administradores podem criar empresas.</div>
-      )}
 
       <section className="settings-card">
         <h3>Entrar com código de convite</h3>
