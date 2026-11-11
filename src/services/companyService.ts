@@ -13,30 +13,74 @@ import type {
   ProfileFormData,
   UserProfile
 } from "../types/company";
+import { ALL_ACTIONS, ALL_MODULES } from "../types/permissions";
+import type {
+  ModuleAction,
+  ModuleKey,
+  ModulePermission,
+  ModulePermissions
+} from "../types/permissions";
 
 type MembershipRow = {
+  company_id: string;
   is_admin: boolean;
-  can_create: boolean;
-  can_update: boolean;
-  can_delete: boolean;
-  can_settle: boolean;
   companies: Company | Company[] | null;
 };
 
-function toPermissions(row: {
-  is_admin: boolean;
+type ModulePermissionRow = {
+  company_id: string;
+  user_id: string;
+  module: ModuleKey;
+  can_view: boolean;
   can_create: boolean;
   can_update: boolean;
   can_delete: boolean;
   can_settle: boolean;
-}): CompanyPermissions {
-  return {
-    isAdmin: row.is_admin,
-    canCreate: row.is_admin || row.can_create,
-    canUpdate: row.is_admin || row.can_update,
-    canDelete: row.is_admin || row.can_delete,
-    canSettle: row.is_admin || row.can_settle
-  };
+};
+
+const PERMISSION_COLUMNS =
+  "company_id, user_id, module, can_view, can_create, can_update, can_delete, can_settle";
+
+/** Linhas do banco → permissões por tela (de um usuário numa empresa). */
+function modulesFromRows(rows: ModulePermissionRow[]): ModulePermissions {
+  return Object.fromEntries(
+    rows.map(row => [
+      row.module,
+      {
+        view: row.can_view,
+        create: row.can_create,
+        update: row.can_update,
+        delete: row.can_delete,
+        settle: row.can_settle
+      }
+    ])
+  );
+}
+
+/** Convite: JSON do banco → permissões por tela. */
+function modulesFromJson(value: unknown): ModulePermissions {
+  const source = (value ?? {}) as Record<string, Partial<Record<ModuleAction, boolean>>>;
+
+  return Object.fromEntries(
+    ALL_MODULES.filter(module => source[module.key]).map(module => [
+      module.key,
+      Object.fromEntries(
+        ALL_ACTIONS.map(action => [action, Boolean(source[module.key]?.[action])])
+      ) as ModulePermission
+    ])
+  );
+}
+
+/** Permissões por tela → JSON para as funções do banco. */
+function modulesToJson(modules: ModulePermissions) {
+  return Object.fromEntries(
+    ALL_MODULES.map(module => [
+      module.key,
+      Object.fromEntries(
+        ALL_ACTIONS.map(action => [action, Boolean(modules[module.key]?.[action])])
+      )
+    ])
+  );
 }
 
 /** Mensagens do banco em português para o que a pessoa não pode fazer. */
@@ -56,19 +100,34 @@ function fail(error: { message: string }): never {
 export async function listMyCompanies(): Promise<CompanyMembership[]> {
   const user = await getAuthenticatedUser();
 
-  const { data, error } = await supabase
-    .from("company_members")
-    .select("is_admin, can_create, can_update, can_delete, can_settle, companies (*)")
-    .eq("user_id", user.id);
+  const [members, modules] = await Promise.all([
+    supabase
+      .from("company_members")
+      .select("company_id, is_admin, companies (*)")
+      .eq("user_id", user.id),
+    supabase
+      .from("company_member_permissions")
+      .select(PERMISSION_COLUMNS)
+      .eq("user_id", user.id)
+  ]);
 
-  if (error) {
-    fail(error);
+  if (members.error) {
+    fail(members.error);
   }
 
-  return ((data ?? []) as unknown as MembershipRow[])
+  if (modules.error) {
+    fail(modules.error);
+  }
+
+  const moduleRows = (modules.data ?? []) as ModulePermissionRow[];
+
+  return ((members.data ?? []) as unknown as MembershipRow[])
     .map(row => ({
       company: (Array.isArray(row.companies) ? row.companies[0] : row.companies) as Company,
-      permissions: toPermissions(row)
+      permissions: {
+        isAdmin: row.is_admin,
+        modules: modulesFromRows(moduleRows.filter(item => item.company_id === row.company_id))
+      }
     }))
     .filter(item => Boolean(item.company))
     .sort((a, b) =>
@@ -152,43 +211,51 @@ export async function updateCompany(
   return data as Company;
 }
 
-export async function listCompanyMembers(): Promise<CompanyMember[]> {
-  const { data, error } = await supabase.rpc("list_company_members");
+/** Usuários da empresa aberta, com as permissões por tela (o administrador vê de todos). */
+export async function listCompanyMembers(companyId: string): Promise<CompanyMember[]> {
+  const [members, modules] = await Promise.all([
+    supabase.rpc("list_company_members"),
+    supabase
+      .from("company_member_permissions")
+      .select(PERMISSION_COLUMNS)
+      .eq("company_id", companyId)
+  ]);
 
-  if (error) {
-    fail(error);
+  if (members.error) {
+    fail(members.error);
   }
 
-  return ((data ?? []) as {
+  if (modules.error) {
+    fail(modules.error);
+  }
+
+  const moduleRows = (modules.data ?? []) as ModulePermissionRow[];
+
+  return ((members.data ?? []) as {
     user_id: string;
     full_name: string | null;
     email: string;
     is_admin: boolean;
-    can_create: boolean;
-    can_update: boolean;
-    can_delete: boolean;
-    can_settle: boolean;
     created_at: string;
   }[]).map(row => ({
     userId: row.user_id,
     fullName: row.full_name?.trim() || "",
     email: row.email,
     createdAt: row.created_at,
-    ...toPermissions(row)
+    isAdmin: row.is_admin,
+    modules: modulesFromRows(moduleRows.filter(item => item.user_id === row.user_id))
   }));
 }
 
+/** Salva se é administrador e as permissões por tela de um usuário. */
 export async function updateMemberPermissions(
   userId: string,
   permissions: CompanyPermissions
 ): Promise<void> {
-  const { error } = await supabase.rpc("update_member_permissions", {
+  const { error } = await supabase.rpc("set_member_permissions", {
     p_user_id: userId,
     p_is_admin: permissions.isAdmin,
-    p_can_create: permissions.canCreate,
-    p_can_update: permissions.canUpdate,
-    p_can_delete: permissions.canDelete,
-    p_can_settle: permissions.canSettle
+    p_permissions: modulesToJson(permissions.modules)
   });
 
   if (error) {
@@ -212,10 +279,7 @@ export async function createInvite(
 ): Promise<string> {
   const { data, error } = await supabase.rpc("create_invite", {
     p_is_admin: permissions.isAdmin,
-    p_can_create: permissions.canCreate,
-    p_can_update: permissions.canUpdate,
-    p_can_delete: permissions.canDelete,
-    p_can_settle: permissions.canSettle
+    p_permissions: modulesToJson(permissions.modules)
   });
 
   if (error) {
@@ -246,7 +310,8 @@ export async function listPendingInvites(
     createdAt: row.created_at,
     expiresAt: row.expires_at,
     usedAt: row.used_at,
-    ...toPermissions(row)
+    isAdmin: row.is_admin,
+    modules: modulesFromJson(row.module_permissions)
   }));
 }
 

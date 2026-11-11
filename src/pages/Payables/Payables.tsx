@@ -24,7 +24,7 @@ import { usePermissions } from "../../hooks/useCompany";
 import "./Payables.css";
 
 function Payables() {
-  const permissions = usePermissions();
+  const permissions = usePermissions("contas_pagar");
 
   const [payables, setPayables] =
     useState<Payable[]>([]);

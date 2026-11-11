@@ -25,7 +25,7 @@ import { usePermissions } from "../../hooks/useCompany";
 import "./Clients.css";
 
 function Clients() {
-  const permissions = usePermissions();
+  const permissions = usePermissions("clientes");
 
   const [clients, setClients] =
     useState<Client[]>([]);

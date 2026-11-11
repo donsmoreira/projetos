@@ -50,7 +50,7 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 function ManagementAccounts() {
-  const permissions = usePermissions();
+  const permissions = usePermissions("contas_gerenciais");
 
   const [accounts, setAccounts] =
     useState<ManagementAccount[]>([]);

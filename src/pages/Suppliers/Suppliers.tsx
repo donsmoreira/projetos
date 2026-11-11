@@ -25,7 +25,7 @@ import { usePermissions } from "../../hooks/useCompany";
 import "./Suppliers.css";
 
 function Suppliers() {
-  const permissions = usePermissions();
+  const permissions = usePermissions("fornecedores");
 
   const [suppliers, setSuppliers] =
     useState<Supplier[]>([]);

@@ -74,7 +74,7 @@ function fetchAccounts(): Promise<[AccountWithBalance[], AccountWithBalance[]]> 
 }
 
 function Cash() {
-  const permissions = usePermissions();
+  const permissions = usePermissions("caixa");
 
   const [cashAccounts, setCashAccounts] =
     useState<AccountWithBalance[]>([]);

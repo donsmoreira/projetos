@@ -24,7 +24,7 @@ import { usePermissions } from "../../hooks/useCompany";
 import "./Receivables.css";
 
 function Receivables() {
-  const permissions = usePermissions();
+  const permissions = usePermissions("contas_receber");
 
   const [receivables, setReceivables] =
     useState<Receivable[]>([]);

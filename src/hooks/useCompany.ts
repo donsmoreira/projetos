@@ -1,6 +1,8 @@
 import { useContext } from "react";
 
 import { CompanyContext } from "../contexts/companyContext";
+import { screenPermissions } from "../types/company";
+import type { ModuleKey } from "../types/permissions";
 
 /** Empresa aberta, empresas do usuário e permissões dele. */
 export function useCompany() {
@@ -13,7 +15,7 @@ export function useCompany() {
   return context;
 }
 
-/** Atalho: o que o usuário pode fazer na empresa aberta. */
-export function usePermissions() {
-  return useCompany().permissions;
+/** Atalho: o que o usuário pode fazer numa tela da empresa aberta. */
+export function usePermissions(module: ModuleKey) {
+  return screenPermissions(useCompany().permissions, module);
 }

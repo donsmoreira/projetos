@@ -27,7 +27,7 @@ import { usePermissions } from "../../hooks/useCompany";
 import "./BankAccounts.css";
 
 function BankAccounts() {
-  const permissions = usePermissions();
+  const permissions = usePermissions("contas_bancarias");
 
   const [accounts, setAccounts] =
     useState<BankAccount[]>([]);

@@ -22,7 +22,7 @@ import { usePermissions } from "../../hooks/useCompany";
 import "./CreditCards.css";
 
 function CreditCards() {
-  const permissions = usePermissions();
+  const permissions = usePermissions("cartoes");
 
   const [cards, setCards] =
     useState<CreditCard[]>([]);

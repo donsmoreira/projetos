@@ -8,6 +8,7 @@ import {
 import MainLayout from "../layouts/MainLayout/MainLayout";
 import ProtectedRoute from "./ProtectedRoute";
 import CompanyGate from "./CompanyGate";
+import ModuleRoute from "./ModuleRoute";
 
 import Login from "../pages/Login/Login";
 import Signup from "../pages/Signup/Signup";
@@ -53,52 +54,52 @@ function AppRoutes() {
           <Route element={<MainLayout />}>
             <Route
               index
-              element={<Dashboard />}
+              element={<ModuleRoute module="painel"><Dashboard /></ModuleRoute>}
             />
 
             <Route
               path="clientes"
-              element={<Clients />}
+              element={<ModuleRoute module="clientes"><Clients /></ModuleRoute>}
             />
 
             <Route
               path="fornecedores"
-              element={<Suppliers />}
+              element={<ModuleRoute module="fornecedores"><Suppliers /></ModuleRoute>}
             />
 
             <Route
               path="bancos"
-              element={<BankAccounts />}
+              element={<ModuleRoute module="contas_bancarias"><BankAccounts /></ModuleRoute>}
             />
 
             <Route
               path="caixa"
-              element={<Cash />}
+              element={<ModuleRoute module="caixa"><Cash /></ModuleRoute>}
             />
 
             <Route
               path="contas-pagar"
-              element={<Payables />}
+              element={<ModuleRoute module="contas_pagar"><Payables /></ModuleRoute>}
             />
 
             <Route
               path="contas-receber"
-              element={<Receivables />}
+              element={<ModuleRoute module="contas_receber"><Receivables /></ModuleRoute>}
             />
 
             <Route
               path="cartoes"
-              element={<CreditCards />}
+              element={<ModuleRoute module="cartoes"><CreditCards /></ModuleRoute>}
             />
 
             <Route
               path="contas-gerenciais"
-              element={<ManagementAccounts />}
+              element={<ModuleRoute module="contas_gerenciais"><ManagementAccounts /></ModuleRoute>}
             />
 
             <Route
               path="relatorios"
-              element={<Reports />}
+              element={<ModuleRoute module="relatorios"><Reports /></ModuleRoute>}
             />
 
             <Route

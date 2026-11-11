@@ -6,6 +6,9 @@ import { ChevronDown } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 import ArcMark from "../../../../components/ArcMark/ArcMark";
 import { MENU } from "./menu";
+import type { MenuLink } from "./menu";
+import { useCompany } from "../../../../hooks/useCompany";
+import { screenPermissions } from "../../../../types/company";
 
 import "./Sidebar.css";
 
@@ -25,6 +28,22 @@ function Sidebar({
   // Grupo aberto/fechado pela pessoa; se não mexeu, abre o grupo da tela atual
   const [openGroups, setOpenGroups] =
     useState<Record<string, boolean>>({});
+
+  const { permissions } = useCompany();
+
+  // Telas sem "Ver" somem do menu; grupo sem nenhuma tela some também
+  const canSee = (item: MenuLink) =>
+    !item.module || screenPermissions(permissions, item.module).canView;
+
+  const visibleMenu = MENU
+    .map(entry =>
+      entry.kind === "group"
+        ? { ...entry, items: entry.items.filter(canSee) }
+        : entry
+    )
+    .filter(entry =>
+      entry.kind === "group" ? entry.items.length > 0 : canSee(entry)
+    );
 
   const itemProps = {
     collapsed,
@@ -51,7 +70,7 @@ function Sidebar({
       </div>
 
       <nav className="sidebar-menu">
-        {MENU.map(entry => {
+        {visibleMenu.map(entry => {
           if (entry.kind === "link") {
             return (
               <SidebarItem

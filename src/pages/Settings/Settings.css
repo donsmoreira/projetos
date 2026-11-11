@@ -317,30 +317,131 @@
   gap: 6px;
 }
 
-/* Permissões no formulário de convite */
-.settings-permissions {
+/* Lista de usuários (cada um abre a grade de permissões) */
+.settings-member-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 18px;
+  flex-direction: column;
+  gap: 8px;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
 }
 
-.settings-permissions label {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
+.settings-member-list > li {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 
-  color: var(--text);
+  padding: 12px 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.settings-member-list > li.is-open {
+  border-color: var(--primary);
+}
+
+.settings-member-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.settings-member-summary {
+  color: var(--primary) !important;
+}
+
+.settings-chevron {
+  transition: transform 0.2s;
+}
+
+.is-open .settings-chevron {
+  transform: rotate(180deg);
+}
+
+/* Grade de permissões por tela */
+.settings-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-matrix-admin {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  padding: 10px 12px;
+
+  background: var(--primary-soft);
+  border: 1px solid var(--border);
+  border-radius: 6px;
 
   cursor: pointer;
+}
 
+.settings-matrix-admin input {
+  width: 17px;
+  height: 17px;
+  margin-top: 2px;
+
+  accent-color: var(--primary);
+}
+
+.settings-matrix-admin span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  color: var(--text);
   font-size: 13px;
 }
 
-.settings-permissions input {
-  width: 17px;
-  height: 17px;
+.settings-matrix-admin small {
+  color: var(--text-light);
+  font-size: 11px;
+}
 
-  accent-color: var(--primary);
+.settings-matrix-table td {
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+
+.settings-matrix-group td {
+  background: var(--surface-alt);
+  color: var(--text);
+
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.settings-matrix-section td {
+  padding-left: 22px;
+
+  color: var(--primary);
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.settings-matrix-indent {
+  padding-left: 34px !important;
+}
+
+.settings-matrix-none {
+  color: var(--text-light);
+}
+
+.settings-matrix-hint {
+  color: var(--text-light);
+  font-size: 11px;
 }
 
 .settings-code {

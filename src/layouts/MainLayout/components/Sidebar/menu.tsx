@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import type { ModuleKey } from "../../../../types/permissions";
+
 import {
   Banknote,
   BarChart3,
@@ -24,6 +26,8 @@ export type MenuLink = {
   to: string;
   icon: ReactNode;
   end?: boolean;
+  /** Tela com permissão própria: some do menu sem "Ver" */
+  module?: ModuleKey;
 };
 
 export type MenuGroup = {
@@ -39,15 +43,15 @@ export type MenuEntry =
 
 /** Menu lateral: telas soltas e grupos com submenus. */
 export const MENU: MenuEntry[] = [
-  { kind: "link", title: "Dashboard", to: "/", icon: <House size={18} />, end: true },
+  { kind: "link", title: "Dashboard", to: "/", icon: <House size={18} />, end: true, module: "painel" },
   {
     kind: "group",
     id: "cadastros",
     title: "Cadastros",
     icon: <ClipboardList size={18} />,
     items: [
-      { title: "Clientes", to: "/clientes", icon: <Users size={17} /> },
-      { title: "Fornecedores", to: "/fornecedores", icon: <Truck size={17} /> }
+      { title: "Clientes", to: "/clientes", icon: <Users size={17} />, module: "clientes" },
+      { title: "Fornecedores", to: "/fornecedores", icon: <Truck size={17} />, module: "fornecedores" }
     ]
   },
   {
@@ -56,15 +60,15 @@ export const MENU: MenuEntry[] = [
     title: "Financeiro",
     icon: <WalletCards size={18} />,
     items: [
-      { title: "Contas a Pagar", to: "/contas-pagar", icon: <Wallet size={17} /> },
-      { title: "Contas a Receber", to: "/contas-receber", icon: <HandCoins size={17} /> },
-      { title: "Caixa", to: "/caixa", icon: <Banknote size={17} /> },
-      { title: "Contas Bancárias", to: "/bancos", icon: <Landmark size={17} /> },
-      { title: "Cartões de Crédito", to: "/cartoes", icon: <CreditCard size={17} /> },
-      { title: "Contas Gerenciais", to: "/contas-gerenciais", icon: <FolderTree size={17} /> }
+      { title: "Contas a Pagar", to: "/contas-pagar", icon: <Wallet size={17} />, module: "contas_pagar" },
+      { title: "Contas a Receber", to: "/contas-receber", icon: <HandCoins size={17} />, module: "contas_receber" },
+      { title: "Caixa", to: "/caixa", icon: <Banknote size={17} />, module: "caixa" },
+      { title: "Contas Bancárias", to: "/bancos", icon: <Landmark size={17} />, module: "contas_bancarias" },
+      { title: "Cartões de Crédito", to: "/cartoes", icon: <CreditCard size={17} />, module: "cartoes" },
+      { title: "Contas Gerenciais", to: "/contas-gerenciais", icon: <FolderTree size={17} />, module: "contas_gerenciais" }
     ]
   },
-  { kind: "link", title: "Relatórios", to: "/relatorios", icon: <BarChart3 size={18} /> },
+  { kind: "link", title: "Relatórios", to: "/relatorios", icon: <BarChart3 size={18} />, module: "relatorios" },
   {
     kind: "group",
     id: "configuracoes",

@@ -4,7 +4,7 @@ import {
   useState
 } from "react";
 
-import { Copy, KeyRound, Trash2, UserMinus } from "lucide-react";
+import { ChevronDown, Copy, KeyRound, Trash2, UserMinus } from "lucide-react";
 
 import { useAuth } from "../../contexts/AuthContext";
 import { useCompany } from "../../hooks/useCompany";
@@ -22,34 +22,17 @@ import type {
   CompanyMember,
   CompanyPermissions
 } from "../../types/company";
-import { NO_PERMISSIONS } from "../../types/company";
+import {
+  describeModulePermissions,
+  modulePermissionsWith,
+  sameModulePermissions
+} from "../../types/permissions";
+import PermissionMatrix from "./PermissionMatrix";
 
 import "./Settings.css";
 
-const PERMISSION_COLUMNS: { key: keyof CompanyPermissions; label: string; hint: string }[] = [
-  { key: "isAdmin", label: "Administrador", hint: "Pode tudo, configura a empresa e os usuários" },
-  { key: "canCreate", label: "Cadastrar", hint: "Incluir clientes, contas, lançamentos..." },
-  { key: "canUpdate", label: "Alterar", hint: "Editar o que já existe" },
-  { key: "canDelete", label: "Excluir", hint: "Apagar cadastros e lançamentos" },
-  { key: "canSettle", label: "Baixar", hint: "Pagar, receber e estornar" }
-];
-
 function samePermissions(a: CompanyPermissions, b: CompanyPermissions) {
-  return PERMISSION_COLUMNS.every(column => a[column.key] === b[column.key]);
-}
-
-/** Administrador marca tudo; as outras só valem sem administrador. */
-function togglePermission(
-  current: CompanyPermissions,
-  key: keyof CompanyPermissions
-): CompanyPermissions {
-  const next = { ...current, [key]: !current[key] };
-
-  if (key === "isAdmin" && next.isAdmin) {
-    return { isAdmin: true, canCreate: true, canUpdate: true, canDelete: true, canSettle: true };
-  }
-
-  return next;
+  return a.isAdmin === b.isAdmin && sameModulePermissions(a.modules, b.modules);
 }
 
 function formatDate(value: string) {
@@ -57,17 +40,16 @@ function formatDate(value: string) {
 }
 
 function describe(permissions: CompanyPermissions) {
-  if (permissions.isAdmin) {
-    return "Administrador";
-  }
-
-  const list = PERMISSION_COLUMNS
-    .filter(column => column.key !== "isAdmin" && permissions[column.key])
-    .map(column => column.label.toLowerCase());
-
-  return list.length ? list.join(", ") : "só visualizar";
+  return permissions.isAdmin ? "Administrador" : describeModulePermissions(permissions.modules);
 }
 
+/** Convite novo já vem com: ver tudo, cadastrar, alterar e baixar */
+function defaultInvitePermissions(): CompanyPermissions {
+  return {
+    isAdmin: false,
+    modules: modulePermissionsWith(["view", "create", "update", "settle"])
+  };
+}
 /** Configurações → Usuários e permissões */
 function UsersSettings() {
   const { user } = useAuth();
@@ -84,12 +66,14 @@ function UsersSettings() {
   const [infoMessage, setInfoMessage] = useState("");
 
   const [invitePermissions, setInvitePermissions] =
-    useState<CompanyPermissions>({ ...NO_PERMISSIONS, canCreate: true, canUpdate: true, canSettle: true });
+    useState<CompanyPermissions>(defaultInvitePermissions);
+  /** Usuário com a grade de permissões aberta */
+  const [openUser, setOpenUser] = useState<string | null>(null);
   const [newCode, setNewCode] = useState("");
 
   const fetchAll = useCallback(async () => {
     const [memberList, inviteList] = await Promise.all([
-      listCompanyMembers(),
+      companyId ? listCompanyMembers(companyId) : Promise.resolve([]),
       isAdmin && companyId ? listPendingInvites(companyId) : Promise.resolve([])
     ]);
 
@@ -98,7 +82,9 @@ function UsersSettings() {
 
   const apply = useCallback((data: { memberList: CompanyMember[]; inviteList: CompanyInvite[] }) => {
     setMembers(data.memberList);
-    setDrafts(Object.fromEntries(data.memberList.map(member => [member.userId, { ...member }])));
+    setDrafts(Object.fromEntries(
+      data.memberList.map(member => [member.userId, { isAdmin: member.isAdmin, modules: member.modules }])
+    ));
     setInvites(data.inviteList);
     setLoading(false);
   }, []);
@@ -180,7 +166,8 @@ function UsersSettings() {
         <div>
           <h2>Usuários e permissões</h2>
           <p>
-            Quem tem acesso à empresa aberta e o que cada pessoa pode fazer. Todos podem visualizar.
+            Quem tem acesso à empresa aberta e o que cada pessoa pode fazer em cada tela.
+            Clique em Permissões para abrir a grade de um usuário.
           </p>
         </div>
       </section>
@@ -191,96 +178,86 @@ function UsersSettings() {
         {loading ? (
           <div className="settings-note">Carregando usuários...</div>
         ) : (
-          <div className="settings-table-wrapper">
-            <table className="settings-table">
-              <thead>
-                <tr>
-                  <th>Usuário</th>
-                  {PERMISSION_COLUMNS.map(column => (
-                    <th key={column.key} className="settings-check-cell" title={column.hint}>
-                      {column.label}
-                    </th>
-                  ))}
-                  <th />
-                </tr>
-              </thead>
+          <ul className="settings-member-list">
+            {members.map(member => {
+              const draft = drafts[member.userId] ?? member;
+              const changed = !samePermissions(draft, member);
+              const self = member.userId === user?.id;
+              const open = openUser === member.userId;
+              const canOpen = isAdmin || self;
 
-              <tbody>
-                {members.map(member => {
-                  const draft = drafts[member.userId] ?? member;
-                  const changed = !samePermissions(draft, member);
-                  const self = member.userId === user?.id;
+              return (
+                <li key={member.userId} className={open ? "is-open" : ""}>
+                  <div className="settings-member-row">
+                    <span className="settings-user-cell">
+                      <strong>
+                        {member.fullName || member.email}
+                        {self ? " (você)" : ""}
+                      </strong>
+                      {member.fullName && <small>{member.email}</small>}
+                      <small className="settings-member-summary">{describe(draft)}</small>
+                    </span>
 
-                  return (
-                    <tr key={member.userId}>
-                      <td>
-                        <span className="settings-user-cell">
-                          <strong>
-                            {member.fullName || member.email}
-                            {self ? " (você)" : ""}
-                          </strong>
-                          {member.fullName && <small>{member.email}</small>}
-                        </span>
-                      </td>
+                    <div className="settings-row-actions">
+                      {canOpen && (
+                        <button
+                          type="button"
+                          className="settings-button settings-button-secondary settings-button-small"
+                          aria-expanded={open}
+                          onClick={() => setOpenUser(open ? null : member.userId)}
+                        >
+                          Permissões
+                          <ChevronDown size={14} className="settings-chevron" />
+                        </button>
+                      )}
 
-                      {PERMISSION_COLUMNS.map(column => (
-                        <td key={column.key} className="settings-check-cell">
-                          <input
-                            type="checkbox"
-                            checked={draft[column.key]}
-                            disabled={!isAdmin || Boolean(busy) || (column.key !== "isAdmin" && draft.isAdmin)}
-                            aria-label={`${column.label}: ${member.fullName || member.email}`}
-                            onChange={() =>
-                              setDrafts(current => ({
-                                ...current,
-                                [member.userId]: togglePermission(draft, column.key)
-                              }))
-                            }
-                          />
-                        </td>
-                      ))}
+                      {isAdmin && changed && (
+                        <button
+                          type="button"
+                          className="settings-button settings-button-small"
+                          disabled={Boolean(busy)}
+                          onClick={() =>
+                            void act(
+                              `save-${member.userId}`,
+                              () => updateMemberPermissions(member.userId, draft),
+                              "Permissões salvas."
+                            )
+                          }
+                        >
+                          {busy === `save-${member.userId}` ? "Salvando..." : "Salvar"}
+                        </button>
+                      )}
 
-                      <td>
-                        <div className="settings-row-actions">
-                          {isAdmin && changed && (
-                            <button
-                              type="button"
-                              className="settings-button settings-button-small"
-                              disabled={Boolean(busy)}
-                              onClick={() =>
-                                void act(
-                                  `save-${member.userId}`,
-                                  () => updateMemberPermissions(member.userId, draft),
-                                  "Permissões salvas."
-                                )
-                              }
-                            >
-                              Salvar
-                            </button>
-                          )}
+                      {(isAdmin || self) && (
+                        <button
+                          type="button"
+                          className="settings-button settings-button-danger settings-button-small"
+                          disabled={Boolean(busy)}
+                          onClick={() => handleRemove(member)}
+                          title={self ? "Sair da empresa" : "Remover da empresa"}
+                        >
+                          <UserMinus size={14} />
+                          {self ? "Sair" : "Remover"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
 
-                          {(isAdmin || self) && (
-                            <button
-                              type="button"
-                              className="settings-button settings-button-danger settings-button-small"
-                              disabled={Boolean(busy)}
-                              onClick={() => handleRemove(member)}
-                              title={self ? "Sair da empresa" : "Remover da empresa"}
-                            >
-                              <UserMinus size={14} />
-                              {self ? "Sair" : "Remover"}
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                  {open && (
+                    <PermissionMatrix
+                      idPrefix={`member-${member.userId}`}
+                      value={draft}
+                      disabled={!isAdmin || Boolean(busy)}
+                      onChange={next =>
+                        setDrafts(current => ({ ...current, [member.userId]: next }))
+                      }
+                    />
+                  )}
+                </li>
+              );
+            })}
+          </ul>
         )}
-
         {!isAdmin && (
           <div className="settings-note">
             Só administradores podem mudar permissões e convidar pessoas.
@@ -296,20 +273,12 @@ function UsersSettings() {
             WhatsApp, por exemplo). Ela entra com a conta dela e digita o código. Vale 7 dias e uma vez só.
           </p>
 
-          <div className="settings-permissions">
-            {PERMISSION_COLUMNS.map(column => (
-              <label key={column.key} title={column.hint}>
-                <input
-                  type="checkbox"
-                  checked={invitePermissions[column.key]}
-                  disabled={column.key !== "isAdmin" && invitePermissions.isAdmin}
-                  onChange={() => setInvitePermissions(current => togglePermission(current, column.key))}
-                />
-                {column.label}
-              </label>
-            ))}
-          </div>
-
+          <PermissionMatrix
+            idPrefix="invite"
+            value={invitePermissions}
+            disabled={Boolean(busy)}
+            onChange={setInvitePermissions}
+          />
           <div className="settings-actions" style={{ justifyContent: "flex-start" }}>
             <button
               type="button"

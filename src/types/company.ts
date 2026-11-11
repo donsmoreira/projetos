@@ -1,4 +1,5 @@
 import type { AddressFields, AddressFormData } from "./address";
+import type { ModuleKey, ModulePermissions } from "./permissions";
 
 export type PersonType = "PF" | "PJ";
 
@@ -49,12 +50,38 @@ export interface CompanyFormData {
 
 /** O que o usuário pode fazer na empresa */
 export interface CompanyPermissions {
+  /** Administrador: pode tudo em todas as telas */
   isAdmin: boolean;
+  /** Permissões por tela */
+  modules: ModulePermissions;
+}
+
+/** O que o usuário pode fazer numa tela (já considerando o administrador) */
+export interface ScreenPermissions {
+  isAdmin: boolean;
+  canView: boolean;
   canCreate: boolean;
   canUpdate: boolean;
   canDelete: boolean;
   /** Baixar = pagar, receber e estornar */
   canSettle: boolean;
+}
+
+export function screenPermissions(
+  permissions: CompanyPermissions,
+  module: ModuleKey
+): ScreenPermissions {
+  const own = permissions.modules[module];
+  const admin = permissions.isAdmin;
+
+  return {
+    isAdmin: admin,
+    canView: admin || Boolean(own?.view),
+    canCreate: admin || Boolean(own?.create),
+    canUpdate: admin || Boolean(own?.update),
+    canDelete: admin || Boolean(own?.delete),
+    canSettle: admin || Boolean(own?.settle)
+  };
 }
 
 /** Empresa de que o usuário participa, com as permissões dele nela */
@@ -96,8 +123,5 @@ export interface ProfileFormData {
 
 export const NO_PERMISSIONS: CompanyPermissions = {
   isAdmin: false,
-  canCreate: false,
-  canUpdate: false,
-  canDelete: false,
-  canSettle: false
+  modules: {}
 };

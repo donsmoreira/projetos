@@ -62,7 +62,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Cadastro de usuário | 🟡 | `pages/Signup`: e-mail + senha, conta ativada por código enviado ao e-mail. Depende de configurar o modelo de e-mail no Supabase |
 | Recuperação de senha | 🟡 | `pages/ForgotPassword`: código por e-mail + nova senha. Mesma dependência |
 | Perfil do usuário | ✅ | Configurações → Meu perfil: nome, telefone/WhatsApp, CPF, endereço |
-| Multiempresa e multiusuário | ✅ | empresas, membros com permissões (administrador, cadastrar, alterar, excluir, baixar), convite por código; empresa aberta no topo com seletor |
+| Multiempresa e multiusuário | ✅ | empresas, membros com permissões por tela (administrador; em cada tela Ver, Cadastrar, Alterar, Excluir e Baixar em contas a pagar/receber; grade por grupo Geral / Cadastros / Financeiro com divisão Lançamentos), convite por código com a mesma grade; empresa aberta no topo com seletor |
 
 ### 3.2 Dashboard (`/`)
 | Item | Status | Observação |
@@ -230,7 +230,7 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 | `company_members` (usuários da empresa) | is_admin, can_create, can_update, can_delete, can_settle | company_id, user_id |
 | `company_invites` (convites) | code, permissões, expires_at (7 dias), used_by/used_at | company_id |
 
-**Multiempresa (desde 11/11/2026):** todas as tabelas de dados têm `company_id`. As regras de acesso (RLS) mostram só a **empresa aberta** (`profiles.active_company_id`, conferida por `current_company_id()`) e checam a permissão (`has_company_permission`) para cadastrar, alterar e excluir. Pagar, receber e estornar exigem a permissão "baixar". `user_id` passou a significar só "quem cadastrou".
+**Multiempresa (desde 11/11/2026):** todas as tabelas de dados têm `company_id`. As regras de acesso (RLS) mostram só a **empresa aberta** (`profiles.active_company_id`, conferida por `current_company_id()`) e checam a permissão da tela (`has_module_permission(tela, ação)`, tabela `company_member_permissions`) para cadastrar, alterar e excluir; caixa e conta bancária pela coluna `account_type`. Pagar/estornar exige "Baixar" em Contas a Pagar e receber/estornar em Contas a Receber. "Ver" controla a tela (menu e rota); a leitura dos dados continua liberada para quem é da empresa, porque uma tela usa dados de outras (ex.: fornecedores na conta a pagar). `user_id` passou a significar só "quem cadastrou".
 
 **Princípio central:** `bank_transactions` é o **razão** do sistema. Todo dinheiro que entra ou sai de uma conta vira uma linha nessa tabela, e saldos e relatórios saem dela.
 
