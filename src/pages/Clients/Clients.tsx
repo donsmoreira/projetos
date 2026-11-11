@@ -94,6 +94,7 @@ function Clients() {
         client.name,
         client.type,
         client.document,
+        client.trade_name,
         client.phone,
         client.email,
         client.city,

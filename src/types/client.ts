@@ -16,6 +16,11 @@ export interface Client extends AddressFields {
 
   document: string | null;
 
+  /** Nome fantasia (vem da Receita ao buscar o CNPJ) */
+  trade_name?: string | null;
+
+  state_registration?: string | null;
+
   phone: string | null;
 
   email: string | null;
@@ -33,6 +38,10 @@ export interface ClientFormData {
   type: ClientType | null;
 
   document: string;
+
+  tradeName: string;
+
+  stateRegistration: string;
 
   phone: string;
 

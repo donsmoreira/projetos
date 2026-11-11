@@ -1,17 +1,13 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import type { FormEvent } from "react";
 
-import { Search } from "lucide-react";
-
 import AddressSection from "../../components/AddressSection/AddressSection";
-import { lookupCnpj } from "../../utils/cnpjLookup";
-import type { CnpjResult } from "../../utils/cnpjLookup";
 import {
-  documentDigits,
-  documentKind,
-  formatDocument,
-  isValidCnpj
-} from "../../utils/document";
+  CnpjLookupHint,
+  CnpjLookupMessage
+} from "../../components/CnpjLookup/CnpjLookupInfo";
+import { useCnpjLookup } from "../../hooks/useCnpjLookup";
+import { documentKind, formatDocument } from "../../utils/document";
 import { validateCompanyForm } from "./companyFormData";
 
 import type { AddressFormData } from "../../types/address";
@@ -46,88 +42,38 @@ function CompanyForm({
   const [errorMessage, setErrorMessage] = useState("");
   const [savedMessage, setSavedMessage] = useState("");
 
-  // Consulta à Receita (CNPJ)
-  const [lookingUp, setLookingUp] = useState(false);
-  const [lookupError, setLookupError] = useState("");
-  const [receita, setReceita] = useState<CnpjResult | null>(null);
-  /** CNPJ da consulta mais recente: resposta de consulta antiga é ignorada */
-  const lastLookup = useRef("");
+  // Consulta à Receita: preenche o formulário com o que vier
+  const receita = useCnpjLookup(result => {
+    setSavedMessage("");
+    setForm(current => ({
+      ...current,
+      name: result.name || current.name,
+      tradeName: result.tradeName || current.tradeName,
+      // Sem Simples/MEI a Receita não diz se é Regime Normal ou Não contribuinte
+      taxRegime: result.taxRegime || current.taxRegime,
+      stateRegistration: result.stateRegistration || current.stateRegistration,
+      // Telefone e e-mail da Receita costumam ser do contador: só se estiver vazio
+      phone: current.phone.trim() ? current.phone : result.phone,
+      email: current.email.trim() ? current.email : result.email,
+      address: result.address.zipCode || result.address.street
+        ? result.address
+        : current.address
+    }));
+  });
 
   const kind = documentKind(form.document);
   const isCnpj = kind === "cnpj";
   const isCpf = kind === "cpf";
-  const cnpjOk = isCnpj && isValidCnpj(documentDigits(form.document));
 
   function update<K extends keyof CompanyFormData>(field: K, value: CompanyFormData[K]) {
     setSavedMessage("");
     setForm(current => ({ ...current, [field]: value }));
   }
 
-  /** Busca o CNPJ na Receita e preenche o formulário com o que vier. */
-  async function searchReceita(document: string) {
-    const digits = documentDigits(document);
-    lastLookup.current = digits;
-
-    setLookingUp(true);
-    setLookupError("");
-    setReceita(null);
-
-    try {
-      const result = await lookupCnpj(digits);
-
-      if (lastLookup.current !== digits) {
-        return;
-      }
-
-      if (!result) {
-        setLookupError("CNPJ não encontrado na Receita. Preencha os dados manualmente.");
-        return;
-      }
-
-      setReceita(result);
-      setSavedMessage("");
-      setForm(current => ({
-        ...current,
-        name: result.name || current.name,
-        tradeName: result.tradeName || current.tradeName,
-        // Sem Simples/MEI a Receita não diz se é Regime Normal ou Não contribuinte
-        taxRegime: result.taxRegime || current.taxRegime,
-        stateRegistration: result.stateRegistration || current.stateRegistration,
-        // Telefone e e-mail da Receita costumam ser do contador: só se estiver vazio
-        phone: current.phone.trim() ? current.phone : result.phone,
-        email: current.email.trim() ? current.email : result.email,
-        address: result.address.zipCode || result.address.street
-          ? result.address
-          : current.address
-      }));
-    } catch (error) {
-      if (lastLookup.current === digits) {
-        setLookupError(error instanceof Error ? error.message : "Não foi possível consultar a Receita.");
-      }
-    } finally {
-      if (lastLookup.current === digits) {
-        setLookingUp(false);
-      }
-    }
-  }
-
   function handleDocumentChange(value: string) {
     const formatted = formatDocument(value);
-    const digits = documentDigits(formatted);
-
     update("document", formatted);
-
-    // Ao completar um CNPJ válido (e diferente do último buscado), busca sozinho
-    if (digits.length === 14 && isValidCnpj(digits)) {
-      if (digits !== lastLookup.current) {
-        void searchReceita(digits);
-      }
-    } else {
-      lastLookup.current = "";
-      setLookingUp(false);
-      setLookupError("");
-      setReceita(null);
-    }
+    receita.handleDocumentChange(formatted);
   }
 
   function updateAddress(change: (current: AddressFormData) => AddressFormData) {
@@ -178,51 +124,15 @@ function CompanyForm({
                   placeholder="000.000.000-00 ou 00.000.000/0000-00"
                   maxLength={18}
                 />
-                <small>
-                  {isCnpj && lookingUp && "Buscando na Receita..."}
-                  {isCnpj && !lookingUp && cnpjOk && "CNPJ: pessoa jurídica."}
-                  {isCnpj && !cnpjOk && "CNPJ inválido: confira os números."}
-                  {isCpf && "CPF: escolha ao lado se é PF ou PJ."}
-                  {kind === "incompleto" && "Continue digitando..."}
-                  {kind === "vazio" && "Obrigatório. Com CNPJ, os dados vêm da Receita."}
-                </small>
-
-                {cnpjOk && !lookingUp && (
-                  <button
-                    type="button"
-                    className="settings-button settings-button-secondary settings-button-small settings-receita-button"
-                    onClick={() => void searchReceita(form.document)}
-                  >
-                    <Search size={13} />
-                    Buscar na Receita
-                  </button>
-                )}
+                <CnpjLookupHint
+                  document={form.document}
+                  lookup={receita}
+                  emptyHint="Obrigatório. Com CNPJ, os dados vêm da Receita."
+                  cpfHint="CPF: escolha ao lado se é PF ou PJ."
+                />
               </div>
 
-              {(receita || lookupError) && (
-                <div className="settings-field settings-field-full">
-                  {lookupError && (
-                    <div className="settings-message settings-message-error">{lookupError}</div>
-                  )}
-
-                  {receita && (
-                    <div
-                      className={`settings-message ${
-                        receita.status === "ATIVA" ? "settings-message-ok" : "settings-message-error"
-                      }`}
-                    >
-                      <strong>Dados preenchidos pela Receita.</strong>{" "}
-                      Situação: {receita.status || "não informada"}
-                      {receita.openedOn && ` · aberta em ${receita.openedOn}`}
-                      {receita.activity && ` · ${receita.activity}`}.
-                      {receita.status !== "ATIVA" && " Atenção: este CNPJ não está ativo."}
-                      {!receita.taxRegime && " Escolha o regime tributário (a Receita não informa se é Regime Normal ou Não contribuinte)."}
-                      {!receita.stateRegistration && " A inscrição estadual não veio na consulta: se a empresa tiver, digite abaixo."}
-                      {" "}Confira os dados antes de salvar.
-                    </div>
-                  )}
-                </div>
-              )}
+              <CnpjLookupMessage lookup={receita} showTaxRegimeHint />
 
               {isCpf ? (
                 <div className="settings-field">

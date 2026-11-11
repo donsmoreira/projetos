@@ -9,6 +9,9 @@ export interface Supplier extends AddressFields {
 
   name: string;
   document: string | null;
+  /** Nome fantasia (vem da Receita ao buscar o CNPJ) */
+  trade_name?: string | null;
+  state_registration?: string | null;
   phone: string | null;
   email: string | null;
   notes: string | null;
@@ -20,6 +23,8 @@ export interface Supplier extends AddressFields {
 export interface SupplierFormData {
   name: string;
   document: string;
+  tradeName: string;
+  stateRegistration: string;
   phone: string;
   email: string;
   notes: string;

@@ -34,6 +34,8 @@ export async function createSupplier(
       user_id: user.id,
       name: supplier.name,
       document: supplier.document || null,
+      trade_name: supplier.tradeName.trim() || null,
+      state_registration: supplier.stateRegistration.trim() || null,
       phone: supplier.phone || null,
       email: supplier.email || null,
       notes: supplier.notes || null,
@@ -58,6 +60,8 @@ export async function updateSupplier(
     .update({
       name: supplier.name,
       document: supplier.document || null,
+      trade_name: supplier.tradeName.trim() || null,
+      state_registration: supplier.stateRegistration.trim() || null,
       phone: supplier.phone || null,
       email: supplier.email || null,
       notes: supplier.notes || null,

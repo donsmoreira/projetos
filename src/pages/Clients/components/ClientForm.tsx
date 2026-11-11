@@ -27,6 +27,15 @@ import {
 } from "../../../utils/address";
 
 import AddressSection from "../../../components/AddressSection/AddressSection";
+import {
+  CnpjLookupHint,
+  CnpjLookupMessage
+} from "../../../components/CnpjLookup/CnpjLookupInfo";
+import { useCnpjLookup } from "../../../hooks/useCnpjLookup";
+import {
+  documentKind,
+  formatDocument
+} from "../../../utils/document";
 
 type ClientFormProps = {
   client: Client | null;
@@ -38,6 +47,8 @@ const emptyForm: ClientFormData = {
   name: "",
   type: null,
   document: "",
+  tradeName: "",
+  stateRegistration: "",
   phone: "",
   email: "",
   notes: "",
@@ -64,6 +75,8 @@ function ClientForm({
         name: client.name,
         type: client.type,
         document: client.document ?? "",
+        tradeName: client.trade_name ?? "",
+        stateRegistration: client.state_registration ?? "",
         phone: client.phone ?? "",
         email: client.email ?? "",
         notes: client.notes ?? "",
@@ -93,6 +106,41 @@ function ClientForm({
       ...current,
       address: update(current.address)
     }));
+  }
+
+  // Busca do CNPJ na Receita: preenche o que vier
+  const receita = useCnpjLookup(result => {
+    setFormData(current => ({
+      ...current,
+      name: result.name || current.name,
+      type: "Pessoa Jurídica",
+      tradeName: result.tradeName || current.tradeName,
+      stateRegistration: result.stateRegistration || current.stateRegistration,
+      // Telefone e e-mail da Receita costumam ser do contador: só se estiver vazio
+      phone: current.phone.trim() ? current.phone : result.phone,
+      email: current.email.trim() ? current.email : result.email,
+      address: result.address.zipCode || result.address.street
+        ? result.address
+        : current.address
+    }));
+  });
+
+  function handleDocumentChange(value: string) {
+    const formatted = formatDocument(value);
+    const kind = documentKind(formatted);
+
+    setFormData(current => ({
+      ...current,
+      document: formatted,
+      // 11 números = CPF (pessoa física); 14 = CNPJ (pessoa jurídica)
+      type: kind === "cnpj"
+        ? "Pessoa Jurídica"
+        : kind === "cpf"
+          ? "Pessoa Física"
+          : current.type
+    }));
+
+    receita.handleDocumentChange(formatted);
   }
 
   async function handleSubmit(
@@ -157,7 +205,7 @@ function ClientForm({
       <div className="client-form-grid">
         <div className="client-field client-field-full">
           <label htmlFor="client-name">
-            Nome
+            Nome / razão social
           </label>
 
           <input
@@ -214,10 +262,53 @@ function ClientForm({
           <input
             id="client-document"
             type="text"
+            inputMode="numeric"
             value={formData.document}
             onChange={event =>
+              handleDocumentChange(event.target.value)
+            }
+            placeholder="000.000.000-00 ou 00.000.000/0000-00"
+            maxLength={18}
+          />
+
+          <CnpjLookupHint
+            document={formData.document}
+            lookup={receita}
+          />
+        </div>
+
+        <CnpjLookupMessage lookup={receita} />
+
+        <div className="client-field">
+          <label htmlFor="client-trade-name">
+            Nome fantasia
+          </label>
+
+          <input
+            id="client-trade-name"
+            type="text"
+            value={formData.tradeName}
+            onChange={event =>
               updateField(
-                "document",
+                "tradeName",
+                event.target.value
+              )
+            }
+          />
+        </div>
+
+        <div className="client-field">
+          <label htmlFor="client-ie">
+            Inscrição estadual
+          </label>
+
+          <input
+            id="client-ie"
+            type="text"
+            value={formData.stateRegistration}
+            onChange={event =>
+              updateField(
+                "stateRegistration",
                 event.target.value
               )
             }

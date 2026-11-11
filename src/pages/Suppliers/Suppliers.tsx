@@ -93,6 +93,7 @@ function Suppliers() {
       const fields = [
         supplier.name,
         supplier.document,
+        supplier.trade_name,
         supplier.phone,
         supplier.email,
         supplier.city,

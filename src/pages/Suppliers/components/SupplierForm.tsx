@@ -26,6 +26,12 @@ import {
 } from "../../../utils/address";
 
 import AddressSection from "../../../components/AddressSection/AddressSection";
+import {
+  CnpjLookupHint,
+  CnpjLookupMessage
+} from "../../../components/CnpjLookup/CnpjLookupInfo";
+import { useCnpjLookup } from "../../../hooks/useCnpjLookup";
+import { formatDocument } from "../../../utils/document";
 
 type SupplierFormProps = {
   supplier: Supplier | null;
@@ -36,6 +42,8 @@ type SupplierFormProps = {
 const emptyForm: SupplierFormData = {
   name: "",
   document: "",
+  tradeName: "",
+  stateRegistration: "",
   phone: "",
   email: "",
   notes: "",
@@ -61,6 +69,8 @@ function SupplierForm({
       setFormData({
         name: supplier.name,
         document: supplier.document ?? "",
+        tradeName: supplier.trade_name ?? "",
+        stateRegistration: supplier.state_registration ?? "",
         phone: supplier.phone ?? "",
         email: supplier.email ?? "",
         notes: supplier.notes ?? "",
@@ -92,6 +102,28 @@ function SupplierForm({
     }));
   }
 
+  // Busca do CNPJ na Receita: preenche o que vier
+  const receita = useCnpjLookup(result => {
+    setFormData(current => ({
+      ...current,
+      name: result.name || current.name,
+      tradeName: result.tradeName || current.tradeName,
+      stateRegistration: result.stateRegistration || current.stateRegistration,
+      // Telefone e e-mail da Receita costumam ser do contador: só se estiver vazio
+      phone: current.phone.trim() ? current.phone : result.phone,
+      email: current.email.trim() ? current.email : result.email,
+      address: result.address.zipCode || result.address.street
+        ? result.address
+        : current.address
+    }));
+  });
+
+  function handleDocumentChange(value: string) {
+    const formatted = formatDocument(value);
+    updateField("document", formatted);
+    receita.handleDocumentChange(formatted);
+  }
+
   async function handleSubmit(
     event: FormEvent<HTMLFormElement>
   ) {
@@ -118,6 +150,8 @@ function SupplierForm({
       const normalizedData: SupplierFormData = {
         name: formData.name.trim(),
         document: formData.document.trim(),
+        tradeName: formData.tradeName.trim(),
+        stateRegistration: formData.stateRegistration.trim(),
         phone: formData.phone.trim(),
         email: formData.email.trim(),
         notes: formData.notes.trim(),
@@ -154,7 +188,7 @@ function SupplierForm({
       <div className="supplier-form-grid">
         <div className="supplier-field supplier-field-full">
           <label htmlFor="supplier-name">
-            Nome
+            Nome / razão social
           </label>
 
           <input
@@ -180,10 +214,53 @@ function SupplierForm({
           <input
             id="supplier-document"
             type="text"
+            inputMode="numeric"
             value={formData.document}
             onChange={event =>
+              handleDocumentChange(event.target.value)
+            }
+            placeholder="000.000.000-00 ou 00.000.000/0000-00"
+            maxLength={18}
+          />
+
+          <CnpjLookupHint
+            document={formData.document}
+            lookup={receita}
+          />
+        </div>
+
+        <CnpjLookupMessage lookup={receita} />
+
+        <div className="supplier-field">
+          <label htmlFor="supplier-trade-name">
+            Nome fantasia
+          </label>
+
+          <input
+            id="supplier-trade-name"
+            type="text"
+            value={formData.tradeName}
+            onChange={event =>
               updateField(
-                "document",
+                "tradeName",
+                event.target.value
+              )
+            }
+          />
+        </div>
+
+        <div className="supplier-field">
+          <label htmlFor="supplier-ie">
+            Inscrição estadual
+          </label>
+
+          <input
+            id="supplier-ie"
+            type="text"
+            value={formData.stateRegistration}
+            onChange={event =>
+              updateField(
+                "stateRegistration",
                 event.target.value
               )
             }

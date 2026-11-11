@@ -1,0 +1,54 @@
+/* Busca do CNPJ na Receita (empresa, clientes e fornecedores) */
+.cnpj-lookup-hint {
+  color: var(--text-light);
+  font-size: 11px;
+}
+
+.cnpj-lookup-button {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+
+  min-height: 30px;
+  margin-top: 4px;
+  padding: 0 10px;
+
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.cnpj-lookup-button:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.cnpj-lookup-message {
+  grid-column: 1 / -1;
+
+  padding: 10px 12px;
+
+  border-radius: 6px;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cnpj-lookup-message.is-ok {
+  background: var(--success-soft);
+  border: 1px solid var(--success-border);
+  color: var(--success);
+}
+
+.cnpj-lookup-message.is-error {
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-border);
+  color: var(--danger);
+}

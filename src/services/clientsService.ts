@@ -40,6 +40,10 @@ export async function createClient(
 
       document: client.document || null,
 
+      trade_name: client.tradeName.trim() || null,
+
+      state_registration: client.stateRegistration.trim() || null,
+
       phone: client.phone || null,
 
       email: client.email || null,
@@ -72,6 +76,10 @@ export async function updateClient(
       type: client.type || null,
 
       document: client.document || null,
+
+      trade_name: client.tradeName.trim() || null,
+
+      state_registration: client.stateRegistration.trim() || null,
 
       phone: client.phone || null,
 

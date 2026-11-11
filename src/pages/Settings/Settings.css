@@ -425,11 +425,6 @@ a.settings-button {
   text-decoration: none;
 }
 
-.settings-receita-button {
-  align-self: flex-start;
-  margin-top: 4px;
-}
-
 .settings-header > .settings-button {
   flex-shrink: 0;
   white-space: nowrap;
