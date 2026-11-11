@@ -11,10 +11,10 @@ import type {
 
 type PayableTableProps = {
   payables: Payable[];
-  onEdit: (payable: Payable) => void;
-  onDelete: (payable: Payable) => void;
-  onPay: (payable: Payable) => void;
-  onReverse: (payable: Payable) => void;
+  onEdit?: (payable: Payable) => void;
+  onDelete?: (payable: Payable) => void;
+  onPay?: (payable: Payable) => void;
+  onReverse?: (payable: Payable) => void;
 };
 
 function formatCurrency(value: number) {
@@ -145,7 +145,8 @@ function PayableTable({
                 <td className="payables-actions">
                   {isPending ? (
                     <>
-                      <button
+                      <>{onPay && (
+<button
                         type="button"
                         className="payables-action-button payables-action-pay"
                         onClick={() =>
@@ -158,8 +159,10 @@ function PayableTable({
                           size={16}
                         />
                       </button>
+)}</>
 
-                      <button
+                      <>{onEdit && (
+<button
                         type="button"
                         className="payables-action-button"
                         onClick={() =>
@@ -170,8 +173,10 @@ function PayableTable({
                       >
                         <Pencil size={16} />
                       </button>
+)}</>
 
-                      <button
+                      <>{onDelete && (
+<button
                         type="button"
                         className="payables-action-button payables-action-danger"
                         onClick={() =>
@@ -182,9 +187,11 @@ function PayableTable({
                       >
                         <Trash2 size={16} />
                       </button>
+)}</>
                     </>
                   ) : (
-                    <button
+                    <>{onReverse && (
+<button
                       type="button"
                       className="payables-action-button payables-action-reverse"
                       onClick={() =>
@@ -195,6 +202,7 @@ function PayableTable({
                     >
                       <RotateCcw size={16} />
                     </button>
+)}</>
                   )}
                 </td>
               </tr>

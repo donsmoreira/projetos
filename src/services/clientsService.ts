@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { translateCompanyError } from "./companyService";
 import { getAuthenticatedUser } from "./auth";
 import { addressToDb } from "../utils/address";
 
@@ -16,7 +17,7 @@ export async function listClients(): Promise<Client[]> {
     });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return (data ?? []) as Client[];
@@ -51,7 +52,7 @@ export async function createClient(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return data as Client;
@@ -88,7 +89,7 @@ export async function updateClient(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return data as Client;
@@ -104,6 +105,6 @@ export async function deleteClient(
     .eq("id", id);
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 }

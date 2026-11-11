@@ -1,4 +1,8 @@
+import { useState } from "react";
+
 import {
+  Building2,
+  ChevronDown,
   LogOut,
   Menu,
   Moon,
@@ -10,22 +14,60 @@ import {
 import { useLocation } from "react-router-dom";
 
 import { useAuth } from "../../../../contexts/AuthContext";
+import { useCompany } from "../../../../hooks/useCompany";
 import { useTheme } from "../../../../hooks/useTheme";
+import { PAGE_TITLES } from "../Sidebar/menu";
 
 import "./Topbar.css";
 
-const pageTitles: Record<string, string> = {
-  "/": "Painel inicial",
-  "/clientes": "Clientes",
-  "/fornecedores": "Fornecedores",
-  "/contas-gerenciais": "Contas Gerenciais",
-  "/bancos": "Contas Bancárias",
-  "/caixa": "Caixa",
-  "/contas-pagar": "Contas a Pagar",
-  "/contas-receber": "Contas a Receber",
-  "/cartoes": "Cartões de Crédito",
-  "/relatorios": "Relatórios"
-};
+/** Nome da empresa aberta no centro do topo; com mais de uma, vira seletor. */
+function CompanySwitcher() {
+  const { companies, active, switchCompany } = useCompany();
+  const [switching, setSwitching] = useState(false);
+
+  if (!active) {
+    return null;
+  }
+
+  const label = (item: typeof active) =>
+    item.company.trade_name || item.company.name;
+
+  if (companies.length <= 1) {
+    return (
+      <div className="topbar-company" title="Empresa aberta">
+        <Building2 size={16} />
+        <span>{label(active)}</span>
+      </div>
+    );
+  }
+
+  return (
+    <label className="topbar-company topbar-company-select" title="Trocar de empresa">
+      <Building2 size={16} />
+
+      <select
+        value={active.company.id}
+        disabled={switching}
+        aria-label="Empresa aberta"
+        onChange={event => {
+          setSwitching(true);
+          switchCompany(event.target.value).catch(error => {
+            window.alert(error instanceof Error ? error.message : "Não foi possível trocar de empresa.");
+            setSwitching(false);
+          });
+        }}
+      >
+        {companies.map(item => (
+          <option key={item.company.id} value={item.company.id}>
+            {label(item)}
+          </option>
+        ))}
+      </select>
+
+      <ChevronDown size={15} className="topbar-company-chevron" />
+    </label>
+  );
+}
 
 type TopbarProps = {
   menuCollapsed: boolean;
@@ -56,7 +98,7 @@ function Topbar({
       : "Ativar modo claro";
 
   const pageTitle =
-    pageTitles[location.pathname] ??
+    PAGE_TITLES[location.pathname] ??
     "Razão Finance ARC";
 
   const userName =
@@ -114,6 +156,10 @@ function Topbar({
 
           <p>Razão Finance ARC</p>
         </div>
+      </div>
+
+      <div className="topbar-center">
+        <CompanySwitcher />
       </div>
 
       <div className="topbar-user">

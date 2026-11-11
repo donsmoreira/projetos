@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { translateCompanyError } from "./companyService";
 import { getAuthenticatedUser } from "./auth";
 import { addressToDb } from "../utils/address";
 
@@ -16,7 +17,7 @@ export async function listSuppliers(): Promise<Supplier[]> {
     });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return (data ?? []) as Supplier[];
@@ -42,7 +43,7 @@ export async function createSupplier(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return data as Supplier;
@@ -68,7 +69,7 @@ export async function updateSupplier(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return data as Supplier;
@@ -83,6 +84,6 @@ export async function deleteSupplier(
     .eq("id", id);
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 }

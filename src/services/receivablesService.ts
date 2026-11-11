@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { translateCompanyError } from "./companyService";
 import { getAuthenticatedUser } from "./auth";
 import { addMonthsToDate } from "../utils/date";
 
@@ -75,7 +76,7 @@ export async function listReceivables(): Promise<
     });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return (data ?? []).map(
@@ -203,7 +204,7 @@ export async function createReceivables(
     `);
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return (data ?? []).map(
@@ -275,7 +276,7 @@ export async function updateReceivable(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return normalizeReceivable(data);
@@ -291,7 +292,7 @@ export async function deleteReceivable(
     .eq("status", "pendente");
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 }
 
@@ -326,7 +327,7 @@ async function getReceivable(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return normalizeReceivable(data);
@@ -351,7 +352,7 @@ export async function receiveReceivable(
   });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return getReceivable(receivable.id);
@@ -370,7 +371,7 @@ export async function reverseReceivableReceipt(
   });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return getReceivable(receivable.id);

@@ -38,6 +38,8 @@ import CashForm from "./components/CashForm";
 import CashMovementForm from "./components/CashMovementForm";
 import type { MovementKind } from "./components/CashMovementForm";
 
+import { usePermissions } from "../../hooks/useCompany";
+
 import "./Cash.css";
 
 type ModalState =
@@ -72,6 +74,8 @@ function fetchAccounts(): Promise<[AccountWithBalance[], AccountWithBalance[]]> 
 }
 
 function Cash() {
+  const permissions = usePermissions();
+
   const [cashAccounts, setCashAccounts] =
     useState<AccountWithBalance[]>([]);
 
@@ -271,13 +275,15 @@ function Cash() {
           </p>
         </div>
 
-        <button
+        <>{permissions.canCreate && (
+<button
           type="button"
           className="cash-new-button"
           onClick={() => setModal({ kind: "cash", cash: null })}
         >
           Novo caixa
         </button>
+)}</>
       </section>
 
       {loading && (
@@ -302,13 +308,15 @@ function Cash() {
             Cadastre um caixa (ex.: "Caixa principal" ou "Carteira") para lançar pagamentos e recebimentos em dinheiro.
           </p>
 
-          <button
+          <>{permissions.canCreate && (
+<button
             type="button"
             className="cash-new-button"
             onClick={() => setModal({ kind: "cash", cash: null })}
           >
             Cadastrar primeiro caixa
           </button>
+)}</>
         </div>
       )}
 
@@ -342,31 +350,38 @@ function Cash() {
                 </button>
 
                 <div className="cash-card-actions">
-                  <button
+                  <>{permissions.canCreate && (
+<button
                     type="button"
                     className="cash-action cash-action-in"
                     onClick={() => setModal({ kind: "movement", cash, movement: "entrada" })}
                   >
                     <ArrowDownLeft size={15} /> Entrada
                   </button>
+)}</>
 
-                  <button
+                  <>{permissions.canCreate && (
+<button
                     type="button"
                     className="cash-action cash-action-out"
                     onClick={() => setModal({ kind: "movement", cash, movement: "saida" })}
                   >
                     <ArrowUpRight size={15} /> Saída
                   </button>
+)}</>
 
-                  <button
+                  <>{permissions.canCreate && (
+<button
                     type="button"
                     className="cash-action"
                     onClick={() => setModal({ kind: "movement", cash, movement: "transferencia" })}
                   >
                     <ArrowLeftRight size={15} /> Transferir
                   </button>
+)}</>
 
-                  <button
+                  <>{permissions.canUpdate && (
+<button
                     type="button"
                     className="cash-icon-button"
                     onClick={() => setModal({ kind: "cash", cash })}
@@ -375,8 +390,10 @@ function Cash() {
                   >
                     <Pencil size={15} />
                   </button>
+)}</>
 
-                  <button
+                  <>{permissions.canDelete && (
+<button
                     type="button"
                     className="cash-icon-button cash-icon-danger"
                     onClick={() => handleDeleteCash(cash)}
@@ -385,6 +402,7 @@ function Cash() {
                   >
                     <Trash2 size={15} />
                   </button>
+)}</>
                 </div>
               </article>
             ))}
@@ -499,7 +517,8 @@ function Cash() {
                               </td>
                               <td className="cash-table-actions">
                                 {(row.transaction_type === "manual" || row.transaction_type === "transfer") ? (
-                                  <button
+                                  <>{permissions.canDelete && (
+<button
                                     type="button"
                                     className="cash-icon-button cash-icon-danger"
                                     onClick={() => handleDeleteMovement(row)}
@@ -508,6 +527,7 @@ function Cash() {
                                   >
                                     <Trash2 size={14} />
                                   </button>
+)}</>
                                 ) : (
                                   <span
                                     className="cash-table-locked"

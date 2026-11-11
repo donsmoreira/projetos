@@ -22,9 +22,13 @@ import SearchBar from "./components/SearchBar";
 import BankAccountTable from "./components/BankAccountTable";
 import BankAccountModal from "./components/BankAccountModal";
 
+import { usePermissions } from "../../hooks/useCompany";
+
 import "./BankAccounts.css";
 
 function BankAccounts() {
+  const permissions = usePermissions();
+
   const [accounts, setAccounts] =
     useState<BankAccount[]>([]);
 
@@ -151,13 +155,15 @@ function BankAccounts() {
           </p>
         </div>
 
-        <button
+        {permissions.canCreate && (
+<button
           type="button"
           className="bank-accounts-new-button"
           onClick={handleNewAccount}
         >
           Nova conta
         </button>
+)}
       </section>
 
       <section className="bank-accounts-content">
@@ -181,8 +187,8 @@ function BankAccounts() {
         {!loading && !errorMessage && (
           <BankAccountTable
             accounts={filteredAccounts}
-            onEdit={handleEditAccount}
-            onDelete={handleDeleteAccount}
+            onEdit={permissions.canUpdate ? handleEditAccount : undefined}
+            onDelete={permissions.canDelete ? handleDeleteAccount : undefined}
           />
         )}
       </section>

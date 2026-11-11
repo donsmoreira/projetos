@@ -9,7 +9,11 @@ import type {
 const TABLE = "management_accounts";
 
 function translateError(message: string): string {
-  if (/management_accounts_unique_name_idx|duplicate key/i.test(message)) {
+  if (/row-level security|permission denied/i.test(message)) {
+    return "Você não tem permissão para fazer isso nesta empresa.";
+  }
+
+  if (/management_accounts_unique_name|duplicate key/i.test(message)) {
     return "Já existe uma conta com esse nome nesse mesmo nível.";
   }
 

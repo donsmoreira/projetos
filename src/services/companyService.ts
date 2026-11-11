@@ -1,0 +1,319 @@
+import { supabase } from "./supabase";
+import { getAuthenticatedUser } from "./auth";
+import { addressToDb } from "../utils/address";
+import { documentDigits, documentKind } from "../utils/document";
+
+import type {
+  Company,
+  CompanyFormData,
+  CompanyInvite,
+  CompanyMember,
+  CompanyMembership,
+  CompanyPermissions,
+  ProfileFormData,
+  UserProfile
+} from "../types/company";
+
+type MembershipRow = {
+  is_admin: boolean;
+  can_create: boolean;
+  can_update: boolean;
+  can_delete: boolean;
+  can_settle: boolean;
+  companies: Company | Company[] | null;
+};
+
+function toPermissions(row: {
+  is_admin: boolean;
+  can_create: boolean;
+  can_update: boolean;
+  can_delete: boolean;
+  can_settle: boolean;
+}): CompanyPermissions {
+  return {
+    isAdmin: row.is_admin,
+    canCreate: row.is_admin || row.can_create,
+    canUpdate: row.is_admin || row.can_update,
+    canDelete: row.is_admin || row.can_delete,
+    canSettle: row.is_admin || row.can_settle
+  };
+}
+
+/** Mensagens do banco em português para o que a pessoa não pode fazer. */
+export function translateCompanyError(message: string): string {
+  if (/row-level security|permission denied/i.test(message)) {
+    return "Você não tem permissão para fazer isso nesta empresa.";
+  }
+
+  return message;
+}
+
+function fail(error: { message: string }): never {
+  throw new Error(translateCompanyError(error.message));
+}
+
+/** Empresas de que o usuário participa, com as permissões dele em cada uma. */
+export async function listMyCompanies(): Promise<CompanyMembership[]> {
+  const user = await getAuthenticatedUser();
+
+  const { data, error } = await supabase
+    .from("company_members")
+    .select("is_admin, can_create, can_update, can_delete, can_settle, companies (*)")
+    .eq("user_id", user.id);
+
+  if (error) {
+    fail(error);
+  }
+
+  return ((data ?? []) as unknown as MembershipRow[])
+    .map(row => ({
+      company: (Array.isArray(row.companies) ? row.companies[0] : row.companies) as Company,
+      permissions: toPermissions(row)
+    }))
+    .filter(item => Boolean(item.company))
+    .sort((a, b) =>
+      (a.company.trade_name || a.company.name).localeCompare(
+        b.company.trade_name || b.company.name,
+        "pt-BR",
+        { sensitivity: "base" }
+      )
+    );
+}
+
+/** Empresa aberta agora (null = nenhuma). */
+export async function getActiveCompanyId(): Promise<string | null> {
+  const { data, error } = await supabase.rpc("current_company_id");
+
+  if (error) {
+    fail(error);
+  }
+
+  return (data as string | null) ?? null;
+}
+
+export async function setActiveCompany(companyId: string): Promise<void> {
+  const { error } = await supabase.rpc("set_active_company", {
+    p_company_id: companyId
+  });
+
+  if (error) {
+    fail(error);
+  }
+}
+
+/** Cria a empresa (quem cria vira administrador) e já deixa aberta. */
+export async function createCompany(name: string): Promise<string> {
+  const { data, error } = await supabase.rpc("create_company", {
+    p_name: name
+  });
+
+  if (error) {
+    fail(error);
+  }
+
+  return data as string;
+}
+
+export async function updateCompany(
+  id: string,
+  form: CompanyFormData
+): Promise<Company> {
+  const document = documentDigits(form.document);
+  const kind = documentKind(document);
+  const isCnpj = kind === "cnpj";
+
+  const { data, error } = await supabase
+    .from("companies")
+    .update({
+      document: document || null,
+      // CNPJ é sempre PJ; com CPF a pessoa escolhe
+      person_type: isCnpj ? "PJ" : form.personType || null,
+      name: form.name.trim(),
+      trade_name: isCnpj ? form.tradeName.trim() || null : null,
+      tax_regime: isCnpj ? form.taxRegime || null : null,
+      state_registration: form.stateRegistration.trim() || null,
+      municipal_registration: form.municipalRegistration.trim() || null,
+      phone: form.phone.trim() || null,
+      email: form.email.trim() || null,
+      website: form.website.trim() || null,
+      ...addressToDb(form.address),
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    fail(error);
+  }
+
+  return data as Company;
+}
+
+export async function listCompanyMembers(): Promise<CompanyMember[]> {
+  const { data, error } = await supabase.rpc("list_company_members");
+
+  if (error) {
+    fail(error);
+  }
+
+  return ((data ?? []) as {
+    user_id: string;
+    full_name: string | null;
+    email: string;
+    is_admin: boolean;
+    can_create: boolean;
+    can_update: boolean;
+    can_delete: boolean;
+    can_settle: boolean;
+    created_at: string;
+  }[]).map(row => ({
+    userId: row.user_id,
+    fullName: row.full_name?.trim() || "",
+    email: row.email,
+    createdAt: row.created_at,
+    ...toPermissions(row)
+  }));
+}
+
+export async function updateMemberPermissions(
+  userId: string,
+  permissions: CompanyPermissions
+): Promise<void> {
+  const { error } = await supabase.rpc("update_member_permissions", {
+    p_user_id: userId,
+    p_is_admin: permissions.isAdmin,
+    p_can_create: permissions.canCreate,
+    p_can_update: permissions.canUpdate,
+    p_can_delete: permissions.canDelete,
+    p_can_settle: permissions.canSettle
+  });
+
+  if (error) {
+    fail(error);
+  }
+}
+
+export async function removeMember(userId: string): Promise<void> {
+  const { error } = await supabase.rpc("remove_member", {
+    p_user_id: userId
+  });
+
+  if (error) {
+    fail(error);
+  }
+}
+
+/** Gera o código de convite com as permissões escolhidas. */
+export async function createInvite(
+  permissions: CompanyPermissions
+): Promise<string> {
+  const { data, error } = await supabase.rpc("create_invite", {
+    p_is_admin: permissions.isAdmin,
+    p_can_create: permissions.canCreate,
+    p_can_update: permissions.canUpdate,
+    p_can_delete: permissions.canDelete,
+    p_can_settle: permissions.canSettle
+  });
+
+  if (error) {
+    fail(error);
+  }
+
+  return data as string;
+}
+
+/** Convites da empresa aberta ainda não usados (só o administrador vê). */
+export async function listPendingInvites(
+  companyId: string
+): Promise<CompanyInvite[]> {
+  const { data, error } = await supabase
+    .from("company_invites")
+    .select("*")
+    .eq("company_id", companyId)
+    .is("used_at", null)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    fail(error);
+  }
+
+  return (data ?? []).map(row => ({
+    id: row.id,
+    code: row.code,
+    createdAt: row.created_at,
+    expiresAt: row.expires_at,
+    usedAt: row.used_at,
+    ...toPermissions(row)
+  }));
+}
+
+export async function revokeInvite(inviteId: string): Promise<void> {
+  const { error } = await supabase.rpc("revoke_invite", {
+    p_invite_id: inviteId
+  });
+
+  if (error) {
+    fail(error);
+  }
+}
+
+/** Entra na empresa com o código e já deixa ela aberta. */
+export async function acceptInvite(code: string): Promise<string> {
+  const { data, error } = await supabase.rpc("accept_invite", {
+    p_code: code.trim().toUpperCase()
+  });
+
+  if (error) {
+    fail(error);
+  }
+
+  return data as string;
+}
+
+export async function getMyProfile(): Promise<UserProfile> {
+  const user = await getAuthenticatedUser();
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("user_id", user.id)
+    .single();
+
+  if (error) {
+    fail(error);
+  }
+
+  return data as UserProfile;
+}
+
+export async function updateMyProfile(
+  form: ProfileFormData
+): Promise<UserProfile> {
+  const user = await getAuthenticatedUser();
+  const cpf = documentDigits(form.cpf).slice(0, 11);
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({
+      full_name: form.fullName.trim(),
+      phone: form.phone.trim() || null,
+      cpf: cpf.length === 11 ? cpf : null,
+      ...addressToDb(form.address),
+      updated_at: new Date().toISOString()
+    })
+    .eq("user_id", user.id)
+    .select()
+    .single();
+
+  if (error) {
+    fail(error);
+  }
+
+  // O nome também vai para a sessão, para aparecer no topo sem recarregar
+  await supabase.auth.updateUser({
+    data: { full_name: form.fullName.trim() }
+  });
+
+  return data as UserProfile;
+}

@@ -17,9 +17,13 @@ import SearchBar from "./components/SearchBar";
 import CreditCardTable from "./components/CreditCardTable";
 import CreditCardModal from "./components/CreditCardModal";
 
+import { usePermissions } from "../../hooks/useCompany";
+
 import "./CreditCards.css";
 
 function CreditCards() {
+  const permissions = usePermissions();
+
   const [cards, setCards] =
     useState<CreditCard[]>([]);
 
@@ -149,13 +153,15 @@ function CreditCards() {
           </p>
         </div>
 
-        <button
+        {permissions.canCreate && (
+<button
           type="button"
           className="credit-cards-new-button"
           onClick={handleNewCard}
         >
           Novo cartão
         </button>
+)}
       </section>
 
       <section className="credit-cards-content">
@@ -179,8 +185,8 @@ function CreditCards() {
         {!loading && !errorMessage && (
           <CreditCardTable
             cards={filteredCards}
-            onEdit={handleEditCard}
-            onDelete={handleDeleteCard}
+            onEdit={permissions.canUpdate ? handleEditCard : undefined}
+            onDelete={permissions.canDelete ? handleDeleteCard : undefined}
           />
         )}
       </section>

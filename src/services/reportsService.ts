@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { translateCompanyError } from "./companyService";
 import { formatAccountBank } from "../utils/bank";
 import { summarizeTransactions } from "../utils/reportCharts";
 
@@ -181,7 +182,7 @@ export async function getFinancialReport(
   const { data, error } = await query;
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   const transactions =

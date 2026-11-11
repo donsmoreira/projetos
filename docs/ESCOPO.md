@@ -61,7 +61,8 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Logout | ✅ | botão na Topbar |
 | Cadastro de usuário | 🟡 | `pages/Signup`: e-mail + senha, conta ativada por código enviado ao e-mail. Depende de configurar o modelo de e-mail no Supabase |
 | Recuperação de senha | 🟡 | `pages/ForgotPassword`: código por e-mail + nova senha. Mesma dependência |
-| Perfil do usuário | ❌ | a Topbar usa `full_name` ou o e-mail |
+| Perfil do usuário | ✅ | Configurações → Meu perfil: nome, telefone/WhatsApp, CPF, endereço |
+| Multiempresa e multiusuário | ✅ | empresas, membros com permissões (administrador, cadastrar, alterar, excluir, baixar), convite por código; empresa aberta no topo com seletor |
 
 ### 3.2 Dashboard (`/`)
 | Item | Status | Observação |
@@ -103,7 +104,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Saldo nunca negativo | ✅ | regra no banco (inclusive ao desfazer um recebimento) |
 | Fechamento de caixa diário / conferência | ❌ | planejado: valor contado obrigatório, diferença esperado × contado, destino (retaguarda ou banco) e troco reservado para o dia seguinte |
 | Agenda com horários | ❌ | planejado: agendamentos puxando o cadastro do cliente (tabela `appointments` já existe); depois, integração com Google Agenda |
-| Minha empresa | ❌ | planejado: cadastro da própria empresa/pessoa (PF/PJ), base das notas fiscais (tabela `profiles` já existe) |
+| Minha empresa | ✅ | Configurações → Minha empresa: CPF/CNPJ pelo número de dígitos, PF/PJ, razão social, nome fantasia, regime tributário, inscrições, contato, endereço |
 
 ### 3.5 Contas a pagar (`/contas-pagar`)
 | Item | Status | Observação |
@@ -224,6 +225,12 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 | `profiles` | full_name, company_name, phone, preferred_theme, currency | user_id (criado automaticamente no cadastro) |
 | `appointments` (agenda) | appointment_date, start_time, end_time, status (agendado/confirmado), confirmed_at | user_id, client_id |
 | `management_accounts` (contas gerenciais) — usada em `payables` / `receivables.management_account_id` | name, type (`receita`/`despesa`), nature (`fixa`/`variavel`). Subconta tem o mesmo tipo da conta pai; nome único por nível; sem ciclos (regras no banco) | user_id, parent_id → management_accounts |
+
+| `companies` (empresas) | name (nome/razão social), trade_name, document (11 = CPF, 14 = CNPJ), person_type (PF/PJ), tax_regime, inscrições, contato, endereço | created_by |
+| `company_members` (usuários da empresa) | is_admin, can_create, can_update, can_delete, can_settle | company_id, user_id |
+| `company_invites` (convites) | code, permissões, expires_at (7 dias), used_by/used_at | company_id |
+
+**Multiempresa (desde 11/11/2026):** todas as tabelas de dados têm `company_id`. As regras de acesso (RLS) mostram só a **empresa aberta** (`profiles.active_company_id`, conferida por `current_company_id()`) e checam a permissão (`has_company_permission`) para cadastrar, alterar e excluir. Pagar, receber e estornar exigem a permissão "baixar". `user_id` passou a significar só "quem cadastrou".
 
 **Princípio central:** `bank_transactions` é o **razão** do sistema. Todo dinheiro que entra ou sai de uma conta vira uma linha nessa tabela, e saldos e relatórios saem dela.
 
@@ -365,8 +372,11 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [x] Cadastro de usuário com código de verificação por e-mail (adiantado)
 - [x] "Esqueceu a senha?" com código por e-mail (adiantado)
 - [ ] SMTP próprio no Supabase (o envio padrão só manda para e-mails da equipe do projeto e tem limite por hora)
-- [ ] Tela de perfil (nome, telefone/WhatsApp, preferências)
-- [ ] *A definir:* múltiplas empresas por usuário / usuários compartilhando uma empresa
+- [x] Tela de perfil (nome, telefone/WhatsApp, CPF, endereço) (adiantado)
+- [x] Multiempresa e multiusuário, com permissões e convite por código (adiantado)
+- [x] Minha empresa: cadastro da própria empresa/pessoa (adiantado)
+- [ ] Convite por e-mail (depende do SMTP)
+- [ ] Logo da empresa
 
 ### Fase 5 — Qualidade e publicação · v1.0.0-beta → v1.0.0
 - [ ] Testes unitários das regras (Vitest) e de fluxo (Playwright)
@@ -413,6 +423,6 @@ Objetivo: o Assessor no WhatsApp lê e escreve nos mesmos dados do Razão.
 2. **"Desktop":** basta o app web no navegador (PWA instalável) ou precisa de um app desktop empacotado (ex.: Tauri/Electron)?
 3. **Assessor WhatsApp:** já existe? Em que tecnologia (API oficial do WhatsApp/Meta, Z-API, Evolution API...)? Usa o mesmo Supabase?
 4. **Login único ARC:** todos os produtos ARC vão compartilhar a mesma conta de usuário?
-5. **Multiempresa:** um usuário pode gerir mais de uma empresa/carteira?
+5. ~~**Multiempresa:**~~ **decidido em 11/11/2026:** sim, multiempresa e multiusuário. Só administradores criam empresas; quem cria vira administrador.
 6. **Monetização/planos:** haverá limites por plano que o sistema precise controlar?
 7. **Agenda (`appointments`):** a tabela de agendamentos com clientes no banco é do Razão ou de outro produto ARC que usa o mesmo Supabase?

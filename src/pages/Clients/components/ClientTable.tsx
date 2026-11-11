@@ -11,8 +11,8 @@ import { formatCityState } from "../../../utils/address";
 
 type ClientTableProps = {
   clients: Client[];
-  onEdit: (client: Client) => void;
-  onDelete: (client: Client) => void;
+  onEdit?: (client: Client) => void;
+  onDelete?: (client: Client) => void;
 };
 
 function displayValue(
@@ -83,7 +83,8 @@ function ClientTable({
               </td>
 
               <td className="clients-actions">
-                <button
+                <>{onEdit && (
+<button
                   type="button"
                   className="clients-action-button"
                   onClick={() => onEdit(client)}
@@ -92,8 +93,10 @@ function ClientTable({
                 >
                   <Pencil size={16} />
                 </button>
+)}</>
 
-                <button
+                <>{onDelete && (
+<button
                   type="button"
                   className="clients-action-button clients-action-danger"
                   onClick={() => onDelete(client)}
@@ -102,6 +105,7 @@ function ClientTable({
                 >
                   <Trash2 size={16} />
                 </button>
+)}</>
               </td>
             </tr>
           ))}

@@ -11,8 +11,8 @@ import { formatAccountBank } from "../../../utils/bank";
 
 type CreditCardTableProps = {
   cards: CreditCard[];
-  onEdit: (card: CreditCard) => void;
-  onDelete: (card: CreditCard) => void;
+  onEdit?: (card: CreditCard) => void;
+  onDelete?: (card: CreditCard) => void;
 };
 
 function displayValue(
@@ -150,7 +150,8 @@ function CreditCardTable({
               </td>
 
               <td className="credit-cards-actions">
-                <button
+                <>{onEdit && (
+<button
                   type="button"
                   className="credit-cards-action-button"
                   onClick={() => onEdit(card)}
@@ -159,8 +160,10 @@ function CreditCardTable({
                 >
                   <Pencil size={16} />
                 </button>
+)}</>
 
-                <button
+                <>{onDelete && (
+<button
                   type="button"
                   className="credit-cards-action-button credit-cards-action-danger"
                   onClick={() => onDelete(card)}
@@ -169,6 +172,7 @@ function CreditCardTable({
                 >
                   <Trash2 size={16} />
                 </button>
+)}</>
               </td>
             </tr>
           ))}

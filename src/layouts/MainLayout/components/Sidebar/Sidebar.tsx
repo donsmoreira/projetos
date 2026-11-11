@@ -1,18 +1,11 @@
-import {
-  Banknote,
-  BarChart3,
-  CreditCard,
-  FolderTree,
-  HandCoins,
-  House,
-  Landmark,
-  Truck,
-  Users,
-  Wallet
-} from "lucide-react";
+import { useState } from "react";
+import { useLocation } from "react-router-dom";
+
+import { ChevronDown } from "lucide-react";
 
 import SidebarItem from "./SidebarItem";
 import ArcMark from "../../../../components/ArcMark/ArcMark";
+import { MENU } from "./menu";
 
 import "./Sidebar.css";
 
@@ -27,6 +20,12 @@ function Sidebar({
   collapsed,
   onNavigate
 }: SidebarProps) {
+  const location = useLocation();
+
+  // Grupo aberto/fechado pela pessoa; se não mexeu, abre o grupo da tela atual
+  const [openGroups, setOpenGroups] =
+    useState<Record<string, boolean>>({});
+
   const itemProps = {
     collapsed,
     onNavigate
@@ -52,76 +51,63 @@ function Sidebar({
       </div>
 
       <nav className="sidebar-menu">
-        <SidebarItem
-          {...itemProps}
-          icon={<House size={18} />}
-          title="Dashboard"
-          to="/"
-          end
-        />
+        {MENU.map(entry => {
+          if (entry.kind === "link") {
+            return (
+              <SidebarItem
+                key={entry.to}
+                {...itemProps}
+                icon={entry.icon}
+                title={entry.title}
+                to={entry.to}
+                end={entry.end}
+              />
+            );
+          }
 
-        <SidebarItem
-          {...itemProps}
-          icon={<Users size={18} />}
-          title="Clientes"
-          to="/clientes"
-        />
+          const containsCurrent = entry.items.some(item =>
+            location.pathname === item.to || location.pathname.startsWith(`${item.to}/`)
+          );
+          const open = openGroups[entry.id] ?? containsCurrent;
 
-        <SidebarItem
-          {...itemProps}
-          icon={<Truck size={18} />}
-          title="Fornecedores"
-          to="/fornecedores"
-        />
+          return (
+            <div
+              key={entry.id}
+              className={[
+                "sidebar-group",
+                open ? "is-open" : "",
+                containsCurrent ? "has-current" : ""
+              ].join(" ")}
+            >
+              <button
+                type="button"
+                className="sidebar-group-header"
+                aria-expanded={open}
+                aria-label={entry.title}
+                title={collapsed ? entry.title : undefined}
+                onClick={() =>
+                  setOpenGroups(current => ({ ...current, [entry.id]: !open }))
+                }
+              >
+                <span className="sidebar-icon">{entry.icon}</span>
+                <span className="sidebar-item-label">{entry.title}</span>
+                <ChevronDown size={15} className="sidebar-group-chevron" />
+              </button>
 
-        <SidebarItem
-          {...itemProps}
-          icon={<FolderTree size={18} />}
-          title="Contas Gerenciais"
-          to="/contas-gerenciais"
-        />
-
-        <SidebarItem
-          {...itemProps}
-          icon={<Landmark size={18} />}
-          title="Contas Bancárias"
-          to="/bancos"
-        />
-
-        <SidebarItem
-          {...itemProps}
-          icon={<Banknote size={18} />}
-          title="Caixa"
-          to="/caixa"
-        />
-
-        <SidebarItem
-          {...itemProps}
-          icon={<Wallet size={18} />}
-          title="Contas a Pagar"
-          to="/contas-pagar"
-        />
-
-        <SidebarItem
-          {...itemProps}
-          icon={<HandCoins size={18} />}
-          title="Contas a Receber"
-          to="/contas-receber"
-        />
-
-        <SidebarItem
-          {...itemProps}
-          icon={<CreditCard size={18} />}
-          title="Cartões de Crédito"
-          to="/cartoes"
-        />
-
-        <SidebarItem
-          {...itemProps}
-          icon={<BarChart3 size={18} />}
-          title="Relatórios"
-          to="/relatorios"
-        />
+              <div className="sidebar-group-items">
+                {entry.items.map(item => (
+                  <SidebarItem
+                    key={item.to}
+                    {...itemProps}
+                    icon={item.icon}
+                    title={item.title}
+                    to={item.to}
+                  />
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </nav>
 
       <footer className="sidebar-footer">

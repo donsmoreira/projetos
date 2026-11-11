@@ -11,8 +11,8 @@ import { formatCityState } from "../../../utils/address";
 
 type SupplierTableProps = {
   suppliers: Supplier[];
-  onEdit: (supplier: Supplier) => void;
-  onDelete: (supplier: Supplier) => void;
+  onEdit?: (supplier: Supplier) => void;
+  onDelete?: (supplier: Supplier) => void;
 };
 
 function displayValue(
@@ -79,7 +79,8 @@ function SupplierTable({
               </td>
 
               <td className="suppliers-actions">
-                <button
+                <>{onEdit && (
+<button
                   type="button"
                   className="suppliers-action-button"
                   onClick={() => onEdit(supplier)}
@@ -88,8 +89,10 @@ function SupplierTable({
                 >
                   <Pencil size={16} />
                 </button>
+)}</>
 
-                <button
+                <>{onDelete && (
+<button
                   type="button"
                   className="suppliers-action-button suppliers-action-danger"
                   onClick={() => onDelete(supplier)}
@@ -98,6 +101,7 @@ function SupplierTable({
                 >
                   <Trash2 size={16} />
                 </button>
+)}</>
               </td>
             </tr>
           ))}

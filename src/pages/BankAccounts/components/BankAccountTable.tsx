@@ -11,8 +11,8 @@ import { formatAccountBank } from "../../../utils/bank";
 
 type BankAccountTableProps = {
   accounts: BankAccount[];
-  onEdit: (account: BankAccount) => void;
-  onDelete: (account: BankAccount) => void;
+  onEdit?: (account: BankAccount) => void;
+  onDelete?: (account: BankAccount) => void;
 };
 
 function displayValue(
@@ -102,7 +102,8 @@ function BankAccountTable({
               </td>
 
               <td className="bank-accounts-actions">
-                <button
+                <>{onEdit && (
+<button
                   type="button"
                   className="bank-accounts-action-button"
                   onClick={() => onEdit(account)}
@@ -111,8 +112,10 @@ function BankAccountTable({
                 >
                   <Pencil size={16} />
                 </button>
+)}</>
 
-                <button
+                <>{onDelete && (
+<button
                   type="button"
                   className="bank-accounts-action-button bank-accounts-action-danger"
                   onClick={() => onDelete(account)}
@@ -121,6 +124,7 @@ function BankAccountTable({
                 >
                   <Trash2 size={16} />
                 </button>
+)}</>
               </td>
             </tr>
             );

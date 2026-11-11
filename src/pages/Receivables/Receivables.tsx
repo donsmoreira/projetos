@@ -19,9 +19,13 @@ import ReceivableTable from "./components/ReceivableTable";
 import ReceivableModal from "./components/ReceivableModal";
 import ReceiptModal from "./components/ReceiptModal";
 
+import { usePermissions } from "../../hooks/useCompany";
+
 import "./Receivables.css";
 
 function Receivables() {
+  const permissions = usePermissions();
+
   const [receivables, setReceivables] =
     useState<Receivable[]>([]);
 
@@ -224,13 +228,15 @@ function Receivables() {
           </p>
         </div>
 
-        <button
+        {permissions.canCreate && (
+<button
           type="button"
           className="receivables-new-button"
           onClick={handleNewReceivable}
         >
           Nova conta
         </button>
+)}
       </section>
 
       <section className="receivables-content">
@@ -284,18 +290,10 @@ function Receivables() {
             receivables={
               filteredReceivables
             }
-            onEdit={
-              handleEditReceivable
-            }
-            onDelete={
-              handleDeleteReceivable
-            }
-            onReceive={
-              handleOpenReceipt
-            }
-            onReverse={
-              handleReverseReceipt
-            }
+            onEdit={permissions.canUpdate ? handleEditReceivable : undefined}
+            onDelete={permissions.canDelete ? handleDeleteReceivable : undefined}
+            onReceive={permissions.canSettle ? handleOpenReceipt : undefined}
+            onReverse={permissions.canSettle ? handleReverseReceipt : undefined}
           />
         )}
       </section>

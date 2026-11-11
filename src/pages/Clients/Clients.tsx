@@ -20,9 +20,13 @@ import SearchBar from "./components/SearchBar";
 import ClientTable from "./components/ClientTable";
 import ClientModal from "./components/ClientModal";
 
+import { usePermissions } from "../../hooks/useCompany";
+
 import "./Clients.css";
 
 function Clients() {
+  const permissions = usePermissions();
+
   const [clients, setClients] =
     useState<Client[]>([]);
 
@@ -165,13 +169,15 @@ function Clients() {
           </p>
         </div>
 
-        <button
+        {permissions.canCreate && (
+<button
           type="button"
           className="clients-new-button"
           onClick={handleNewClient}
         >
           Novo cliente
         </button>
+)}
       </section>
 
       <section className="clients-content">
@@ -223,8 +229,8 @@ function Clients() {
         {!loading && !errorMessage && (
           <ClientTable
             clients={filteredClients}
-            onEdit={handleEditClient}
-            onDelete={handleDeleteClient}
+            onEdit={permissions.canUpdate ? handleEditClient : undefined}
+            onDelete={permissions.canDelete ? handleDeleteClient : undefined}
           />
         )}
       </section>

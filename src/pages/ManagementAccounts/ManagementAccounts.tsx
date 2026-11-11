@@ -25,6 +25,8 @@ import {
   getDescendantIds
 } from "../../utils/accountTree";
 
+import { usePermissions } from "../../hooks/useCompany";
+
 import AccountTree from "./components/AccountTree";
 import AccountModal from "./components/AccountModal";
 
@@ -48,6 +50,8 @@ function getErrorMessage(error: unknown, fallback: string) {
 }
 
 function ManagementAccounts() {
+  const permissions = usePermissions();
+
   const [accounts, setAccounts] =
     useState<ManagementAccount[]>([]);
 
@@ -212,13 +216,15 @@ function ManagementAccounts() {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="accounts-new-button"
-          onClick={() => setModal({ account: null, parentId: null })}
-        >
-          Nova conta
-        </button>
+        {permissions.canCreate && (
+          <button
+            type="button"
+            className="accounts-new-button"
+            onClick={() => setModal({ account: null, parentId: null })}
+          >
+            Nova conta
+          </button>
+        )}
       </section>
 
       <section className="accounts-summary">
@@ -336,9 +342,9 @@ function ManagementAccounts() {
             collapsedIds={collapsedIds}
             forceExpanded={searching}
             onToggle={handleToggle}
-            onAddChild={handleAddChild}
-            onEdit={account => setModal({ account, parentId: account.parent_id })}
-            onDelete={handleDelete}
+            onAddChild={permissions.canCreate ? handleAddChild : undefined}
+            onEdit={permissions.canUpdate ? account => setModal({ account, parentId: account.parent_id }) : undefined}
+            onDelete={permissions.canDelete ? handleDelete : undefined}
           />
         )}
       </section>

@@ -1,0 +1,91 @@
+.onboarding {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.onboarding-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  padding-top: 16px;
+
+  border-top: 1px solid var(--border);
+}
+
+.onboarding-section:first-child {
+  padding-top: 0;
+  border-top: none;
+}
+
+.onboarding-section h2 {
+  margin: 0;
+
+  color: var(--text);
+
+  font-size: 15px;
+}
+
+.onboarding-hint {
+  margin: 0;
+
+  color: var(--text-light);
+
+  font-size: 12px;
+}
+
+.onboarding-companies {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.onboarding-companies li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.onboarding-companies span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.onboarding-companies small {
+  color: var(--text-light);
+  font-size: 11px;
+}
+
+.onboarding-small-button {
+  width: auto !important;
+  min-height: 34px !important;
+
+  padding: 0 16px !important;
+}
+
+.onboarding-link {
+  padding: 0;
+
+  border: none;
+  background: none;
+  color: var(--primary);
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+}

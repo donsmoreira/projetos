@@ -26,9 +26,9 @@ type AccountTreeProps = {
   collapsedIds: Set<string>;
   forceExpanded: boolean;
   onToggle: (id: string) => void;
-  onAddChild: (account: ManagementAccount) => void;
-  onEdit: (account: ManagementAccount) => void;
-  onDelete: (account: ManagementAccount) => void;
+  onAddChild?: (account: ManagementAccount) => void;
+  onEdit?: (account: ManagementAccount) => void;
+  onDelete?: (account: ManagementAccount) => void;
 };
 
 function AccountTree(props: AccountTreeProps) {
@@ -115,17 +115,20 @@ function AccountTreeRow({
         </div>
 
         <div className="account-actions">
-          <button
-            type="button"
-            className="account-action-button"
-            onClick={() => onAddChild(account)}
-            title="Nova subconta dentro desta"
-            aria-label={`Nova subconta dentro de ${account.name}`}
-          >
-            <Plus size={16} />
-          </button>
+          {onAddChild && (
+            <button
+              type="button"
+              className="account-action-button"
+              onClick={() => onAddChild(account)}
+              title="Nova subconta dentro desta"
+              aria-label={`Nova subconta dentro de ${account.name}`}
+            >
+              <Plus size={16} />
+            </button>
+          )}
 
-          <button
+          <>{onEdit && (
+<button
             type="button"
             className="account-action-button"
             onClick={() => onEdit(account)}
@@ -134,8 +137,10 @@ function AccountTreeRow({
           >
             <Pencil size={15} />
           </button>
+)}</>
 
-          <button
+          <>{onDelete && (
+<button
             type="button"
             className="account-action-button account-action-danger"
             onClick={() => onDelete(account)}
@@ -144,6 +149,7 @@ function AccountTreeRow({
           >
             <Trash2 size={15} />
           </button>
+)}</>
         </div>
       </div>
 

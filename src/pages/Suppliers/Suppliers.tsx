@@ -20,9 +20,13 @@ import SearchBar from "./components/SearchBar";
 import SupplierTable from "./components/SupplierTable";
 import SupplierModal from "./components/SupplierModal";
 
+import { usePermissions } from "../../hooks/useCompany";
+
 import "./Suppliers.css";
 
 function Suppliers() {
+  const permissions = usePermissions();
+
   const [suppliers, setSuppliers] =
     useState<Supplier[]>([]);
 
@@ -164,13 +168,15 @@ function Suppliers() {
           </p>
         </div>
 
-        <button
+        {permissions.canCreate && (
+<button
           type="button"
           className="suppliers-new-button"
           onClick={handleNewSupplier}
         >
           Novo fornecedor
         </button>
+)}
       </section>
 
       <section className="suppliers-content">
@@ -222,8 +228,8 @@ function Suppliers() {
         {!loading && !errorMessage && (
           <SupplierTable
             suppliers={filteredSuppliers}
-            onEdit={handleEditSupplier}
-            onDelete={handleDeleteSupplier}
+            onEdit={permissions.canUpdate ? handleEditSupplier : undefined}
+            onDelete={permissions.canDelete ? handleDeleteSupplier : undefined}
           />
         )}
       </section>

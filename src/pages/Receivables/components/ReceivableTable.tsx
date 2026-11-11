@@ -11,10 +11,10 @@ import type {
 
 type ReceivableTableProps = {
   receivables: Receivable[];
-  onEdit: (receivable: Receivable) => void;
-  onDelete: (receivable: Receivable) => void;
-  onReceive: (receivable: Receivable) => void;
-  onReverse: (receivable: Receivable) => void;
+  onEdit?: (receivable: Receivable) => void;
+  onDelete?: (receivable: Receivable) => void;
+  onReceive?: (receivable: Receivable) => void;
+  onReverse?: (receivable: Receivable) => void;
 };
 
 function formatCurrency(value: number) {
@@ -149,7 +149,8 @@ function ReceivableTable({
                 <td className="receivables-actions">
                   {isPending ? (
                     <>
-                      <button
+                      <>{onReceive && (
+<button
                         type="button"
                         className="receivables-action-button receivables-action-receive"
                         onClick={() =>
@@ -162,8 +163,10 @@ function ReceivableTable({
                           size={16}
                         />
                       </button>
+)}</>
 
-                      <button
+                      <>{onEdit && (
+<button
                         type="button"
                         className="receivables-action-button"
                         onClick={() =>
@@ -174,8 +177,10 @@ function ReceivableTable({
                       >
                         <Pencil size={16} />
                       </button>
+)}</>
 
-                      <button
+                      <>{onDelete && (
+<button
                         type="button"
                         className="receivables-action-button receivables-action-danger"
                         onClick={() =>
@@ -186,9 +191,11 @@ function ReceivableTable({
                       >
                         <Trash2 size={16} />
                       </button>
+)}</>
                     </>
                   ) : (
-                    <button
+                    <>{onReverse && (
+<button
                       type="button"
                       className="receivables-action-button receivables-action-reverse"
                       onClick={() =>
@@ -199,6 +206,7 @@ function ReceivableTable({
                     >
                       <RotateCcw size={16} />
                     </button>
+)}</>
                   )}
                 </td>
               </tr>

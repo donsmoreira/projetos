@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { translateCompanyError } from "./companyService";
 import { getAuthenticatedUser } from "./auth";
 
 import type {
@@ -38,7 +39,7 @@ export async function listBankAccounts(
     });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   const accounts = (data ?? []).map(normalizeAccount);
@@ -113,7 +114,7 @@ export async function createBankAccount(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return normalizeAccount(data);
@@ -142,7 +143,7 @@ export async function updateBankAccount(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return normalizeAccount(data);
@@ -157,7 +158,7 @@ export async function deleteBankAccount(
     .eq("id", id);
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 }
 
@@ -176,7 +177,7 @@ export async function listBankTransactions(
     });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return (data ?? []).map(transaction => ({
@@ -214,7 +215,7 @@ export async function createBankTransaction(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return {
@@ -233,7 +234,7 @@ export async function deleteBankTransaction(
     .eq("transaction_type", "manual");
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 }
 
@@ -262,7 +263,7 @@ export async function transferBetweenAccounts(
   );
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 }
 
@@ -279,6 +280,6 @@ export async function deleteTransfer(
     .eq("transaction_type", "transfer");
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 }

@@ -19,9 +19,13 @@ import PayableTable from "./components/PayablesTable";
 import PayableModal from "./components/PayablesModal";
 import PaymentModal from "./components/PaymentModal";
 
+import { usePermissions } from "../../hooks/useCompany";
+
 import "./Payables.css";
 
 function Payables() {
+  const permissions = usePermissions();
+
   const [payables, setPayables] =
     useState<Payable[]>([]);
 
@@ -215,13 +219,15 @@ function Payables() {
           </p>
         </div>
 
-        <button
+        {permissions.canCreate && (
+<button
           type="button"
           className="payables-new-button"
           onClick={handleNewPayable}
         >
           Nova conta
         </button>
+)}
       </section>
 
       <section className="payables-content">
@@ -273,10 +279,10 @@ function Payables() {
         {!loading && !errorMessage && (
           <PayableTable
             payables={filteredPayables}
-            onEdit={handleEditPayable}
-            onDelete={handleDeletePayable}
-            onPay={handleOpenPayment}
-            onReverse={handleReversePayment}
+            onEdit={permissions.canUpdate ? handleEditPayable : undefined}
+            onDelete={permissions.canDelete ? handleDeletePayable : undefined}
+            onPay={permissions.canSettle ? handleOpenPayment : undefined}
+            onReverse={permissions.canSettle ? handleReversePayment : undefined}
           />
         )}
       </section>

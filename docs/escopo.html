@@ -348,7 +348,6 @@ footer .wrap { padding-block: 24px; color: var(--muted); font-size: 13px; displa
         <div class="q"><h3>O que é “desktop”?</h3><p>Basta o app no navegador, instalável como PWA, ou precisa de um programa instalado (Tauri/Electron)?</p></div>
         <div class="q"><h3>Assessor no WhatsApp</h3><p>Já existe? Usa qual tecnologia (API oficial da Meta, Z-API, Evolution API)? Usa o mesmo Supabase?</p></div>
         <div class="q"><h3>Login único ARC</h3><p>Todos os produtos ARC vão compartilhar a mesma conta de usuário?</p></div>
-        <div class="q"><h3>Várias empresas</h3><p>Um usuário pode cuidar de mais de uma empresa ou carteira?</p></div>
         <div class="q"><h3>Planos e cobrança</h3><p>Vai ter limites por plano que o sistema precise controlar?</p></div>
         <div class="q"><h3>Agenda no banco</h3><p>A tabela de agendamentos com clientes é do Razão ou de outro produto ARC que usa o mesmo Supabase?</p></div>
       </div>
@@ -371,7 +370,11 @@ const modules = [
     ["Login com e-mail e senha", 1], ["Rotas protegidas", 1], ["Sair do sistema", 1],
     ["Criar conta com código no e-mail", 0.5, "tela pronta; falta o e-mail próprio (SMTP) no Supabase"],
     ["Esqueceu a senha (código no e-mail)", 0.5, "tela pronta; mesma dependência"],
-    ["Mensagens de erro em português", 1], ["Tela de perfil", 0] ] },
+    ["Mensagens de erro em português", 1], ["Meu perfil (nome, WhatsApp, CPF, endereço)", 1] ] },
+  { name: "Empresas e usuários", route: "/configuracoes", items: [
+    ["Multiempresa: cada empresa com seus próprios dados", 1], ["Multiusuário com permissões (admin, cadastrar, alterar, excluir, baixar)", 1],
+    ["Convite por código", 1], ["Minha empresa: CPF/CNPJ automático, regime tributário, endereço", 1],
+    ["Empresa no topo, com seletor", 1], ["Convite por e-mail", 0, "depende do SMTP"], ["Logo da empresa", 0] ] },
   { name: "Dashboard", route: "/", items: [
     ["Total a pagar e a receber", 1], ["Saldo em contas e no caixa", 1], ["Próximos vencimentos", 1], ["Saldo por conta bancária", 1],
     ["Limite usado nos cartões", 1], ["Contas vencidas em destaque", 0], ["Gráficos no painel", 0, "já existem em Relatórios"] ] },
@@ -404,7 +407,7 @@ const modules = [
     ["Filtros: conta, caixa, conta gerencial, fornecedor/cliente, origem", 1], ["Filtro e gráficos por estado e cidade", 1], ["Atalhos de período", 1],
     ["Fluxo de caixa projetado", 0], ["Exportar PDF/Excel", 0] ] },
   { name: "Visual e celular", route: "todas as telas", items: [
-    ["Identidade visual ARC", 1], ["Modo claro e escuro (chave no topo)", 1], ["Menu recolhível no computador", 1],
+    ["Identidade visual ARC", 1], ["Menu agrupado: Cadastros, Financeiro, Configurações", 1], ["Modo claro e escuro (chave no topo)", 1], ["Menu recolhível no computador", 1],
     ["Menu em gaveta no celular", 1], ["Páginas se ajustam em telas menores", 0.5],
     ["Tabelas no celular", 0.5, "precisam virar cartões"], ["Formulários em tela cheia no celular", 0], ["Instalar como app (PWA)", 0] ] }
 ];
@@ -428,7 +431,7 @@ const phases = [
     ["Painel", ["Contas vencidas e de hoje em destaque", "Gráficos no painel inicial"]],
     ["Relatórios", ["✓ Torres, curvas e pizza", "✓ Despesas e receitas por conta gerencial", "✓ Filtros amplos e atalhos de período", "Fluxo de caixa projetado", "Exportar PDF e Excel"]] ] },
   { n: 4, v: "v0.9.0", title: "Conta do usuário", desc: "Cadastro, senha e perfil", groups: [
-    ["Itens", ["✓ Criar conta e recuperar senha com código no e-mail", "E-mail próprio (SMTP) para os códigos chegarem a qualquer pessoa", "Minha empresa: cadastro da própria empresa ou pessoa (PF/PJ), base das notas fiscais", "Perfil com telefone/WhatsApp", "Várias empresas por usuário (a decidir)"]] ] },
+    ["Itens", ["✓ Criar conta e recuperar senha com código no e-mail", "E-mail próprio (SMTP) para os códigos chegarem a qualquer pessoa", "✓ Minha empresa: cadastro da própria empresa ou pessoa (PF/PJ), base das notas fiscais", "✓ Perfil com telefone/WhatsApp", "✓ Multiempresa e multiusuário com permissões e convite por código", "Convite por e-mail (depois do SMTP)"]] ] },
   { n: 5, v: "v1.0.0", title: "Qualidade e publicação", desc: "Beta com convidados e lançamento da 1.0", groups: [
     ["Itens", ["Testes automáticos (Vitest e Playwright)", "Checagem automática a cada mudança (CI)", "Publicar com ambiente de testes e de produção", "Monitorar erros"]],
     ["Lançamento", ["Beta com usuários convidados (1.0.0-beta.N)", "Versão candidata (1.0.0-rc)", "Lançamento da v1.0.0"]] ] },

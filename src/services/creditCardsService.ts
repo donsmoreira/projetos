@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { translateCompanyError } from "./companyService";
 import { getAuthenticatedUser } from "./auth";
 
 import type {
@@ -104,7 +105,7 @@ export async function listCreditCards(): Promise<
     });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return (data ?? []).map(
@@ -160,7 +161,7 @@ export async function createCreditCard(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return normalizeCreditCard(data);
@@ -211,7 +212,7 @@ export async function updateCreditCard(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return normalizeCreditCard(data);
@@ -232,6 +233,6 @@ export async function deleteCreditCard(
     .eq("id", id);
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 }

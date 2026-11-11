@@ -59,6 +59,25 @@
     align-items: center;
     padding: 16px 0;
   }
+
+  /* Recolhido: sem títulos de grupo, todos os ícones à mostra, com um traço entre os grupos */
+  .menu-collapsed .sidebar-group-header {
+    display: none;
+  }
+
+  .menu-collapsed .sidebar-group-items {
+    display: flex;
+
+    margin: 4px 0 0;
+    padding: 4px 0 0;
+
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .menu-collapsed .sidebar-group-items .sidebar-item {
+    min-height: 44px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -114,6 +133,84 @@
   gap: 4px;
 
   padding: 18px 14px;
+}
+
+/* Grupos com submenus (Cadastros, Financeiro, Configurações) */
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-group-header {
+  width: 100%;
+  min-height: 42px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 0 12px 0 14px;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  background: transparent;
+  color: var(--sidebar-text);
+
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 600;
+  text-align: left;
+
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.sidebar-group-header:hover {
+  background: var(--sidebar-hover);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.sidebar-group.has-current > .sidebar-group-header {
+  color: var(--primary);
+}
+
+.sidebar-group-header .sidebar-item-label {
+  flex: 1;
+}
+
+.sidebar-group-chevron {
+  flex-shrink: 0;
+
+  color: var(--text-muted);
+
+  transition: transform 0.2s;
+}
+
+.sidebar-group.is-open .sidebar-group-chevron {
+  transform: rotate(180deg);
+}
+
+.sidebar-group-items {
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+
+  margin-left: 14px;
+  padding-left: 8px;
+
+  border-left: 1px solid var(--border);
+}
+
+.sidebar-group.is-open .sidebar-group-items {
+  display: flex;
+}
+
+.sidebar-group-items .sidebar-item {
+  min-height: 38px;
+  font-size: 13px;
 }
 
 .sidebar-footer {

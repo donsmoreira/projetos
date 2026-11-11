@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { translateCompanyError } from "./companyService";
 import { getAuthenticatedUser } from "./auth";
 import { addMonthsToDate } from "../utils/date";
 
@@ -67,7 +68,7 @@ export async function listPayables(): Promise<Payable[]> {
     });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return (data ?? []).map(normalizePayable);
@@ -180,7 +181,7 @@ export async function createPayables(
     `);
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return (data ?? []).map(normalizePayable);
@@ -250,7 +251,7 @@ export async function updatePayable(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return normalizePayable(data);
@@ -266,7 +267,7 @@ export async function deletePayable(
     .eq("status", "pendente");
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 }
 
@@ -301,7 +302,7 @@ async function getPayable(
     .single();
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return normalizePayable(data);
@@ -326,7 +327,7 @@ export async function payPayable(
   });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return getPayable(payable.id);
@@ -344,7 +345,7 @@ export async function reversePayablePayment(
   });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(translateCompanyError(error.message));
   }
 
   return getPayable(payable.id);

@@ -7,6 +7,7 @@ import {
 
 import MainLayout from "../layouts/MainLayout/MainLayout";
 import ProtectedRoute from "./ProtectedRoute";
+import CompanyGate from "./CompanyGate";
 
 import Login from "../pages/Login/Login";
 import Signup from "../pages/Signup/Signup";
@@ -21,6 +22,10 @@ import CreditCards from "../pages/CreditCards/CreditCards";
 import Reports from "../pages/Reports/Reports";
 import ManagementAccounts from "../pages/ManagementAccounts/ManagementAccounts";
 import Cash from "../pages/Cash/Cash";
+import CompanySettings from "../pages/Settings/CompanySettings";
+import UsersSettings from "../pages/Settings/UsersSettings";
+import ProfileSettings from "../pages/Settings/ProfileSettings";
+import CompaniesSettings from "../pages/Settings/CompaniesSettings";
 
 function AppRoutes() {
   return (
@@ -42,6 +47,8 @@ function AppRoutes() {
         />
 
         <Route element={<ProtectedRoute />}>
+          {/* Só entra no sistema com uma empresa aberta */}
+          <Route element={<CompanyGate />}>
           <Route element={<MainLayout />}>
             <Route
               index
@@ -92,6 +99,32 @@ function AppRoutes() {
               path="relatorios"
               element={<Reports />}
             />
+
+            <Route
+              path="configuracoes"
+              element={<Navigate to="/configuracoes/empresa" replace />}
+            />
+
+            <Route
+              path="configuracoes/empresa"
+              element={<CompanySettings />}
+            />
+
+            <Route
+              path="configuracoes/usuarios"
+              element={<UsersSettings />}
+            />
+
+            <Route
+              path="configuracoes/perfil"
+              element={<ProfileSettings />}
+            />
+
+            <Route
+              path="configuracoes/empresas"
+              element={<CompaniesSettings />}
+            />
+          </Route>
           </Route>
         </Route>
 
