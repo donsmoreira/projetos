@@ -295,203 +295,83 @@ export async function deleteReceivable(
   }
 }
 
-export async function receiveReceivable(
-  receivable: Receivable,
-  bankAccount: ReceivableBankAccount,
-  receipt: ReceivableReceiptData
+/** Campos e ligações que as telas de contas a receber usam. */
+const RECEIVABLE_SELECT = `
+  *,
+  clients (
+    id,
+    name
+  ),
+  bank_accounts (
+    id,
+    name,
+    bank,
+    account_type
+  ),
+  management_accounts (
+    id,
+    name,
+    parent_id,
+    type
+  )
+`;
+
+async function getReceivable(
+  id: string
 ): Promise<Receivable> {
-  const user = await getAuthenticatedUser();
-
-  const receivedValue =
-    Math.abs(
-      Number(receipt.receivedValue || 0)
-    );
-
-  const {
-    data: transaction,
-    error: transactionError
-  } = await supabase
-    .from("bank_transactions")
-    .insert({
-      user_id:
-        user.id,
-
-      bank_account_id:
-        bankAccount.id,
-
-      receivable_id:
-        receivable.id,
-
-      transaction_date:
-        receipt.receiptDate,
-
-      description:
-        `Recebimento: ${receivable.description}`,
-
-      value:
-        receivedValue,
-
-      transaction_type:
-        "receivable_receipt",
-
-      reference_type:
-        "receivable",
-
-      reference_id:
-        receivable.id
-    })
-    .select()
-    .single();
-
-  if (transactionError) {
-    throw new Error(
-      transactionError.message
-    );
-  }
-
   const { data, error } = await supabase
     .from("receivables")
-    .update({
-      status:
-        "recebido",
-
-      payment_method:
-        bankAccount.account_type === "caixa"
-          ? "caixa"
-          : "banco",
-
-      payment_date:
-        receipt.receiptDate,
-
-      receipt_date:
-        receipt.receiptDate,
-
-      received_value:
-        receivedValue,
-
-      payment_notes:
-        receipt.receiptNotes || null,
-
-      bank_account_id:
-        bankAccount.id,
-
-      bank_transaction_id:
-        transaction.id,
-
-      updated_at:
-        new Date().toISOString()
-    })
-    .eq("id", receivable.id)
-    .eq("status", "pendente")
-    .select(`
-      *,
-      clients (
-        id,
-        name
-      ),
-      bank_accounts (
-        id,
-        name,
-        bank,
-        account_type
-      ),
-      management_accounts (
-        id,
-        name,
-        parent_id,
-        type
-      )
-    `)
+    .select(RECEIVABLE_SELECT)
+    .eq("id", id)
     .single();
 
   if (error) {
-    await supabase
-      .from("bank_transactions")
-      .delete()
-      .eq("id", transaction.id);
-
     throw new Error(error.message);
   }
 
   return normalizeReceivable(data);
 }
 
-export async function reverseReceivableReceipt(
-  receivable: Receivable
+/**
+ * Recebimento numa operação só, feito no banco (função receive_receivable):
+ * grava a entrada na conta/caixa e marca a conta como recebida juntos —
+ * ou nada muda, se der erro.
+ */
+export async function receiveReceivable(
+  receivable: Receivable,
+  bankAccount: ReceivableBankAccount,
+  receipt: ReceivableReceiptData
 ): Promise<Receivable> {
-  if (receivable.bank_transaction_id) {
-    const {
-      error: transactionError
-    } = await supabase
-      .from("bank_transactions")
-      .delete()
-      .eq(
-        "id",
-        receivable.bank_transaction_id
-      );
-
-    if (transactionError) {
-      throw new Error(
-        transactionError.message
-      );
-    }
-  }
-
-  const { data, error } = await supabase
-    .from("receivables")
-    .update({
-      status:
-        "pendente",
-
-      payment_method:
-        null,
-
-      payment_date:
-        null,
-
-      receipt_date:
-        null,
-
-      received_value:
-        null,
-
-      payment_notes:
-        null,
-
-      bank_account_id:
-        null,
-
-      bank_transaction_id:
-        null,
-
-      updated_at:
-        new Date().toISOString()
-    })
-    .eq("id", receivable.id)
-    .select(`
-      *,
-      clients (
-        id,
-        name
-      ),
-      bank_accounts (
-        id,
-        name,
-        bank,
-        account_type
-      ),
-      management_accounts (
-        id,
-        name,
-        parent_id,
-        type
-      )
-    `)
-    .single();
+  const { error } = await supabase.rpc("receive_receivable", {
+    p_receivable_id: receivable.id,
+    p_account_id: bankAccount.id,
+    p_date: receipt.receiptDate,
+    p_value: Math.abs(Number(receipt.receivedValue || 0)),
+    p_notes: receipt.receiptNotes || null
+  });
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return normalizeReceivable(data);
+  return getReceivable(receivable.id);
+}
+
+/**
+ * Estorno numa operação só, feito no banco (função reverse_receivable_receipt):
+ * apaga a entrada e volta a conta para pendente juntos. Se o dinheiro entrou
+ * no caixa e já foi gasto, o banco recusa e nada muda.
+ */
+export async function reverseReceivableReceipt(
+  receivable: Receivable
+): Promise<Receivable> {
+  const { error } = await supabase.rpc("reverse_receivable_receipt", {
+    p_receivable_id: receivable.id
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return getReceivable(receivable.id);
 }

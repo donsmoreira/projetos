@@ -270,197 +270,82 @@ export async function deletePayable(
   }
 }
 
-export async function payPayable(
-  payable: Payable,
-  bankAccount: PayableBankAccount,
-  payment: PayablePaymentData
+/** Campos e ligações que as telas de contas a pagar usam. */
+const PAYABLE_SELECT = `
+  *,
+  suppliers (
+    id,
+    name
+  ),
+  bank_accounts (
+    id,
+    name,
+    bank,
+    account_type
+  ),
+  management_accounts (
+    id,
+    name,
+    parent_id,
+    type
+  )
+`;
+
+async function getPayable(
+  id: string
 ): Promise<Payable> {
-  const user = await getAuthenticatedUser();
-
-  const paidValue =
-    Math.abs(
-      Number(payment.paidValue || 0)
-    );
-
-  const {
-    data: transaction,
-    error: transactionError
-  } = await supabase
-    .from("bank_transactions")
-    .insert({
-      user_id:
-        user.id,
-
-      bank_account_id:
-        bankAccount.id,
-
-      payable_id:
-        payable.id,
-
-      transaction_date:
-        payment.paymentDate,
-
-      description:
-        `Pagamento: ${payable.description}`,
-
-      value:
-        -paidValue,
-
-      transaction_type:
-        "payable_payment",
-
-      reference_type:
-        "payable",
-
-      reference_id:
-        payable.id
-    })
-    .select()
-    .single();
-
-  if (transactionError) {
-    throw new Error(
-      transactionError.message
-    );
-  }
-
   const { data, error } = await supabase
     .from("payables")
-    .update({
-      status:
-        "pago",
-
-      payment_method:
-        bankAccount.account_type === "caixa"
-          ? "caixa"
-          : "banco",
-
-      payment_date:
-        payment.paymentDate,
-
-      paid_value:
-        paidValue,
-
-      payment_notes:
-        payment.paymentNotes || null,
-
-      bank_account_id:
-        bankAccount.id,
-
-      bank_transaction_id:
-        transaction.id,
-
-      updated_at:
-        new Date().toISOString()
-    })
-    .eq("id", payable.id)
-    .eq("status", "pendente")
-    .select(`
-      *,
-      suppliers (
-        id,
-        name
-      ),
-      bank_accounts (
-        id,
-        name,
-        bank,
-        account_type
-      ),
-      management_accounts (
-        id,
-        name,
-        parent_id,
-        type
-      )
-    `)
+    .select(PAYABLE_SELECT)
+    .eq("id", id)
     .single();
 
   if (error) {
-    await supabase
-      .from("bank_transactions")
-      .delete()
-      .eq("id", transaction.id);
-
     throw new Error(error.message);
   }
 
   return normalizePayable(data);
 }
 
-export async function reversePayablePayment(
-  payable: Payable
+/**
+ * Pagamento numa operação só, feita no banco (função pay_payable):
+ * grava a saída na conta/caixa e marca a conta como paga juntos —
+ * ou nada muda, se der erro.
+ */
+export async function payPayable(
+  payable: Payable,
+  bankAccount: PayableBankAccount,
+  payment: PayablePaymentData
 ): Promise<Payable> {
-  if (payable.bank_transaction_id) {
-    const {
-      error: transactionError
-    } = await supabase
-      .from("bank_transactions")
-      .delete()
-      .eq(
-        "id",
-        payable.bank_transaction_id
-      );
-
-    if (transactionError) {
-      throw new Error(
-        transactionError.message
-      );
-    }
-  }
-
-  const { data, error } = await supabase
-    .from("payables")
-    .update({
-      status:
-        "pendente",
-
-      payment_method:
-        null,
-
-      payment_date:
-        null,
-
-      paid_value:
-        null,
-
-      payment_notes:
-        null,
-
-      bank_account_id:
-        null,
-
-      bank_transaction_id:
-        null,
-
-      updated_at:
-        new Date().toISOString()
-    })
-    .eq("id", payable.id)
-    .select(`
-      *,
-      suppliers (
-        id,
-        name
-      ),
-      bank_accounts (
-        id,
-        name,
-        bank,
-        account_type
-      ),
-      management_accounts (
-        id,
-        name,
-        parent_id,
-        type
-      )
-    `)
-    .single();
+  const { error } = await supabase.rpc("pay_payable", {
+    p_payable_id: payable.id,
+    p_account_id: bankAccount.id,
+    p_date: payment.paymentDate,
+    p_value: Math.abs(Number(payment.paidValue || 0)),
+    p_notes: payment.paymentNotes || null
+  });
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return normalizePayable(data);
+  return getPayable(payable.id);
+}
+
+/**
+ * Estorno numa operação só, feito no banco (função reverse_payable_payment):
+ * apaga a saída e volta a conta para pendente juntos.
+ */
+export async function reversePayablePayment(
+  payable: Payable
+): Promise<Payable> {
+  const { error } = await supabase.rpc("reverse_payable_payment", {
+    p_payable_id: payable.id
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return getPayable(payable.id);
 }

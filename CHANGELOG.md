@@ -20,6 +20,7 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 - Menu lateral recolhível, com botão à esquerda do título no topo. No computador, recolhe para uma faixa só com ícones (o nome aparece ao passar o mouse) e o conteúdo ocupa o espaço liberado; a escolha fica salva. No celular (até 768px), o menu vira uma gaveta que abre por cima da tela e fecha ao escolher uma tela, ao tocar no fundo escuro ou com Esc.
 
 ### Segurança
+- Pagamento, recebimento e os dois estornos agora são uma operação só, feita no banco de dados (`supabase/migrations/20261111_pagamentos_atomicos.sql`): o lançamento na conta/caixa e a mudança de status acontecem juntos, ou nada muda. A conta fica travada durante o pagamento, então cliques repetidos não pagam duas vezes. As telas continuam iguais.
 - Cabeçalhos de segurança no `vercel.json`: Content-Security-Policy (o site só carrega coisas dele mesmo, do Supabase e das fontes do Google, e não aceita script embutido), proibição de abrir o sistema dentro de outro site, HTTPS obrigatório (HSTS), `nosniff`, `Referrer-Policy` e `Permissions-Policy`.
 - O script que aplica o tema saiu de dentro do `index.html` para `public/theme-init.js`, para a regra acima poder bloquear scripts embutidos.
 - Ferramentas de desenvolvimento atualizadas com `npm audit fix` (Vite 8.3.7): as 5 vulnerabilidades altas foram resolvidas; sobram 10 moderadas só no ESLint.

@@ -241,7 +241,7 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 
 | # | Problema | Onde | Prioridade |
 |---|---|---|---|
-| D1 | Pagamento e estorno não são atômicos (duas operações separadas; se falhar no meio, os dados ficam inconsistentes) | `payablesService.ts`, `receivablesService.ts` | Alta |
+| D1 | ✅ **Resolvido em 11/11/2026.** Pagamento, recebimento e os dois estornos viraram funções no banco (`pay_payable`, `reverse_payable_payment`, `receive_receivable`, `reverse_receivable_receipt`): tudo ou nada, com trava contra pagamento em dobro | `supabase/migrations/20261111_pagamentos_atomicos.sql` | — |
 | D2 | Schema e RLS não versionados no repositório | — | Alta |
 | D3 | Projeto sem git | raiz | Alta |
 | D4 | Parcelas com vencimento no dia 29–31 "pulam" de mês (`setMonth`) | `createPayables` / `createReceivables` | Média |
@@ -305,7 +305,7 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [x] Corrigir a tela de Cartões para bater com o banco (D12) — código pronto
 - [x] Rodar `supabase/migrations/20261110_cartoes_e_politicas.sql` no Supabase (colunas dos cartões + remove políticas duplicadas D13)
 - [ ] Gerar tipos TypeScript a partir do schema (`supabase gen types`)
-- [ ] Mover pagamento, recebimento e estorno para funções no Postgres (RPC) com transação atômica (D1)
+- [x] Mover pagamento, recebimento e estorno para funções no Postgres (RPC) com transação atômica (D1) — `supabase/migrations/20261111_pagamentos_atomicos.sql`
 - [x] Corrigir cálculo de vencimento das parcelas (D4) — `src/utils/date.ts`
 - [x] Juntar `getAuthenticatedUser` num só lugar (`src/services/auth.ts`)
 - [ ] Unificar formatação de moeda/data e um SearchBar genérico (D7)
