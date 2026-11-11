@@ -349,6 +349,11 @@ function ForgotPassword() {
           />
         </div>
 
+        <p className="login-footer">
+          Entra com nome de usuário (sem e-mail)? Peça ao administrador da
+          empresa para trocar sua senha em Configurações → Usuários e permissões.
+        </p>
+
         {errorMessage && (
           <p className="login-error">
             {errorMessage}

@@ -17,6 +17,7 @@ import { useAuth } from "../../../../contexts/AuthContext";
 import { useCompany } from "../../../../hooks/useCompany";
 import { useTheme } from "../../../../hooks/useTheme";
 import { pageTitleFor } from "../Sidebar/menu";
+import { displayLogin } from "../../../../utils/username";
 
 import "./Topbar.css";
 
@@ -103,7 +104,7 @@ function Topbar({
 
   const userName =
     user?.user_metadata?.full_name ||
-    user?.email ||
+    displayLogin(user?.email) ||
     "Usuário";
 
   const userInitial =

@@ -15,6 +15,10 @@ import { supabase } from "../../services/supabase";
 import { useAuth } from "../../contexts/AuthContext";
 import AuthLayout from "../../components/AuthLayout/AuthLayout";
 import { translateAuthError } from "../../utils/authErrors";
+import {
+  isUsernameLogin,
+  loginToEmail
+} from "../../utils/username";
 
 function Login() {
   const {
@@ -46,15 +50,20 @@ function Login() {
     setEmailNotConfirmed(false);
     setSubmitting(true);
 
+    // Sem "@" é nome de usuário: vira o e-mail interno da conta
+    const byUsername = isUsernameLogin(email.trim());
+
     const { error } =
       await supabase.auth.signInWithPassword({
-        email: email.trim(),
+        email: loginToEmail(email),
         password
       });
 
     if (error) {
       setErrorMessage(
-        translateAuthError(error)
+        byUsername && /invalid login credentials/i.test(error.message)
+          ? "Usuário ou senha incorretos."
+          : translateAuthError(error)
       );
 
       setEmailNotConfirmed(
@@ -90,17 +99,19 @@ function Login() {
       >
         <div className="login-field">
           <label htmlFor="email">
-            E-mail
+            E-mail ou usuário
           </label>
 
           <input
             id="email"
-            type="email"
+            type="text"
             value={email}
             onChange={event =>
               setEmail(event.target.value)
             }
-            autoComplete="email"
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
             required
           />
         </div>

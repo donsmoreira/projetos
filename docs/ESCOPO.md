@@ -62,7 +62,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Cadastro de usuário | 🟡 | `pages/Signup`: e-mail + senha, conta ativada por código enviado ao e-mail. Depende de configurar o modelo de e-mail no Supabase |
 | Recuperação de senha | 🟡 | `pages/ForgotPassword`: código por e-mail + nova senha. Mesma dependência |
 | Perfil do usuário | ✅ | Configurações → Meu perfil: nome, telefone/WhatsApp, CPF, endereço |
-| Multiempresa e multiusuário | ✅ | empresas, membros com permissões por tela (administrador; em cada tela Ver, Cadastrar, Alterar, Excluir e Baixar em contas a pagar/receber; grade por grupo Geral / Cadastros / Financeiro com divisão Lançamentos), convite por código com a mesma grade; empresa aberta no topo com seletor |
+| Multiempresa e multiusuário | ✅ | empresas, membros com permissões por tela (administrador; em cada tela Ver, Cadastrar, Alterar, Excluir e Baixar em contas a pagar/receber; grade por grupo Geral / Cadastros / Financeiro com divisão Lançamentos), convite por código com a mesma grade; cadastro de usuário com nome de usuário e senha (empresas marcadas por caixinha, troca de senha pelo administrador; Edge Function `admin-users`); login por e-mail ou usuário; empresa aberta no topo com seletor |
 
 ### 3.2 Dashboard (`/`)
 | Item | Status | Observação |

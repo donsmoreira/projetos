@@ -28,6 +28,9 @@ import {
   sameModulePermissions
 } from "../../types/permissions";
 import PermissionMatrix from "./PermissionMatrix";
+import NewUserForm from "./NewUserForm";
+import UsernameAccountTools from "./UsernameAccountTools";
+import { displayLogin, isUsernameAccount } from "../../utils/username";
 
 import "./Settings.css";
 
@@ -133,7 +136,7 @@ function UsersSettings() {
     const self = member.userId === user?.id;
     const question = self
       ? "Deseja sair desta empresa? Você perde o acesso aos dados dela."
-      : `Remover ${member.fullName || member.email} desta empresa?`;
+      : `Remover ${member.fullName || displayLogin(member.email)} desta empresa?`;
 
     if (!window.confirm(question)) {
       return;
@@ -191,10 +194,16 @@ function UsersSettings() {
                   <div className="settings-member-row">
                     <span className="settings-user-cell">
                       <strong>
-                        {member.fullName || member.email}
+                        {member.fullName || displayLogin(member.email)}
                         {self ? " (você)" : ""}
                       </strong>
-                      {member.fullName && <small>{member.email}</small>}
+                      {member.fullName && (
+                        <small>
+                          {isUsernameAccount(member.email)
+                            ? `Usuário: ${displayLogin(member.email)}`
+                            : member.email}
+                        </small>
+                      )}
                       <small className="settings-member-summary">{describe(draft)}</small>
                     </span>
 
@@ -253,6 +262,17 @@ function UsersSettings() {
                       }
                     />
                   )}
+
+                  {open && isAdmin && !self && isUsernameAccount(member.email) && (
+                    <UsernameAccountTools
+                      member={member}
+                      permissions={draft}
+                      onDone={async message => {
+                        apply(await fetchAll());
+                        setInfoMessage(message);
+                      }}
+                    />
+                  )}
                 </li>
               );
             })}
@@ -266,8 +286,18 @@ function UsersSettings() {
       </section>
 
       {isAdmin && (
+        <NewUserForm
+          onCreated={async message => {
+            setErrorMessage("");
+            apply(await fetchAll());
+            setInfoMessage(message);
+          }}
+        />
+      )}
+
+      {isAdmin && (
         <section className="settings-card">
-          <h3>Convidar usuário</h3>
+          <h3>Convidar usuário com e-mail</h3>
           <p>
             Escolha o que a pessoa vai poder fazer e gere um código. Mande o código para ela (por
             WhatsApp, por exemplo). Ela entra com a conta dela e digita o código. Vale 7 dias e uma vez só.
