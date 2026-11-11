@@ -195,7 +195,7 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 | Cabeçalhos de segurança | ✅ `vercel.json`: Content-Security-Policy (só o próprio site, Supabase e Google Fonts; nada de script embutido), bloqueio de exibição dentro de outro site, HSTS, nosniff, Referrer-Policy, Permissions-Policy. O script do tema saiu do `index.html` para `public/theme-init.js` |
 | Ferramentas de desenvolvimento | 🟡 `npm audit fix`: as 5 altas resolvidas (Vite 8.3.7); sobram 10 moderadas só no ESLint, que exigiriam rebaixar versão |
 | E-mail dos códigos (SMTP) | ❌ o envio padrão do Supabase só chega a quem é da equipe do projeto. Para o teste: e-mail próprio (Resend/Brevo) ou criar a conta do testador à mão |
-| Cadastro público | ❌ aberto; fechar durante o teste (Authentication → Sign In / Providers) |
+| Cadastro público | ✅ fechado em 10/11/2026 ("Allow new users to sign up" desligado); contas de teste são criadas pelo painel |
 | Senha mínima no Supabase | ❓ conferir se está em 8 (igual à tela) e "Confirm email" ligado |
 | Verificação em duas etapas | ❓ ligar no Supabase, GitHub, Vercel e no e-mail |
 | Chaves estrangeiras entre usuários | 🟡 um cadastro poderia apontar para o fornecedor/conta de outro usuário; risco quase nulo (UUIDs) |
@@ -313,9 +313,10 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [x] Exibir a versão do app no rodapé do menu
 - [ ] Corrigir os avisos do lint (D11)
 - [ ] Levar a versão Vite para o repositório do GitHub, preservando a versão antiga em HTML como legado
-- [ ] Criar o projeto na Vercel ligado ao GitHub
+- [x] Criar o projeto na Vercel ligado ao GitHub — https://razao-finance-arc.vercel.app (time "Don's arc", plano Hobby; cada push na `main` publica sozinho)
 - [x] Criar `vercel.json` com rewrite para as rotas do BrowserRouter
-- [ ] Na Vercel, cadastrar `VITE_SUPABASE_PUBLISHABLE_KEY` (o nome antigo era `ANON_KEY`)
+- [x] Na Vercel, cadastrar `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` (o nome antigo era `ANON_KEY`)
+- [x] Supabase: Site URL = endereço da Vercel; Redirect URLs = Vercel e `http://localhost:5173`
 - [ ] Testar na tela cada módulo, principalmente Cartões e Relatórios
 
 ### Fase 1 — Responsividade e mobile · v0.3.0
