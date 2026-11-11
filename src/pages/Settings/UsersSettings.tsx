@@ -30,6 +30,7 @@ import {
 import PermissionMatrix from "./PermissionMatrix";
 import NewUserForm from "./NewUserForm";
 import MemberAccessTools from "./MemberAccessTools";
+import MemberNameField from "./MemberNameField";
 
 import "./Settings.css";
 
@@ -173,7 +174,7 @@ function UsersSettings() {
           <h2>Usuários e permissões</h2>
           <p>
             Quem tem acesso à empresa aberta e o que cada pessoa pode fazer em cada tela.
-            Clique em Permissões para abrir a grade de um usuário.
+            Clique em Editar para mudar o nome, as permissões, as empresas ou a senha de um usuário.
           </p>
         </div>
 
@@ -256,7 +257,7 @@ function UsersSettings() {
                           aria-expanded={open}
                           onClick={() => setOpenUser(open ? null : member.userId)}
                         >
-                          Permissões
+                          {isAdmin && !self ? "Editar" : "Permissões"}
                           <ChevronDown size={14} className="settings-chevron" />
                         </button>
                       )}
@@ -292,6 +293,17 @@ function UsersSettings() {
                       )}
                     </div>
                   </div>
+
+                  {open && isAdmin && !self && (
+                    <MemberNameField
+                      key={`${member.userId}-${member.fullName}`}
+                      member={member}
+                      onDone={async message => {
+                        apply(await fetchAll());
+                        setInfoMessage(message);
+                      }}
+                    />
+                  )}
 
                   {open && (
                     <PermissionMatrix

@@ -274,6 +274,18 @@ export async function updateMemberPermissions(
   }
 }
 
+/** Administrador muda o nome de um usuário da empresa aberta. */
+export async function updateMemberName(userId: string, fullName: string): Promise<void> {
+  const { error } = await supabase.rpc("update_member_name", {
+    p_user_id: userId,
+    p_full_name: fullName.trim()
+  });
+
+  if (error) {
+    fail(error);
+  }
+}
+
 export async function removeMember(userId: string): Promise<void> {
   const { error } = await supabase.rpc("remove_member", {
     p_user_id: userId
