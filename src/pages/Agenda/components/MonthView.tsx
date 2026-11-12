@@ -89,7 +89,7 @@ function MonthView({ cursor, appointments, colorOf, onOpen, onOpenDay, onCreate 
                 >
                   <span className="agenda-chip-dot" />
                   <span className="agenda-chip-time">{appointment.start_time}</span>
-                  <span className="agenda-chip-text">{appointment.clients?.name ?? appointment.title}</span>
+                  <span className="agenda-chip-text">{appointment.clients?.name ?? (appointment.title || "Compromisso")}</span>
                 </button>
               ))}
 

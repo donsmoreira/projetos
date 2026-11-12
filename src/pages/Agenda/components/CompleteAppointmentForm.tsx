@@ -27,7 +27,9 @@ function CompleteAppointmentForm({
   onSaved
 }: CompleteAppointmentFormProps) {
   const amount = appointment.amount ?? 0;
-  const canOffer = amount > 0 && !appointment.receivable_id && canCreateReceivable;
+  // Conta a receber precisa de cliente
+  const hasClient = Boolean(appointment.client_id);
+  const canOffer = amount > 0 && hasClient && !appointment.receivable_id && canCreateReceivable;
 
   const [createReceivable, setCreateReceivable] = useState(canOffer);
   const [dueDate, setDueDate] = useState(appointment.appointment_date);
@@ -62,7 +64,7 @@ function CompleteAppointmentForm({
 
       if (createReceivable) {
         const created = await createReceivables({
-          clientId: appointment.client_id,
+          clientId: appointment.client_id ?? "",
           description: description.trim() || "Atendimento",
           category: accountPath,
           managementAccountId: accountId,
@@ -90,7 +92,7 @@ function CompleteAppointmentForm({
   return (
     <form className="arc-form" onSubmit={handleSubmit}>
       <p className="agenda-complete-intro">
-        <strong>{appointment.clients?.name ?? "Cliente"}</strong> · {when}
+        <strong>{appointment.clients?.name ?? "Sem cliente"}</strong> · {when}
         {appointment.title ? ` · ${appointment.title}` : ""}
         {amount > 0 ? ` · ${formatMoney(amount)}` : ""}
       </p>
@@ -99,7 +101,13 @@ function CompleteAppointmentForm({
         <small className="arc-hint">A conta a receber deste atendimento já foi criada.</small>
       )}
 
-      {amount > 0 && !appointment.receivable_id && !canCreateReceivable && (
+      {amount > 0 && !hasClient && (
+        <small className="arc-hint">
+          Agendamento sem cliente: para gerar a conta a receber, edite o agendamento e escolha o cliente antes de concluir.
+        </small>
+      )}
+
+      {amount > 0 && hasClient && !appointment.receivable_id && !canCreateReceivable && (
         <small className="arc-hint">
           Você não tem permissão para cadastrar em Contas a Receber; o atendimento será só concluído.
         </small>

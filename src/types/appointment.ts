@@ -18,7 +18,8 @@ export const BUSY_STATUSES: AppointmentStatus[] = ["agendado", "confirmado", "co
 
 export interface Appointment {
   id: string;
-  client_id: string;
+  /** Opcional: compromisso sem cliente */
+  client_id: string | null;
   /** Serviço ou assunto */
   title: string;
   /** "AAAA-MM-DD" */

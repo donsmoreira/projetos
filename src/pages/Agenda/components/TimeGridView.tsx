@@ -114,10 +114,10 @@ function TimeGridView({ days, appointments, colorOf, nameOf, onOpen, onCreate }:
                     }}
                     title={`${appointment.start_time}–${appointment.end_time} · ${appointment.clients?.name ?? ""} · ${appointment.title} · ${nameOf(appointment.responsible_id)} · ${APPOINTMENT_STATUS_LABELS[appointment.status]}`}
                   >
-                    <strong>{appointment.clients?.name ?? "Cliente"}</strong>
+                    <strong>{appointment.clients?.name ?? (appointment.title || "Compromisso")}</strong>
                     <span>
                       {appointment.start_time}–{appointment.end_time}
-                      {appointment.title ? ` · ${appointment.title}` : ""}
+                      {appointment.clients && appointment.title ? ` · ${appointment.title}` : ""}
                     </span>
                     {minutes(appointment.end_time) - minutes(appointment.start_time) >= 45 && (
                       <small>{nameOf(appointment.responsible_id)}</small>

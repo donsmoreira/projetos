@@ -48,7 +48,7 @@ function formFrom(
 ): AppointmentFormData {
   if (appointment) {
     return {
-      clientId: appointment.client_id,
+      clientId: appointment.client_id ?? "",
       title: appointment.title,
       date: appointment.appointment_date,
       startTime: appointment.start_time,
@@ -138,8 +138,9 @@ function AppointmentForm({
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!form.clientId) {
-      setErrorMessage("Escolha o cliente.");
+    // Cliente é opcional; sem cliente, precisa pelo menos do assunto
+    if (!form.clientId && !form.title.trim()) {
+      setErrorMessage("Escolha o cliente ou informe o serviço / assunto.");
       return;
     }
 
@@ -230,14 +231,13 @@ function AppointmentForm({
 
       <fieldset disabled={!editable || submitting} className="agenda-fieldset">
         <div className="arc-field">
-          <label htmlFor="appointment-client">Cliente</label>
+          <label htmlFor="appointment-client">Cliente (opcional)</label>
           <select
             id="appointment-client"
             value={form.clientId}
             onChange={event => update("clientId", event.target.value)}
-            required
           >
-            <option value="">{clients.length === 0 ? "Nenhum cliente cadastrado" : "Escolha o cliente"}</option>
+            <option value="">Sem cliente</option>
             {clients.map(client => (
               <option key={client.id} value={client.id}>
                 {client.name}{client.phone ? ` · ${client.phone}` : ""}
@@ -370,8 +370,8 @@ function AppointmentForm({
           <ul>
             {conflicts.map(item => (
               <li key={item.id}>
-                {item.start_time}–{item.end_time} · {item.clients?.name ?? "Cliente"}
-                {item.title ? ` · ${item.title}` : ""} ({APPOINTMENT_STATUS_LABELS[item.status]})
+                {item.start_time}–{item.end_time} · {item.clients?.name ?? item.title ?? "Sem cliente"}
+                {item.clients && item.title ? ` · ${item.title}` : ""} ({APPOINTMENT_STATUS_LABELS[item.status]})
               </li>
             ))}
           </ul>

@@ -291,7 +291,7 @@ function Agenda() {
       {modal?.kind === "form" && (
         <Modal
           title={modal.appointment ? "Agendamento" : "Novo agendamento"}
-          subtitle={modal.appointment?.clients?.name ?? "Cliente, horário e responsável"}
+          subtitle={modal.appointment ? modal.appointment.clients?.name ?? (modal.appointment.title || "Sem cliente") : "Cliente (opcional), horário e responsável"}
           onClose={() => setModal(null)}
         >
           <AppointmentForm

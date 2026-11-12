@@ -33,7 +33,7 @@ function normalize(row: Record<string, unknown>): Appointment {
 
 function toRow(form: AppointmentFormData) {
   return {
-    client_id: form.clientId,
+    client_id: form.clientId || null,
     title: form.title.trim(),
     appointment_date: form.date,
     start_time: form.startTime,

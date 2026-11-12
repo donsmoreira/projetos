@@ -51,9 +51,9 @@ function ListView({ appointments, colorOf, nameOf, onOpen }: ListViewProps) {
                 </span>
 
                 <span className="agenda-list-main">
-                  <strong>{appointment.clients?.name ?? "Cliente"}</strong>
+                  <strong>{appointment.clients?.name ?? (appointment.title || "Compromisso")}</strong>
                   <small>
-                    {appointment.title || "Sem assunto"} · {nameOf(appointment.responsible_id)}
+                    {appointment.clients ? appointment.title || "Sem assunto" : "Sem cliente"} · {nameOf(appointment.responsible_id)}
                   </small>
                 </span>
 
