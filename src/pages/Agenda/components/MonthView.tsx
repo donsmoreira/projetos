@@ -1,5 +1,6 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import type { Appointment } from "../../../types/appointment";
+import type { DragPreview } from "../useAppointmentDrag";
 import {
   WEEKDAYS_SHORT,
   addDays,
@@ -14,12 +15,26 @@ type MonthViewProps = {
   onOpen: (appointment: Appointment) => void;
   onOpenDay: (date: Date) => void;
   onCreate?: (date: string) => void;
+  /** Arrastar para outro dia */
+  dragPreview: DragPreview | null;
+  onDragStart?: (event: ReactPointerEvent<HTMLElement>, appointment: Appointment) => void;
+  consumeClick: () => boolean;
 };
 
 const MAX_PER_DAY = 3;
 
 /** Calendário do mês: até 3 horários por dia e "+N" para ver o dia todo. */
-function MonthView({ cursor, appointments, colorOf, onOpen, onOpenDay, onCreate }: MonthViewProps) {
+function MonthView({
+  cursor,
+  appointments,
+  colorOf,
+  onOpen,
+  onOpenDay,
+  onCreate,
+  dragPreview,
+  onDragStart,
+  consumeClick
+}: MonthViewProps) {
   const start = monthGridStart(cursor);
   const today = toISO(new Date());
   const byDate = new Map<string, Appointment[]>();
@@ -49,9 +64,15 @@ function MonthView({ cursor, appointments, colorOf, onOpen, onOpenDay, onCreate 
             className={[
               "agenda-month-cell",
               otherMonth ? "is-other-month" : "",
-              iso === today ? "is-today" : ""
+              iso === today ? "is-today" : "",
+              dragPreview?.targetDate === iso ? "is-drop-target" : ""
             ].join(" ")}
-            onClick={() => onCreate?.(iso)}
+            data-drop-date={iso}
+            onClick={() => {
+              if (!consumeClick()) {
+                onCreate?.(iso);
+              }
+            }}
             role={onCreate ? "button" : undefined}
             tabIndex={onCreate ? 0 : undefined}
             onKeyDown={event => {
@@ -79,11 +100,20 @@ function MonthView({ cursor, appointments, colorOf, onOpen, onOpenDay, onCreate 
                 <button
                   key={appointment.id}
                   type="button"
-                  className={`agenda-chip is-${appointment.status}`}
+                  className={[
+                    "agenda-chip",
+                    `is-${appointment.status}`,
+                    onDragStart ? "is-draggable" : "",
+                    dragPreview?.appointmentId === appointment.id ? "is-dragging" : ""
+                  ].join(" ")}
                   style={{ "--chip-color": colorOf(appointment.responsible_id) } as CSSProperties}
+                  onPointerDown={onDragStart ? event => onDragStart(event, appointment) : undefined}
+                  onContextMenu={onDragStart ? event => event.preventDefault() : undefined}
                   onClick={event => {
                     event.stopPropagation();
-                    onOpen(appointment);
+                    if (!consumeClick()) {
+                      onOpen(appointment);
+                    }
                   }}
                   title={`${appointment.start_time} · ${appointment.clients?.name ?? ""} · ${appointment.title}`}
                 >

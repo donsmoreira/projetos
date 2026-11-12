@@ -6,11 +6,17 @@ import { CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
 import Modal from "../../components/Modal/Modal";
 import { useAuth } from "../../contexts/AuthContext";
 import { useCompany, usePermissions } from "../../hooks/useCompany";
-import { listAppointments } from "../../services/appointmentsService";
+import {
+  findConflicts,
+  listAppointments,
+  updateAppointment
+} from "../../services/appointmentsService";
 import { listClients } from "../../services/clientsService";
 import { listCompanyMembers } from "../../services/companyService";
 
-import type { Appointment } from "../../types/appointment";
+import type { Appointment, AppointmentFormData } from "../../types/appointment";
+import { APPOINTMENT_STATUS_LABELS } from "../../types/appointment";
+import { useAppointmentDrag } from "./useAppointmentDrag";
 import type { Client } from "../../types/client";
 
 import AppointmentForm from "./components/AppointmentForm";
@@ -23,6 +29,8 @@ import {
   VIEW_LABELS,
   addDays,
   colorFor,
+  minutes,
+  timeFrom,
   rangeFor,
   shift,
   startOfWeek,
@@ -149,6 +157,68 @@ function Agenda() {
     [members]
   );
 
+  /** Soltou o agendamento em outro dia/horário: confere conflito e salva */
+  const moveAppointment = useCallback(async (
+    appointment: Appointment,
+    date: string,
+    startMinutes: number | null
+  ) => {
+    const duration = minutes(appointment.end_time) - minutes(appointment.start_time);
+    const start = startMinutes ?? minutes(appointment.start_time);
+    const startTime = timeFrom(start);
+    const endTime = timeFrom(start + duration);
+
+    if (date === appointment.appointment_date && startTime === appointment.start_time) {
+      return;
+    }
+
+    const form: AppointmentFormData = {
+      clientId: appointment.client_id ?? "",
+      title: appointment.title,
+      date,
+      startTime,
+      endTime,
+      amount: appointment.amount ?? 0,
+      responsibleId: appointment.responsible_id ?? "",
+      status: appointment.status,
+      notes: appointment.notes ?? ""
+    };
+
+    try {
+      if (appointment.status !== "cancelado" && appointment.status !== "faltou") {
+        const conflicts = await findConflicts(form, appointment.id);
+
+        if (conflicts.length > 0) {
+          const list = conflicts
+            .map(item => `• ${item.start_time}–${item.end_time} ${item.clients?.name ?? item.title ?? ""} (${APPOINTMENT_STATUS_LABELS[item.status]})`)
+            .join("\n");
+          const who = members.find(member => member.userId === appointment.responsible_id)?.name ?? "O responsável";
+
+          if (!window.confirm(`${who} já tem horário neste período:\n${list}\n\nMover mesmo assim?`)) {
+            return;
+          }
+        }
+      }
+
+      // Mostra já no lugar novo enquanto salva
+      setAppointments(current => current.map(item =>
+        item.id === appointment.id
+          ? { ...item, appointment_date: date, start_time: startTime, end_time: endTime }
+          : item
+      ));
+
+      await updateAppointment(appointment.id, form);
+      await load();
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : "Não foi possível mover o agendamento.");
+      await load().catch(() => undefined);
+    }
+  }, [members, load]);
+
+  const drag = useAppointmentDrag(permissions.canUpdate, (appointment, date, start) => {
+    void moveAppointment(appointment, date, start);
+  });
+
   const visible = responsibleFilter
     ? appointments.filter(item => item.responsible_id === responsibleFilter)
     : appointments;
@@ -269,6 +339,9 @@ function Agenda() {
             changeView("dia");
           }}
           onCreate={permissions.canCreate ? date => openNew(date) : undefined}
+          dragPreview={drag.preview}
+          onDragStart={permissions.canUpdate ? drag.startDrag : undefined}
+          consumeClick={drag.consumeClick}
         />
       ) : view === "lista" ? (
         <ListView
@@ -285,6 +358,9 @@ function Agenda() {
           nameOf={nameOf}
           onOpen={appointment => setModal({ kind: "form", appointment, date: "", time: "" })}
           onCreate={permissions.canCreate ? (date, time) => openNew(date, time) : undefined}
+          dragPreview={drag.preview}
+          onDragStart={permissions.canUpdate ? drag.startDrag : undefined}
+          consumeClick={drag.consumeClick}
         />
       )}
 

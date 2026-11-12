@@ -1,4 +1,5 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
+import type { DragPreview } from "../useAppointmentDrag";
 import { useEffect, useRef } from "react";
 
 import type { Appointment } from "../../../types/appointment";
@@ -22,13 +23,27 @@ type TimeGridViewProps = {
   nameOf: (responsibleId: string | null) => string;
   onOpen: (appointment: Appointment) => void;
   onCreate?: (date: string, time: string) => void;
+  /** Arrastar para outro dia/horário */
+  dragPreview: DragPreview | null;
+  onDragStart?: (event: ReactPointerEvent<HTMLElement>, appointment: Appointment) => void;
+  consumeClick: () => boolean;
 };
 
 const HOURS = Array.from({ length: LAST_HOUR - FIRST_HOUR }, (_, index) => FIRST_HOUR + index);
 const TOTAL_PX = (LAST_HOUR - FIRST_HOUR) * HOUR_PX;
 
 /** Linha do tempo de um ou mais dias, com os horários posicionados pela hora. */
-function TimeGridView({ days, appointments, colorOf, nameOf, onOpen, onCreate }: TimeGridViewProps) {
+function TimeGridView({
+  days,
+  appointments,
+  colorOf,
+  nameOf,
+  onOpen,
+  onCreate,
+  dragPreview,
+  onDragStart,
+  consumeClick
+}: TimeGridViewProps) {
   const today = toISO(new Date());
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -75,9 +90,11 @@ function TimeGridView({ days, appointments, colorOf, nameOf, onOpen, onCreate }:
             return (
               <div
                 key={iso}
-                className="agenda-grid-column"
+                className={`agenda-grid-column ${dragPreview?.targetDate === iso ? "is-drop-target" : ""}`}
+                data-drop-date={iso}
+                data-drop-grid=""
                 onClick={event => {
-                  if (!onCreate) {
+                  if (consumeClick() || !onCreate) {
                     return;
                   }
 
@@ -96,11 +113,30 @@ function TimeGridView({ days, appointments, colorOf, nameOf, onOpen, onCreate }:
                   <div className="agenda-grid-now" style={{ top: nowTop }} />
                 )}
 
+                {dragPreview?.targetDate === iso && dragPreview.targetStart !== null && (
+                  <div
+                    className="agenda-drop-ghost"
+                    style={{
+                      top: ((dragPreview.targetStart - FIRST_HOUR * 60) / 60) * HOUR_PX,
+                      height: Math.max((dragPreview.duration / 60) * HOUR_PX, 20)
+                    }}
+                  >
+                    {timeFrom(dragPreview.targetStart)}–{timeFrom(dragPreview.targetStart + dragPreview.duration)}
+                  </div>
+                )}
+
                 {items.map(({ appointment, top, height, lane, lanes }) => (
                   <button
                     key={appointment.id}
                     type="button"
-                    className={`agenda-event is-${appointment.status}`}
+                    className={[
+                      "agenda-event",
+                      `is-${appointment.status}`,
+                      onDragStart ? "is-draggable" : "",
+                      dragPreview?.appointmentId === appointment.id ? "is-dragging" : ""
+                    ].join(" ")}
+                    onPointerDown={onDragStart ? event => onDragStart(event, appointment) : undefined}
+                    onContextMenu={onDragStart ? event => event.preventDefault() : undefined}
                     style={{
                       top: Math.min(Math.max(top, 0), TOTAL_PX - 20),
                       height,
@@ -110,7 +146,9 @@ function TimeGridView({ days, appointments, colorOf, nameOf, onOpen, onCreate }:
                     } as CSSProperties}
                     onClick={event => {
                       event.stopPropagation();
-                      onOpen(appointment);
+                      if (!consumeClick()) {
+                        onOpen(appointment);
+                      }
                     }}
                     title={`${appointment.start_time}–${appointment.end_time} · ${appointment.clients?.name ?? ""} · ${appointment.title} · ${nameOf(appointment.responsible_id)} · ${APPOINTMENT_STATUS_LABELS[appointment.status]}`}
                   >
