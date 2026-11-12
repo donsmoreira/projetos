@@ -1,6 +1,8 @@
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import type { Appointment } from "../../../types/appointment";
 import type { DragPreview } from "../useAppointmentDrag";
+import type { AgendaDue } from "../../../services/agendaDuesService";
+import DueChip from "./DueChip";
 import {
   WEEKDAYS_SHORT,
   addDays,
@@ -11,6 +13,9 @@ import {
 type MonthViewProps = {
   cursor: Date;
   appointments: Appointment[];
+  /** Vencimentos de contas a pagar/receber */
+  dues: AgendaDue[];
+  onOpenDue: (due: AgendaDue) => void;
   onOpen: (appointment: Appointment) => void;
   onOpenDay: (date: Date) => void;
   onCreate?: (date: string) => void;
@@ -26,6 +31,8 @@ const MAX_PER_DAY = 3;
 function MonthView({
   cursor,
   appointments,
+  dues,
+  onOpenDue,
   onOpen,
   onOpenDay,
   onCreate,
@@ -43,6 +50,14 @@ function MonthView({
     byDate.set(appointment.appointment_date, list);
   }
 
+  const duesByDate = new Map<string, AgendaDue[]>();
+
+  for (const due of dues) {
+    const list = duesByDate.get(due.dueDate) ?? [];
+    list.push(due);
+    duesByDate.set(due.dueDate, list);
+  }
+
   const days = Array.from({ length: 42 }, (_, index) => addDays(start, index));
 
   return (
@@ -54,6 +69,11 @@ function MonthView({
       {days.map(day => {
         const iso = toISO(day);
         const list = byDate.get(iso) ?? [];
+        const dayDues = duesByDate.get(iso) ?? [];
+        // Vencimentos primeiro; o que sobrar das 3 linhas vai para os agendamentos
+        const shownDues = dayDues.slice(0, MAX_PER_DAY);
+        const shownAppointments = list.slice(0, MAX_PER_DAY - shownDues.length);
+        const hidden = dayDues.length + list.length - shownDues.length - shownAppointments.length;
         const otherMonth = day.getMonth() !== cursor.getMonth();
 
         return (
@@ -94,7 +114,11 @@ function MonthView({
             </button>
 
             <div className="agenda-month-items">
-              {list.slice(0, MAX_PER_DAY).map(appointment => (
+              {shownDues.map(due => (
+                <DueChip key={due.key} due={due} onOpen={onOpenDue} />
+              ))}
+
+              {shownAppointments.map(appointment => (
                 <button
                   key={appointment.id}
                   type="button"
@@ -122,7 +146,7 @@ function MonthView({
                 </button>
               ))}
 
-              {list.length > MAX_PER_DAY && (
+              {hidden > 0 && (
                 <button
                   type="button"
                   className="agenda-month-more"
@@ -131,7 +155,7 @@ function MonthView({
                     onOpenDay(day);
                   }}
                 >
-                  + {list.length - MAX_PER_DAY} mais
+                  + {hidden} mais
                 </button>
               )}
             </div>

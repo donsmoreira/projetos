@@ -1,5 +1,7 @@
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import type { DragPreview } from "../useAppointmentDrag";
+import type { AgendaDue } from "../../../services/agendaDuesService";
+import DueChip from "./DueChip";
 import { useEffect, useRef } from "react";
 
 import type { Appointment } from "../../../types/appointment";
@@ -19,6 +21,9 @@ type TimeGridViewProps = {
   /** 1 dia (visão Dia) ou 7 dias (visão Semana) */
   days: Date[];
   appointments: Appointment[];
+  /** Vencimentos de contas a pagar/receber (faixa do dia inteiro) */
+  dues: AgendaDue[];
+  onOpenDue: (due: AgendaDue) => void;
   nameOf: (responsibleId: string | null) => string;
   onOpen: (appointment: Appointment) => void;
   onCreate?: (date: string, time: string) => void;
@@ -35,6 +40,8 @@ const TOTAL_PX = (LAST_HOUR - FIRST_HOUR) * HOUR_PX;
 function TimeGridView({
   days,
   appointments,
+  dues,
+  onOpenDue,
   nameOf,
   onOpen,
   onCreate,
@@ -70,6 +77,24 @@ function TimeGridView({
           );
         })}
       </div>
+
+      {dues.some(due => days.some(day => toISO(day) === due.dueDate)) && (
+        <div className="agenda-grid-allday">
+          <div className="agenda-grid-allday-label">Venc.</div>
+          {days.map(day => {
+            const iso = toISO(day);
+            return (
+              <div key={iso} className="agenda-grid-allday-cell">
+                {dues
+                  .filter(due => due.dueDate === iso)
+                  .map(due => (
+                    <DueChip key={due.key} due={due} onOpen={onOpenDue} detailed={days.length === 1} />
+                  ))}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       <div className="agenda-grid-scroll" ref={scrollRef}>
         <div className="agenda-grid-body" style={{ height: TOTAL_PX }}>

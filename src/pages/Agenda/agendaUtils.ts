@@ -184,3 +184,9 @@ export function formatMoney(value: number | null): string {
 
   return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
+
+/** Vencimentos na agenda: a receber em verde; a pagar em vermelho */
+export const DUE_COLORS = {
+  receber: "#0b8043",
+  pagar: "#d93025"
+} as const;

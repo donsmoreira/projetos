@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
 
 import Modal from "../../components/Modal/Modal";
 import { useAuth } from "../../contexts/AuthContext";
@@ -11,6 +11,9 @@ import {
   updateAppointment
 } from "../../services/appointmentsService";
 import { listClients } from "../../services/clientsService";
+import { listAgendaDues } from "../../services/agendaDuesService";
+import type { AgendaDue } from "../../services/agendaDuesService";
+import DueDetails from "./components/DueDetails";
 import { listCompanyMembers } from "../../services/companyService";
 
 import type { Appointment, AppointmentFormData } from "../../types/appointment";
@@ -41,6 +44,17 @@ import "../Cash/Cash.css";
 import "./Agenda.css";
 
 const VIEW_KEY = "arc-agenda-visao";
+const DUES_KEY = "arc-agenda-vencimentos";
+
+/** Mostrar a pagar / a receber (lembrado neste navegador; os dois ligados por padrão) */
+function savedDueToggles(): { pagar: boolean; receber: boolean } {
+  try {
+    const value = JSON.parse(localStorage.getItem(DUES_KEY) ?? "null") as { pagar?: boolean; receber?: boolean } | null;
+    return { pagar: value?.pagar ?? true, receber: value?.receber ?? true };
+  } catch {
+    return { pagar: true, receber: true };
+  }
+}
 
 function savedView(): AgendaView {
   try {
@@ -54,6 +68,7 @@ function savedView(): AgendaView {
 type ModalState =
   | { kind: "form"; appointment: Appointment | null; date: string; time: string }
   | { kind: "complete"; appointment: Appointment }
+  | { kind: "due"; due: AgendaDue }
   | null;
 
 function today() {
@@ -67,6 +82,7 @@ function Agenda() {
   const { active } = useCompany();
   const permissions = usePermissions("agenda");
   const receivablePermissions = usePermissions("contas_receber");
+  const payablePermissions = usePermissions("contas_pagar");
   const companyId = active?.company.id ?? "";
 
   // Abre no mês (ou na última visão escolhida neste navegador)
@@ -79,6 +95,12 @@ function Agenda() {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [modal, setModal] = useState<ModalState>(null);
+  const [dues, setDues] = useState<AgendaDue[]>([]);
+  const [dueToggles, setDueToggles] = useState(savedDueToggles);
+
+  // Vencimentos só de quem pode ver aquela tela, e só se estiverem ligados
+  const showPayables = payablePermissions.canView && dueToggles.pagar;
+  const showReceivables = receivablePermissions.canView && dueToggles.receber;
 
   const range = rangeFor(view, cursor);
   const startISO = toISO(range.start);
@@ -114,6 +136,47 @@ function Agenda() {
       active = false;
     };
   }, [startISO, endISO]);
+
+  // Contas a pagar/receber pelo vencimento
+  useEffect(() => {
+    let active = true;
+
+    if (!showPayables && !showReceivables) {
+      return;
+    }
+
+    listAgendaDues(startISO, endISO, { payables: showPayables, receivables: showReceivables })
+      .then(data => {
+        if (active) {
+          setDues(data);
+        }
+      })
+      .catch(() => {
+        // Sem os vencimentos a agenda continua funcionando
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [startISO, endISO, showPayables, showReceivables]);
+
+  const visibleDues = dues.filter(due =>
+    due.kind === "pagar" ? showPayables : showReceivables
+  );
+
+  function toggleDues(kind: "pagar" | "receber") {
+    setDueToggles(current => {
+      const next = { ...current, [kind]: !current[kind] };
+
+      try {
+        localStorage.setItem(DUES_KEY, JSON.stringify(next));
+      } catch {
+        // só não lembra
+      }
+
+      return next;
+    });
+  }
 
   useEffect(() => {
     let active = true;
@@ -273,6 +336,33 @@ function Agenda() {
             ))}
           </select>
 
+          {(payablePermissions.canView || receivablePermissions.canView) && (
+            <div className="agenda-due-toggles" aria-label="Vencimentos na agenda">
+              {receivablePermissions.canView && (
+                <button
+                  type="button"
+                  className={`agenda-due-toggle is-receber ${dueToggles.receber ? "is-on" : ""}`}
+                  aria-pressed={dueToggles.receber}
+                  onClick={() => toggleDues("receber")}
+                  title="Mostrar ou esconder as contas a receber"
+                >
+                  <ArrowDownLeft size={14} /> A receber
+                </button>
+              )}
+              {payablePermissions.canView && (
+                <button
+                  type="button"
+                  className={`agenda-due-toggle is-pagar ${dueToggles.pagar ? "is-on" : ""}`}
+                  aria-pressed={dueToggles.pagar}
+                  onClick={() => toggleDues("pagar")}
+                  title="Mostrar ou esconder as contas a pagar"
+                >
+                  <ArrowUpRight size={14} /> A pagar
+                </button>
+              )}
+            </div>
+          )}
+
           <div className="agenda-views" role="tablist" aria-label="Visão da agenda">
             {(Object.keys(VIEW_LABELS) as AgendaView[]).map(item => (
               <button
@@ -324,6 +414,8 @@ function Agenda() {
         <MonthView
           cursor={cursor}
           appointments={visible}
+          dues={visibleDues}
+          onOpenDue={due => setModal({ kind: "due", due })}
           onOpen={appointment => setModal({ kind: "form", appointment, date: "", time: "" })}
           onOpenDay={day => {
             setCursor(day);
@@ -337,6 +429,8 @@ function Agenda() {
       ) : view === "lista" ? (
         <ListView
           appointments={visible}
+          dues={visibleDues}
+          onOpenDue={due => setModal({ kind: "due", due })}
           nameOf={nameOf}
           onOpen={appointment => setModal({ kind: "form", appointment, date: "", time: "" })}
         />
@@ -344,6 +438,8 @@ function Agenda() {
         <TimeGridView
           days={days}
           appointments={visible}
+          dues={visibleDues}
+          onOpenDue={due => setModal({ kind: "due", due })}
           nameOf={nameOf}
           onOpen={appointment => setModal({ kind: "form", appointment, date: "", time: "" })}
           onCreate={permissions.canCreate ? (date, time) => openNew(date, time) : undefined}
@@ -373,6 +469,16 @@ function Agenda() {
             onSaved={handleSaved}
             onComplete={appointment => setModal({ kind: "complete", appointment })}
           />
+        </Modal>
+      )}
+
+      {modal?.kind === "due" && (
+        <Modal
+          title={modal.due.kind === "receber" ? "Conta a receber" : "Conta a pagar"}
+          subtitle={modal.due.counterparty ?? modal.due.description}
+          onClose={() => setModal(null)}
+        >
+          <DueDetails due={modal.due} onClose={() => setModal(null)} />
         </Modal>
       )}
 

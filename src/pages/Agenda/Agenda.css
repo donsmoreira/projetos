@@ -685,6 +685,178 @@ body.agenda-dragging * {
   gap: 5px;
 }
 
+/* ---------------- Vencimentos de contas (a receber verde / a pagar vermelho) ---------------- */
+.agenda-due {
+  border-left: 3px solid var(--chip-color);
+  font-weight: 600;
+}
+
+.agenda-due .agenda-due-icon {
+  flex-shrink: 0;
+  color: var(--chip-color);
+}
+
+.agenda-due .agenda-chip-time {
+  color: var(--chip-color);
+}
+
+/* Vencida e em aberto: fundo mais forte */
+.agenda-due.is-overdue {
+  background: color-mix(in srgb, var(--chip-color) 26%, transparent);
+}
+
+/* Já paga/recebida: apagada */
+.agenda-due.is-done {
+  opacity: 0.55;
+}
+
+.agenda-due.is-done .agenda-chip-text {
+  text-decoration: line-through;
+}
+
+.agenda-due.is-detailed {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+/* Faixa de vencimentos (dia inteiro) na semana e no dia */
+.agenda-grid-allday {
+  display: grid;
+  grid-template-columns: 56px repeat(var(--days, 7), minmax(0, 1fr));
+
+  border-bottom: 1px solid var(--border);
+}
+
+.agenda-grid.is-day .agenda-grid-allday {
+  --days: 1;
+}
+
+.agenda-grid-allday-label {
+  padding: 6px 4px;
+
+  color: var(--text-light);
+  font-size: 10px;
+  font-weight: 700;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.agenda-grid-allday-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  min-width: 0;
+  padding: 4px;
+
+  border-left: 1px solid var(--border);
+}
+
+.agenda-list-dues {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Botões mostrar/esconder a receber e a pagar */
+.agenda-due-toggles {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.agenda-due-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  height: 36px;
+  padding: 0 12px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text-light);
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.agenda-due-toggle.is-receber.is-on {
+  border-color: #0b8043;
+  background: color-mix(in srgb, #0b8043 12%, transparent);
+  color: #0b8043;
+}
+
+.agenda-due-toggle.is-pagar.is-on {
+  border-color: #d93025;
+  background: color-mix(in srgb, #d93025 10%, transparent);
+  color: #d93025;
+}
+
+/* Resumo do vencimento clicado */
+.agenda-due-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  padding: 12px 14px;
+
+  border-left: 4px solid;
+  border-radius: 8px;
+}
+
+.agenda-due-summary.is-receber {
+  border-color: #0b8043;
+  background: color-mix(in srgb, #0b8043 10%, transparent);
+}
+
+.agenda-due-summary.is-pagar {
+  border-color: #d93025;
+  background: color-mix(in srgb, #d93025 9%, transparent);
+}
+
+.agenda-due-summary span {
+  color: var(--text-light);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.agenda-due-summary strong {
+  color: var(--text);
+  font-size: 16px;
+}
+
+.agenda-due-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+
+  margin: 0;
+}
+
+.agenda-due-details div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.agenda-due-details dt {
+  color: var(--text-light);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.agenda-due-details dd {
+  margin: 0;
+
+  color: var(--text);
+  font-size: 14px;
+}
+
 /* Escolha da cor do agendamento */
 .agenda-colors {
   display: flex;
