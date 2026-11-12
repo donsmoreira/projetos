@@ -102,8 +102,8 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Pagamento e recebimento em dinheiro | ✅ | nas telas de baixa, o caixa aparece junto das contas, com saldo antes/depois |
 | Fluxo de caixa por período | ✅ | saldo anterior, entradas, saídas, saldo linha a linha |
 | Saldo nunca negativo | ✅ | regra no banco (inclusive ao desfazer um recebimento) |
-| Fechamento de caixa diário / conferência | ❌ | planejado: valor contado obrigatório, diferença esperado × contado, destino (retaguarda ou banco) e troco reservado para o dia seguinte |
-| Agenda com horários | ❌ | planejado: agendamentos puxando o cadastro do cliente (tabela `appointments` já existe); depois, integração com Google Agenda |
+| Fechamento de caixa (turnos) | ✅ | caixa de operação abre conferindo o troco e fecha com valor contado obrigatório (esperado × contado × diferença, confirmação da quebra), envio para caixa de retaguarda e/ou depósito no banco, reserva para a próxima abertura; trava do turno fechado, reabertura só pelo administrador; relatório de quebra de caixa (`cash_sessions`, SQL `20261111_fechamento_caixa.sql`) |
+| Agenda com horários | ✅ | visões Mês/Semana/Dia/Lista; cliente opcional, serviço, valor e responsável (cor por usuário); aviso de conflito; status agendado/confirmado/concluído/cancelado/faltou; concluir oferece conta a receber; arrastar para outro dia/horário com cartão que balança; concluído travado; permissão própria. Google Agenda: próxima etapa |
 | Cadastro da empresa | ✅ | Configurações → Empresas → Cadastro (por empresa da lista) ou Nova empresa; CNPJ busca os dados na Receita (CNPJ.ws, reserva BrasilAPI), inclusive a inscrição estadual; CPF/CNPJ pelo número de dígitos, PF/PJ, razão social, nome fantasia, regime tributário, inscrições, contato, endereço |
 
 ### 3.5 Contas a pagar (`/contas-pagar`)
@@ -167,7 +167,7 @@ Mesmas lacunas: status vencido, recebimento parcial, recorrência. ❌
 | Ajustes de grid nas páginas para telas menores | 🟡 | há `@media` nas páginas |
 | Menu lateral recolhível | ✅ | botão no topo: no computador recolhe para só ícones (fica salvo); abaixo de 768px vira gaveta por cima da tela, que fecha ao escolher uma tela, no fundo escuro ou com Esc |
 | Tabelas no mobile | 🟡 | precisam virar cards ou ter rolagem horizontal |
-| Instalável (PWA) | ❌ | |
+| Instalável (PWA) | ✅ | manifest, ícones ARC em fundo branco, página "Sem conexão"; service worker sem cache de dados |
 
 ### 3.10 Verificação feita em 09/11/2026
 Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o código atual:
@@ -223,7 +223,7 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 | `card_transactions` | transaction_date, description, value, settled, installment_* | card_id, payable_id, settlement_id |
 | `card_settlements` (pagamento de fatura) | settlement_date, value | card_id, bank_account_id, bank_transaction_id |
 | `profiles` | full_name, company_name, phone, preferred_theme, currency | user_id (criado automaticamente no cadastro) |
-| `appointments` (agenda) | appointment_date, start_time, end_time, status (agendado/confirmado), confirmed_at | user_id, client_id |
+| `appointments` (agenda) | appointment_date, start_time, end_time, title, amount, responsible_id, status (agendado/confirmado/concluido/cancelado/faltou), receivable_id, confirmed_at/completed_at/canceled_at | company_id, client_id (opcional) |
 | `management_accounts` (contas gerenciais) — usada em `payables` / `receivables.management_account_id` | name, type (`receita`/`despesa`), nature (`fixa`/`variavel`). Subconta tem o mesmo tipo da conta pai; nome único por nível; sem ciclos (regras no banco) | user_id, parent_id → management_accounts |
 
 | `companies` (empresas) | name (nome/razão social), trade_name, document (11 = CPF, 14 = CNPJ), person_type (PF/PJ), tax_regime, inscrições, contato, endereço | created_by |
@@ -336,7 +336,7 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [ ] Tabelas viram lista de cards no mobile
 - [ ] Modais e formulários em tela cheia no mobile
 - [ ] Revisar tamanhos de toque (botões, inputs) e teclado numérico em campos de valor
-- [ ] PWA: manifest + ícones, para "instalar" no celular e no desktop
+- [x] PWA: manifest + ícones, para "instalar" no celular e no desktop
 
 ### Fase 2 — Completar os módulos · v0.4.0 → v0.7.0
 **Contas bancárias** (v0.4.0)

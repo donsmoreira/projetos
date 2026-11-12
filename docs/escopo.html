@@ -391,7 +391,7 @@ const modules = [
   { name: "Caixa (dinheiro físico)", route: "/caixa", items: [
     ["Cadastro de caixas", 1], ["Entradas e saídas avulsas", 1], ["Saque e depósito com o banco", 1],
     ["Fluxo de caixa por período", 1], ["Pagar e receber em dinheiro", 1], ["Saldo nunca fica negativo", 1, "regra no banco"],
-    ["Fechamento de caixa diário", 0] ] },
+    ["Fechamento de caixa diário", 1] ] },
   { name: "Contas a pagar", route: "/contas-pagar", items: [
     ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Pagamento pela conta ou pelo caixa", 1], ["Estorno", 1],
     ["Conta gerencial obrigatória (só despesa)", 1], ["Pagar com cartão", 0.5, "campos existem, sem uso"],
@@ -409,7 +409,7 @@ const modules = [
   { name: "Visual e celular", route: "todas as telas", items: [
     ["Identidade visual ARC", 1], ["Menu agrupado: Cadastros, Financeiro, Configurações", 1], ["Modo claro e escuro (chave no topo)", 1], ["Menu recolhível no computador", 1],
     ["Menu em gaveta no celular", 1], ["Páginas se ajustam em telas menores", 0.5],
-    ["Tabelas no celular", 0.5, "precisam virar cartões"], ["Formulários em tela cheia no celular", 0], ["Instalar como app (PWA)", 0] ] }
+    ["Tabelas no celular", 0.5, "precisam virar cartões"], ["Formulários em tela cheia no celular", 0], ["Instalar como app (PWA)", 1] ] }
 ];
 
 const phases = [
@@ -419,11 +419,11 @@ const phases = [
     ["Segurança antes do teste", ["✓ Diagnóstico: acesso sem login bloqueado e cada usuário só vê os próprios dados", "E-mail próprio (SMTP) no Supabase ou criar a conta do testador à mão", "✓ Fechar o cadastro público durante o teste", "Senha mínima de 8 no Supabase (e-mail confirmado já está ligado)", "✓ Regras de proteção do navegador no vercel.json", "✓ Atualizar as ferramentas de desenvolvimento (Vite e outras)", "Verificação em duas etapas no Supabase, GitHub, Vercel e e-mail"]],
     ["Publicação", ["✓ Levar a versão Vite para o GitHub, guardando a versão antiga em HTML como legado", "✓ Criar o site na Vercel ligado ao GitHub (razao-finance-arc.vercel.app)", "✓ Criar o vercel.json para as rotas funcionarem ao atualizar a página","✓ Usar o nome novo da chave do Supabase na Vercel", "✓ Endereço do site cadastrado no Supabase (Site URL e Redirect URLs)", "Testar cada módulo na tela com a pessoa de teste"]] ] },
   { n: 1, v: "v0.3.0", title: "Celular", desc: "Funcionar bem em qualquer tamanho de tela", groups: [
-    ["Telas", ["✓ Menu lateral recolhível com botão no topo (gaveta no celular, só ícones no computador)", "Tabelas viram lista de cartões", "Formulários em tela cheia", "Botões e campos do tamanho certo para o dedo", "Instalar como app (PWA)"]] ] },
+    ["Telas", ["✓ Menu lateral recolhível com botão no topo (gaveta no celular, só ícones no computador)", "Tabelas viram lista de cartões", "Formulários em tela cheia", "Botões e campos do tamanho certo para o dedo", "✓ Instalar como app (PWA)"]] ] },
   { n: 2, v: "v0.4 → v0.7", title: "Completar os módulos", desc: "Fechar o que ficou pela metade", groups: [
     ["Bancos · v0.4.0",["Tela de extrato", "Lançamento manual para bancos", "✓ Transferência banco ↔ caixa", "Transferência banco ↔ banco", "Saldo calculado no banco de dados"]],
-    ["Caixa", ["✓ Caixa de dinheiro físico com fluxo de caixa", "✓ Pagar e receber pelo caixa", "Fechamento de caixa: valor contado obrigatório, diferença (sobra/falta), envio para retaguarda ou banco e troco para o dia seguinte"]],
-    ["Agenda", ["Agenda com horários (dia, semana, mês) puxando o cadastro do cliente", "Integração com o Google Agenda"]],
+    ["Caixa", ["✓ Caixa de dinheiro físico com fluxo de caixa", "✓ Pagar e receber pelo caixa", "✓ Fechamento de caixa em turnos: valor contado obrigatório, quebra de caixa (sobra/falta) confirmada, retaguarda ou banco, reserva para a próxima abertura e trava", "✓ Relatório de quebra de caixa"]],
+    ["Agenda", ["✓ Agenda com horários (mês, semana, dia, lista), cliente opcional, responsável e aviso de conflito", "✓ Concluir atendimento gera conta a receber", "✓ Arrastar agendamento para outro dia/horário", "Integração com o Google Agenda"]],
     ["Contas · v0.5.0", ["Status vencido", "Pagamento e recebimento parcial", "Contas recorrentes", "Filtros por período, status e conta gerencial", "Pagar várias de uma vez"]],
     ["Contas gerenciais · v0.6.0", ["✓ Plano de contas de receita e despesa, com subcontas", "✓ Conta gerencial obrigatória nos lançamentos"]],
     ["Cartões · v0.7.0", ["Lançar compras à vista e parceladas", "Faturas: fechar e pagar", "Pagar conta com cartão", "✓ Limite calculado sozinho"]] ] },
