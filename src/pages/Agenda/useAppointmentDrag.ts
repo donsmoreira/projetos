@@ -3,6 +3,7 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 
 import type { Appointment } from "../../types/appointment";
 import { FIRST_HOUR, HOUR_PX, minutes } from "./agendaUtils";
+import { DragGhost } from "./dragGhost";
 
 /** Onde o agendamento vai cair (para desenhar o destaque/sombra) */
 export type DragPreview = {
@@ -24,6 +25,9 @@ type Pending = {
   grabOffsetPx: number;
   active: boolean;
   timer: number | undefined;
+  /** Elemento original (para copiar o visual e saber de onde saiu) */
+  source: HTMLElement;
+  ghost: DragGhost | null;
 };
 
 const MOUSE_THRESHOLD = 5;
@@ -81,14 +85,18 @@ export function useAppointmentDrag(
       window.clearTimeout(state.timer);
     }
 
+    // Cancelado (ou sem destino tratado antes): o cartão some
+    state?.ghost?.remove(120);
+
     pending.current = null;
     setPreview(null);
     document.body.classList.remove("agenda-dragging");
   }, []);
 
   useEffect(() => {
-    function activate(state: Pending) {
+    function activate(state: Pending, x: number, y: number) {
       state.active = true;
+      state.ghost = new DragGhost(state.source, x, y);
       document.body.classList.add("agenda-dragging");
       navigator.vibrate?.(15);
     }
@@ -107,7 +115,7 @@ export function useAppointmentDrag(
           if (distance < MOUSE_THRESHOLD) {
             return;
           }
-          activate(state);
+          activate(state, event.clientX, event.clientY);
         } else {
           // Dedo mexeu antes de segurar: é rolagem, não arrasto
           if (distance > TOUCH_CANCEL) {
@@ -116,6 +124,8 @@ export function useAppointmentDrag(
           return;
         }
       }
+
+      state.ghost?.move(event.clientX, event.clientY);
 
       const found = target(event.clientX, event.clientY, state);
       setPreview({
@@ -139,6 +149,26 @@ export function useAppointmentDrag(
         window.setTimeout(() => {
           justDragged.current = false;
         }, 0);
+
+        // O cartão vai até onde caiu (a sombra do horário, ou o dia no mês) e assenta
+        let landing: DOMRect | null = null;
+
+        if (found.date) {
+          const shadow = document.querySelector<HTMLElement>(".agenda-drop-ghost");
+          const cell = document
+            .elementFromPoint(event.clientX, event.clientY)
+            ?.closest<HTMLElement>("[data-drop-date]");
+
+          if (shadow) {
+            landing = shadow.getBoundingClientRect();
+          } else if (cell) {
+            const rect = cell.getBoundingClientRect();
+            landing = new DOMRect(rect.left + 4, rect.top + 34, rect.width - 8, 22);
+          }
+        }
+
+        state.ghost?.land(landing, state.source.getBoundingClientRect());
+        state.ghost = null;
 
         if (found.date) {
           onDropRef.current(state.appointment, found.date, found.start);
@@ -184,7 +214,9 @@ export function useAppointmentDrag(
       startY: event.clientY,
       grabOffsetPx: event.clientY - rect.top,
       active: false,
-      timer: undefined
+      timer: undefined,
+      source: event.currentTarget,
+      ghost: null
     };
 
     if (event.pointerType !== "mouse") {
@@ -192,6 +224,7 @@ export function useAppointmentDrag(
       state.timer = window.setTimeout(() => {
         if (pending.current === state) {
           state.active = true;
+          state.ghost = new DragGhost(state.source, state.startX, state.startY);
           document.body.classList.add("agenda-dragging");
           navigator.vibrate?.(15);
           setPreview({
