@@ -103,12 +103,13 @@ function MonthView({
                   className={[
                     "agenda-chip",
                     `is-${appointment.status}`,
-                    onDragStart ? "is-draggable" : "",
+                    onDragStart && appointment.status !== "concluido" ? "is-draggable" : "",
                     dragPreview?.appointmentId === appointment.id ? "is-dragging" : ""
                   ].join(" ")}
                   style={{ "--chip-color": colorOf(appointment.responsible_id) } as CSSProperties}
-                  onPointerDown={onDragStart ? event => onDragStart(event, appointment) : undefined}
-                  onContextMenu={onDragStart ? event => event.preventDefault() : undefined}
+                  // Concluído não se move
+                    onPointerDown={onDragStart && appointment.status !== "concluido" ? event => onDragStart(event, appointment) : undefined}
+                  onContextMenu={onDragStart && appointment.status !== "concluido" ? event => event.preventDefault() : undefined}
                   onClick={event => {
                     event.stopPropagation();
                     if (!consumeClick()) {

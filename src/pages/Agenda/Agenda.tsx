@@ -163,6 +163,11 @@ function Agenda() {
     date: string,
     startMinutes: number | null
   ) => {
+    // Concluído não se move (o banco também recusa)
+    if (appointment.status === "concluido") {
+      return;
+    }
+
     const duration = minutes(appointment.end_time) - minutes(appointment.start_time);
     const start = startMinutes ?? minutes(appointment.start_time);
     const startTime = timeFrom(start);

@@ -95,7 +95,9 @@ function AppointmentForm({
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const editable = appointment ? canUpdate : canCreate;
+  // Concluído: só consulta (ou excluir); nunca é alterado nem movido
+  const isCompleted = appointment?.status === "concluido";
+  const editable = appointment ? canUpdate && !isCompleted : canCreate;
 
   function update<K extends keyof AppointmentFormData>(field: K, value: AppointmentFormData[K]) {
     setConflicts(null);
@@ -195,7 +197,14 @@ function AppointmentForm({
 
   return (
     <form className="arc-form" onSubmit={handleSubmit}>
-      {appointment && canUpdate && (
+      {isCompleted && (
+        <div className="agenda-completed-note">
+          <span className="agenda-status is-concluido">Concluído</span>
+          Atendimento concluído: não pode ser movido nem alterado. Se precisar, exclua o agendamento.
+        </div>
+      )}
+
+      {appointment && canUpdate && !isCompleted && (
         <div className="agenda-status-actions">
           <span className={`agenda-status is-${appointment.status}`}>
             {APPOINTMENT_STATUS_LABELS[appointment.status]}

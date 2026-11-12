@@ -685,6 +685,22 @@ body.agenda-dragging * {
   gap: 5px;
 }
 
+.agenda-completed-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  padding: 10px 12px;
+
+  background: var(--success-soft);
+  border: 1px solid var(--success-border);
+  border-radius: 8px;
+
+  color: var(--text);
+  font-size: 13px;
+}
+
 .agenda-fieldset {
   display: flex;
   flex-direction: column;

@@ -200,7 +200,8 @@ export function useAppointmentDrag(
 
   /** Ligar no onPointerDown do agendamento */
   const startDrag = useCallback((event: ReactPointerEvent<HTMLElement>, appointment: Appointment) => {
-    if (!enabled || (event.pointerType === "mouse" && event.button !== 0)) {
+    // Atendimento concluído nunca é movido
+    if (!enabled || appointment.status === "concluido" || (event.pointerType === "mouse" && event.button !== 0)) {
       return;
     }
 
