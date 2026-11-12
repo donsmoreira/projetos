@@ -229,7 +229,7 @@ footer .wrap { padding-block: 24px; color: var(--muted); font-size: 13px; displa
     <div class="hero-top">
       <span class="brand-mark">ARC · Análises Reais e Computacionais · D&amp;C</span>
       <h1>Razão Finance <span>ARC</span></h1>
-      <p class="hero-lead">O gestor financeiro do ARC. Feito para o computador, mas se adapta ao celular. Mais adiante vai ser a base de dados do Assessor Financeiro ARC no WhatsApp.</p>
+      <p class="hero-lead">O gestor financeiro do ARC: contas, caixa, agenda e relatórios, por empresa e com permissões por usuário. Feito para o computador, se adapta ao celular e pode ser instalado como app. Mais adiante vai ser a base de dados do Assessor Financeiro ARC no WhatsApp.</p>
     </div>
     <div class="hero-stats">
       <div class="stat"><strong class="num">v0.1.0+</strong><small>versão atual · alpha (a v0.2.0 sai ao fechar a Fase 0)</small></div>
@@ -261,14 +261,14 @@ footer .wrap { padding-block: 24px; color: var(--muted); font-size: 13px; displa
         <p>Um só lugar para o dinheiro que entra, o que sai e o que ainda vai vencer.</p>
       </div>
       <div class="vision">
-        <div class="goal"><h3>Tudo num lugar só</h3><p>Contas a pagar e a receber, bancos e cartões de crédito juntos.</p></div>
+        <div class="goal"><h3>Tudo num lugar só</h3><p>Contas a pagar e a receber, bancos, caixa, cartões e a agenda de atendimentos juntos.</p></div>
         <div class="goal"><h3>Saber o saldo de verdade</h3><p>O saldo de hoje e o que está por vir, com fluxo de caixa projetado.</p></div>
         <div class="goal"><h3>Decidir com relatórios</h3><p>Entradas, saídas e categorias por período, com gráficos e exportação.</p></div>
         <div class="goal"><h3>Base para o Assessor</h3><p>O que for lançado pelo WhatsApp aparece aqui, e o que for lançado aqui aparece lá.</p></div>
       </div>
       <div class="stack">
         <span class="tag">React 19</span><span class="tag">TypeScript</span><span class="tag">Vite 8</span>
-        <span class="tag">React Router 7</span><span class="tag">Supabase (Auth + Postgres)</span><span class="tag">CSS puro</span><span class="tag">lucide-react</span><span class="tag">Recharts</span>
+        <span class="tag">React Router 7</span><span class="tag">Supabase (Auth + Postgres + Edge Function)</span><span class="tag">PWA</span><span class="tag">Vercel</span><span class="tag">CSS puro</span><span class="tag">lucide-react</span><span class="tag">Recharts</span>
       </div>
     </section>
 
@@ -332,7 +332,7 @@ footer .wrap { padding-block: 24px; color: var(--muted); font-size: 13px; displa
       <div class="sec-head">
         <span class="eyebrow">Pontos de atenção</span>
         <h2>O que precisa ser arrumado no caminho</h2>
-        <p>Problemas encontrados no código atual, por prioridade.</p>
+        <p>O que ainda falta acertar, por prioridade (revisado em 12/11/2026).</p>
       </div>
       <div class="debts" id="debts"></div>
     </section>
@@ -340,18 +340,20 @@ footer .wrap { padding-block: 24px; color: var(--muted); font-size: 13px; displa
     <section id="decisoes">
       <div class="sec-head">
         <span class="eyebrow">Decisões em aberto</span>
-        <h2>Perguntas que só você responde</h2>
-        <p>As respostas mudam o desenho de algumas fases, principalmente a 4 e a 6.</p>
+        <h2>Decisões tomadas e perguntas que só você responde</h2>
+        <p>As que já foram respondidas ficam marcadas com ✓. As outras mudam o desenho de algumas fases, principalmente a Agenda e a 6.</p>
       </div>
       <div class="questions">
-        <div class="q"><h3>Para quem é?</h3><p>Pessoa física, pequena empresa ou os dois, com perfis separados?</p></div>
-        <div class="q"><h3>O que é “desktop”?</h3><p>Basta o app no navegador, instalável como PWA, ou precisa de um programa instalado (Tauri/Electron)?</p></div>
-        <div class="q"><h3>Assessor no WhatsApp</h3><p>Já existe? Usa qual tecnologia (API oficial da Meta, Z-API, Evolution API)? Usa o mesmo Supabase?</p></div>
+        <div class="q"><h3>✓ Para quem é</h3><p>Decidido: empresas e pessoas (PF/PJ), organizadas por ID EMPRESA, com várias empresas, usuários e permissões por tela.</p></div>
+        <div class="q"><h3>✓ “Desktop”</h3><p>Decidido: o app no navegador, instalável como app (PWA) no celular e no computador.</p></div>
+        <div class="q"><h3>✓ Agenda no banco</h3><p>Decidido: a tabela de agendamentos é do Razão.</p></div>
+        <div class="q"><h3>ID 1</h3><p>Reservado para um uso específico. Qual vai ser?</p></div>
+        <div class="q"><h3>Google Agenda</h3><p>Só enviar do sistema para o Google, ou nos dois sentidos (o que for marcado no Google bloqueia a agenda)?</p></div>
+        <div class="q"><h3>Cadastro público</h3><p>Quando reabrir o “Criar conta” para qualquer pessoa? Depende do e-mail próprio (SMTP).</p></div>
+        <div class="q"><h3>Assessor no WhatsApp</h3><p>Usa qual tecnologia (API oficial da Meta, Z-API, Evolution API)? Usa o mesmo Supabase?</p></div>
         <div class="q"><h3>Login único ARC</h3><p>Todos os produtos ARC vão compartilhar a mesma conta de usuário?</p></div>
-        <div class="q"><h3>Planos e cobrança</h3><p>Vai ter limites por plano que o sistema precise controlar?</p></div>
-        <div class="q"><h3>Agenda no banco</h3><p>A tabela de agendamentos com clientes é do Razão ou de outro produto ARC que usa o mesmo Supabase?</p></div>
-      </div>
-    </section>
+        <div class="q"><h3>Planos e cobrança</h3><p>Vai ter limites por plano? O ID EMPRESA seria a unidade natural de cobrança.</p></div>
+      </div>    </section>
 
   </div>
 </main>
@@ -359,29 +361,39 @@ footer .wrap { padding-block: 24px; color: var(--muted); font-size: 13px; displa
 <footer>
   <div class="wrap">
     <span>Razão Finance ARC · documento vivo</span>
-    <span>Última revisão: 10/11/2026</span>
+    <span>Última revisão: 12/11/2026</span>
   </div>
 </footer>
 
 <script>
 // Status: 1 = pronto, 0.5 = parcial, 0 = não existe
 const modules = [
-  { name: "Autenticação", route: "/login", items: [
-    ["Login com e-mail e senha", 1], ["Rotas protegidas", 1], ["Sair do sistema", 1],
-    ["Criar conta com código no e-mail", 0.5, "tela pronta; falta o e-mail próprio (SMTP) no Supabase"],
-    ["Esqueceu a senha (código no e-mail)", 0.5, "tela pronta; mesma dependência"],
-    ["Mensagens de erro em português", 1], ["Meu perfil (nome, WhatsApp, CPF, endereço)", 1] ] },
-  { name: "Empresas e usuários", route: "/configuracoes", items: [
-    ["Multiempresa: cada empresa com seus próprios dados", 1], ["Multiusuário com permissões (admin, cadastrar, alterar, excluir, baixar)", 1],
-    ["Convite por código", 1], ["Cadastro da empresa (em Empresas): CNPJ busca os dados na Receita, regime tributário, inscrição estadual, endereço", 1], ["Busca do CNPJ na Receita também em clientes e fornecedores (com PJ: razão social, nome fantasia, enquadramento e inscrição estadual)", 1], ["Contas Gerenciais no grupo Financeiro do menu", 1],
-    ["Empresa no topo, com seletor", 1], ["Convite por e-mail", 0, "depende do SMTP"], ["Logo da empresa", 0] ] },
+  { name: "Login e conta", route: "/login", items: [
+    ["Login com ID EMPRESA, e-mail e senha", 1, "ID de outro cliente é barrado no login e no banco"],
+    ["Escolha da empresa depois do login", 1], ["Primeiro acesso: cadastro completo da empresa (nasce um ID novo)", 1],
+    ["Rotas protegidas e sair", 1], ["Meu perfil (nome, WhatsApp, CPF, endereço)", 1], ["Mensagens de erro em português", 1],
+    ["Criar conta com código no e-mail", 0.5, "tela pronta; cadastro público fechado durante os testes"],
+    ["Esqueceu a senha (código no e-mail)", 0.5, "falta o e-mail próprio (SMTP)"] ] },
+  { name: "Empresas, usuários e permissões", route: "/configuracoes", items: [
+    ["ID EMPRESA (a partir do 2) com empresas 1, 2, 3...", 1], ["Multiempresa com seletor no topo", 1],
+    ["Cadastro da empresa com busca do CNPJ na Receita", 1], ["Nova empresa com cadastro completo", 1],
+    ["Permissões por tela (Ver, Cadastrar, Alterar, Excluir, Baixar)", 1],
+    ["Cadastrar usuário (e-mail, senha, empresas, permissões)", 1], ["Editar usuário (nome, empresas, permissões, senha)", 1],
+    ["Convite por código", 1], ["Convite por e-mail", 0, "depende do SMTP"], ["Logo da empresa", 0] ] },
   { name: "Dashboard", route: "/", items: [
     ["Total a pagar e a receber", 1], ["Saldo em contas e no caixa", 1], ["Próximos vencimentos", 1], ["Saldo por conta bancária", 1],
-    ["Limite usado nos cartões", 1], ["Contas vencidas em destaque", 0], ["Gráficos no painel", 0, "já existem em Relatórios"] ] },
+    ["Limite usado nos cartões", 1], ["Contas vencidas em destaque", 0, "na Agenda já aparecem"], ["Gráficos no painel", 0, "já existem em Relatórios"] ] },
+  { name: "Agenda", route: "/agenda", items: [
+    ["Mês, semana, dia e lista", 1], ["Cliente (opcional), serviço, valor e responsável", 1], ["Aviso de conflito do responsável", 1],
+    ["Status: agendado, confirmado, concluído, cancelado, faltou", 1], ["Concluir gera a conta a receber", 1],
+    ["Arrastar para outro dia/horário (cartão que balança)", 1], ["Concluído travado", 1], ["Cor por agendamento (sugestões e RGB)", 1],
+    ["Vencimentos a pagar (vermelho) e a receber (verde)", 1], ["Integração com o Google Agenda", 0] ] },
   { name: "Clientes", route: "/clientes", items: [
-    ["Cadastro completo (PF/PJ)", 1], ["Busca", 1], ["Endereço com CEP automático (ViaCEP)", 1], ["Filtro por estado e cidade", 1] ] },
+    ["Cadastro PF/PJ com tipo automático pelo documento", 1], ["Busca do CNPJ na Receita", 1], ["Razão social, nome fantasia, enquadramento e IE", 1],
+    ["Busca na lista", 1], ["Endereço com CEP automático (ViaCEP)", 1], ["Filtro por estado e cidade", 1] ] },
   { name: "Fornecedores", route: "/fornecedores", items: [
-    ["Cadastro completo", 1], ["Busca", 1], ["Endereço com CEP automático (ViaCEP)", 1], ["Filtro por estado e cidade", 1] ] },
+    ["Cadastro PF/PJ com tipo automático pelo documento", 1], ["Busca do CNPJ na Receita", 1], ["Razão social, nome fantasia, enquadramento e IE", 1],
+    ["Busca na lista", 1], ["Endereço com CEP automático (ViaCEP)", 1], ["Filtro por estado e cidade", 1] ] },
   { name: "Contas gerenciais", route: "/contas-gerenciais", items: [
     ["Plano de contas de receita e despesa", 1], ["Fixa ou variável", 1], ["Conta pai e subcontas em vários níveis", 1],
     ["Busca, filtro por tipo, expandir/recolher", 1], ["Bloqueios no banco (tipo, nome repetido, conta em uso)", 1] ] },
@@ -389,68 +401,74 @@ const modules = [
     ["Cadastro de contas", 1], ["Banco escolhido numa lista com código", 1], ["Extrato da conta", 0.5, "código pronto, falta a tela"],
     ["Lançamento manual", 0.5, "feito no Caixa; falta a tela para bancos"], ["Transferência entre contas", 0.5, "banco ↔ caixa pronto; falta banco ↔ banco"], ["Importar extrato (OFX/CSV)", 0] ] },
   { name: "Caixa (dinheiro físico)", route: "/caixa", items: [
-    ["Cadastro de caixas", 1], ["Entradas e saídas avulsas", 1], ["Saque e depósito com o banco", 1],
-    ["Fluxo de caixa por período", 1], ["Pagar e receber em dinheiro", 1], ["Saldo nunca fica negativo", 1, "regra no banco"],
-    ["Fechamento de caixa diário", 1] ] },
+    ["Caixa de operação e de retaguarda (cofre)", 1], ["Abertura conferindo o troco", 1],
+    ["Fechamento com valor contado obrigatório", 1], ["Quebra de caixa (sobra/falta) confirmada", 1],
+    ["Envio para a retaguarda e depósito no banco; reserva para a próxima abertura", 1],
+    ["Trava do turno fechado; reabertura só pelo administrador", 1], ["Vários turnos por dia, com histórico", 1],
+    ["Entradas e saídas avulsas; saque e depósito", 1], ["Pagar e receber em dinheiro", 1], ["Fluxo de caixa por período", 1],
+    ["Saldo nunca fica negativo", 1, "regra no banco"] ] },
   { name: "Contas a pagar", route: "/contas-pagar", items: [
     ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Pagamento pela conta ou pelo caixa", 1], ["Estorno", 1],
     ["Conta gerencial obrigatória (só despesa)", 1], ["Pagar com cartão", 0.5, "campos existem, sem uso"],
     ["Status vencido", 0], ["Pagamento parcial", 0], ["Contas recorrentes", 0], ["Anexos (boleto, comprovante)", 0] ] },
   { name: "Contas a receber", route: "/contas-receber", items: [
     ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Recebimento na conta ou no caixa", 1], ["Estorno", 1],
-    ["Conta gerencial obrigatória (só receita)", 1], ["Status vencido", 0], ["Recebimento parcial", 0], ["Contas recorrentes", 0] ] },
+    ["Conta gerencial obrigatória (só receita)", 1], ["Criada ao concluir atendimento na Agenda", 1],
+    ["Status vencido", 0], ["Recebimento parcial", 0], ["Contas recorrentes", 0] ] },
   { name: "Cartões de crédito", route: "/cartoes", items: [
     ["Cadastro de cartões", 1], ["Banco e bandeira em listas, nome automático", 1], ["Desativar cartão", 1],
     ["Limite calculado sozinho", 1], ["Lançar compras", 0], ["Compras parceladas", 0], ["Faturas", 0] ] },
   { name: "Relatórios", route: "/relatorios", items: [
     ["Descritivo (tabela) com resumo", 1], ["Torres (barras)", 1], ["Curvas (linhas e acumulado)", 1], ["Pizza", 1],
     ["Filtros: conta, caixa, conta gerencial, fornecedor/cliente, origem", 1], ["Filtro e gráficos por estado e cidade", 1], ["Atalhos de período", 1],
-    ["Fluxo de caixa projetado", 0], ["Exportar PDF/Excel", 0] ] },
+    ["Relatório de quebra de caixa", 1], ["Fluxo de caixa projetado", 0], ["Exportar PDF/Excel", 0] ] },
   { name: "Visual e celular", route: "todas as telas", items: [
-    ["Identidade visual ARC", 1], ["Menu agrupado: Cadastros, Financeiro, Configurações", 1], ["Modo claro e escuro (chave no topo)", 1], ["Menu recolhível no computador", 1],
-    ["Menu em gaveta no celular", 1], ["Páginas se ajustam em telas menores", 0.5],
-    ["Tabelas no celular", 0.5, "precisam virar cartões"], ["Formulários em tela cheia no celular", 0], ["Instalar como app (PWA)", 1] ] }
+    ["Identidade visual ARC", 1], ["Modo claro (padrão) e escuro, chave no topo", 1], ["Menu agrupado; telas sem permissão somem", 1],
+    ["Pílula animada no menu", 1], ["Menu recolhível no computador e gaveta no celular", 1],
+    ["Instalar como app (PWA)", 1, "ícone ARC, tela cheia, página Sem conexão"], ["Páginas se ajustam em telas menores", 0.5],
+    ["Tabelas no celular", 0.5, "precisam virar cartões"], ["Formulários em tela cheia no celular", 0] ] }
 ];
 
 const phases = [
-  { n: 0, v: "v0.2.0", title: "Fundação", desc: "Arrumar a casa antes de construir mais", next: true, groups: [
-    ["Base", ["✓ Criar o repositório git","✓ Levantar a estrutura real do banco", "✓ Revisar as regras de acesso (RLS) de todas as tabelas", "✓ Corrigir a tela de Cartões para bater com o banco", "✓ Rodar no Supabase os SQLs de contas gerenciais, lançamentos e caixa","Gerar os tipos TypeScript a partir do banco"]],
-    ["Correções", ["✓ Pagamento, recebimento e estorno atômicos (funções no Postgres)", "✓ Corrigir vencimento das parcelas no fim do mês", "✓ Juntar o código repetido do usuário logado", "Juntar formatação de moeda e data e a barra de busca", "✓ Escrever o README do projeto", "✓ Mostrar a versão do app no menu", "Corrigir os avisos do lint que sobraram"]],
-    ["Segurança antes do teste", ["✓ Diagnóstico: acesso sem login bloqueado e cada usuário só vê os próprios dados", "E-mail próprio (SMTP) no Supabase ou criar a conta do testador à mão", "✓ Fechar o cadastro público durante o teste", "Senha mínima de 8 no Supabase (e-mail confirmado já está ligado)", "✓ Regras de proteção do navegador no vercel.json", "✓ Atualizar as ferramentas de desenvolvimento (Vite e outras)", "Verificação em duas etapas no Supabase, GitHub, Vercel e e-mail"]],
-    ["Publicação", ["✓ Levar a versão Vite para o GitHub, guardando a versão antiga em HTML como legado", "✓ Criar o site na Vercel ligado ao GitHub (razao-finance-arc.vercel.app)", "✓ Criar o vercel.json para as rotas funcionarem ao atualizar a página","✓ Usar o nome novo da chave do Supabase na Vercel", "✓ Endereço do site cadastrado no Supabase (Site URL e Redirect URLs)", "Testar cada módulo na tela com a pessoa de teste"]] ] },
+  { n: 0, v: "v0.2.0", title: "Fundação", desc: "Arrumar a casa e fechar a segurança", next: true, groups: [
+    ["Base", ["✓ Repositório git e GitHub", "✓ Levantar a estrutura real do banco", "✓ Revisar as regras de acesso (RLS) de todas as tabelas", "✓ Corrigir a tela de Cartões e rodar os SQLs pendentes", "Gerar os tipos TypeScript a partir do banco"]],
+    ["Correções", ["✓ Pagamento, recebimento e estorno atômicos (funções no Postgres)", "✓ Corrigir vencimento das parcelas no fim do mês", "✓ Juntar o código repetido do usuário logado", "✓ README e versão do app no menu", "Juntar formatação de moeda e data e a barra de busca", "Corrigir os avisos do lint que sobraram"]],
+    ["Segurança", ["✓ Diagnóstico de segurança", "✓ Regras de proteção do navegador no vercel.json", "✓ Cadastro público fechado; usuários criados pelo administrador", "✓ Atualizar as ferramentas de desenvolvimento", "E-mail próprio (SMTP) no Supabase", "Senha mínima de 8 no Supabase", "Verificação em duas etapas no Supabase, GitHub, Vercel e e-mail", "Revisar o Security Advisor do Supabase"]],
+    ["Publicação e testes", ["✓ Site na Vercel ligado ao GitHub (razao-finance-arc.vercel.app)", "✓ vercel.json, variáveis e endereços no Supabase", "Testar cada módulo com um usuário de acesso limitado"]] ] },
   { n: 1, v: "v0.3.0", title: "Celular", desc: "Funcionar bem em qualquer tamanho de tela", groups: [
-    ["Telas", ["✓ Menu lateral recolhível com botão no topo (gaveta no celular, só ícones no computador)", "Tabelas viram lista de cartões", "Formulários em tela cheia", "Botões e campos do tamanho certo para o dedo", "✓ Instalar como app (PWA)"]] ] },
+    ["Telas", ["✓ Menu recolhível (gaveta no celular, só ícones no computador)", "✓ Instalar como app (PWA)", "Tabelas viram lista de cartões", "Formulários em tela cheia", "Botões e campos do tamanho certo para o dedo"]] ] },
   { n: 2, v: "v0.4 → v0.7", title: "Completar os módulos", desc: "Fechar o que ficou pela metade", groups: [
-    ["Bancos · v0.4.0",["Tela de extrato", "Lançamento manual para bancos", "✓ Transferência banco ↔ caixa", "Transferência banco ↔ banco", "Saldo calculado no banco de dados"]],
-    ["Caixa", ["✓ Caixa de dinheiro físico com fluxo de caixa", "✓ Pagar e receber pelo caixa", "✓ Fechamento de caixa em turnos: valor contado obrigatório, quebra de caixa (sobra/falta) confirmada, retaguarda ou banco, reserva para a próxima abertura e trava", "✓ Relatório de quebra de caixa"]],
-    ["Agenda", ["✓ Agenda com horários (mês, semana, dia, lista), cliente opcional, responsável e aviso de conflito", "✓ Concluir atendimento gera conta a receber", "✓ Arrastar agendamento para outro dia/horário (cartão que balança); concluído travado", "✓ Cor por agendamento (sugestões e RGB)", "✓ Vencimentos de contas a pagar (vermelho) e a receber (verde) na agenda", "Integração com o Google Agenda"]],
+    ["Caixa (adiantado)", ["✓ Caixa de dinheiro físico com fluxo de caixa", "✓ Pagar e receber pelo caixa", "✓ Abertura e fechamento em turnos, quebra de caixa, retaguarda, depósito, reserva e trava", "✓ Relatório de quebra de caixa"]],
+    ["Agenda (adiantado)", ["✓ Mês, semana, dia e lista; responsável, conflito e status", "✓ Concluir gera conta a receber; concluído travado", "✓ Arrastar com cartão que balança; cor por agendamento (sugestões e RGB)", "✓ Vencimentos de contas a pagar e a receber na agenda", "Integração com o Google Agenda"]],
+    ["Bancos · v0.4.0", ["✓ Transferência banco ↔ caixa", "Tela de extrato", "Lançamento manual para bancos", "Transferência banco ↔ banco", "Saldo calculado no banco de dados"]],
     ["Contas · v0.5.0", ["Status vencido", "Pagamento e recebimento parcial", "Contas recorrentes", "Filtros por período, status e conta gerencial", "Pagar várias de uma vez"]],
     ["Contas gerenciais · v0.6.0", ["✓ Plano de contas de receita e despesa, com subcontas", "✓ Conta gerencial obrigatória nos lançamentos"]],
-    ["Cartões · v0.7.0", ["Lançar compras à vista e parceladas", "Faturas: fechar e pagar", "Pagar conta com cartão", "✓ Limite calculado sozinho"]] ] },
+    ["Cartões · v0.7.0", ["✓ Limite calculado sozinho", "Lançar compras à vista e parceladas", "Faturas: fechar e pagar", "Pagar conta com cartão"]] ] },
   { n: 3, v: "v0.8.0", title: "Painel e relatórios", desc: "Ver o dinheiro de um jeito claro", groups: [
     ["Painel", ["Contas vencidas e de hoje em destaque", "Gráficos no painel inicial"]],
-    ["Relatórios", ["✓ Torres, curvas e pizza", "✓ Despesas e receitas por conta gerencial", "✓ Filtros amplos e atalhos de período", "Fluxo de caixa projetado", "Exportar PDF e Excel"]] ] },
-  { n: 4, v: "v0.9.0", title: "Conta do usuário", desc: "Cadastro, senha e perfil", groups: [
-    ["Itens", ["✓ Criar conta e recuperar senha com código no e-mail", "E-mail próprio (SMTP) para os códigos chegarem a qualquer pessoa", "✓ Cadastro da empresa (em Empresas): própria empresa ou pessoa (PF/PJ), base das notas fiscais", "✓ Perfil com telefone/WhatsApp", "✓ Multiempresa e multiusuário com permissões e convite por código", "✓ Permissões por tela (Ver, Cadastrar, Alterar, Excluir, Baixar) em grade por grupo", "✓ ID EMPRESA (a partir do 2) com empresas 1, 2, 3...; login com ID, e-mail e senha; escolha da empresa após o login", "✓ Cadastro de usuário por e-mail e senha nas empresas marcadas", "Convite por e-mail (depois do SMTP)"]] ] },
+    ["Relatórios", ["✓ Torres, curvas e pizza", "✓ Despesas e receitas por conta gerencial", "✓ Filtros amplos e atalhos de período", "✓ Relatório de quebra de caixa", "Fluxo de caixa projetado", "Exportar PDF e Excel"]] ] },
+  { n: 4, v: "v0.9.0", title: "Conta, empresas e usuários", desc: "Quem usa, em qual empresa e com que permissão", groups: [
+    ["Itens", ["✓ Criar conta e recuperar senha com código no e-mail (telas)", "✓ Meu perfil com telefone/WhatsApp", "✓ Multiempresa e multiusuário", "✓ ID EMPRESA, login com ID, escolha da empresa e primeiro acesso", "✓ Cadastro da empresa com busca do CNPJ na Receita", "✓ Permissões por tela", "✓ Cadastrar e editar usuário; convite por código", "Convite por e-mail (depois do SMTP)", "Logo da empresa"]] ] },
   { n: 5, v: "v1.0.0", title: "Qualidade e publicação", desc: "Beta com convidados e lançamento da 1.0", groups: [
-    ["Itens", ["Testes automáticos (Vitest e Playwright)", "Checagem automática a cada mudança (CI)", "Publicar com ambiente de testes e de produção", "Monitorar erros"]],
+    ["Itens", ["Testes automáticos (Vitest e Playwright)", "Checagem automática a cada mudança (CI)", "Ambientes de teste e de produção", "Monitorar erros"]],
     ["Lançamento", ["Beta com usuários convidados (1.0.0-beta.N)", "Versão candidata (1.0.0-rc)", "Lançamento da v1.0.0"]] ] },
   { n: 6, v: "v1.1.0", title: "Assessor no WhatsApp", desc: "Integração com o Assessor Financeiro ARC Wpp", groups: [
-    ["Base", ["API de regras usada pelo app e pelo Assessor", "Vincular número de WhatsApp com código", "Marcar a origem de cada lançamento (app ou WhatsApp)"]],
-    ["Conversas", ["Registrar despesa por mensagem", "Consultar saldo", "Listar o que vence na semana", "Marcar conta como paga", "Lembretes de vencimento", "Resumo diário, semanal e mensal"]] ] }
+    ["Base", ["API de regras usada pelo app e pelo Assessor", "Vincular número de WhatsApp com código (respeitando ID EMPRESA e permissões)", "Marcar a origem de cada lançamento (app ou WhatsApp)"]],
+    ["Conversas", ["Registrar despesa por mensagem", "Consultar saldo", "Listar o que vence na semana", "Marcar conta como paga", "Lembretes de vencimento e de agendamentos", "Resumo diário, semanal e mensal"]] ] }
 ];
 
 const debts = [
-  ["alta", "Códigos de verificação não chegam para quem não é da equipe do Supabase: precisa de e-mail próprio (SMTP) ou criar a conta do testador à mão", "Supabase · Authentication"],
-  ["baixa", "Ferramenta de checagem de código (ESLint) com 10 vulnerabilidades moderadas. Só roda no computador, não vai para o site", "package.json · ESLint"],
+  ["alta", "E-mail próprio (SMTP) não configurado: códigos de recuperação de senha só chegam a quem é da equipe do Supabase", "Supabase · Authentication"],
+  ["media", "Usuário com acesso limitado ainda não foi testado com uma segunda conta de verdade", "permissões por tela"],
   ["media", "Painel baixa todas as movimentações para calcular o saldo, e vai ficar lento com o tempo", "dashboardService.ts"],
-  ["media", "Excluir conta bancária que tem lançamentos: comportamento indefinido", "bankAccountsService.ts"],
-  ["media", "Testes automáticos só nas regras de cálculo; nenhum teste de tela", "—"],
-  ["baixa", "Um cadastro pode apontar para o fornecedor ou a conta de outro usuário (identificadores impossíveis de adivinhar; risco quase nulo)", "Supabase · chaves estrangeiras"],
-  ["baixa", "Código repetido entre módulos (barra de busca)", "pages/*/components"],
-  ["baixa", "O verificador de código (lint) ainda acusa avisos antigos de um padrão que o React 19 desaconselha. Não quebra o app", "páginas e formulários"]
+  ["media", "Excluir conta bancária que tem lançamentos: comportamento depende do banco (o Caixa já bloqueia)", "bankAccountsService.ts"],
+  ["media", "Testes automáticos só nas regras de cálculo, rodados à parte; nenhum teste de tela", "—"],
+  ["baixa", "A função admin-users é publicada à mão no painel do Supabase: cada mudança precisa ser republicada", "supabase/functions/admin-users"],
+  ["baixa", "\"Ver\" controla a tela; pela API a leitura dos dados continua liberada a quem é da empresa", "RLS"],
+  ["baixa", "Ferramenta de checagem de código (ESLint) com 10 vulnerabilidades moderadas. Só roda no computador, não vai para o site", "package.json · ESLint"],
+  ["baixa", "Um cadastro poderia apontar para fornecedor/conta de outra empresa (identificadores impossíveis de adivinhar; risco quase nulo)", "Supabase · chaves estrangeiras"],
+  ["baixa", "O verificador de código (lint) acusa 15 avisos antigos de um padrão que o React 19 desaconselha. Não quebra o app", "páginas e formulários"]
 ];
-
 const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const dotClass = v => v === 1 ? "ok" : v === 0.5 ? "part" : "no";
 

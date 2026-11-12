@@ -1,24 +1,26 @@
 # Razão Finance ARC — Escopo do Projeto
 
 > Documento vivo. Atualize os checkboxes conforme as entregas forem concluídas.
-> Última revisão: 10/11/2026 · **Versão atual: v0.1.0 (alpha)** · histórico em [CHANGELOG.md](../CHANGELOG.md)
+> Última revisão: 12/11/2026 · **Versão atual: v0.1.0+ (alpha; a v0.2.0 sai ao fechar a Fase 0)** · histórico em [CHANGELOG.md](../CHANGELOG.md)
+> A página visual deste documento é o **Scopo** (`docs/escopo.html`, publicado como artifact). Os dois devem dizer a mesma coisa.
 
 ---
 
 ## 1. Visão geral
 
-**Razão Finance ARC** é o **gestor financeiro** do ecossistema **ARC** (*Análises Reais e Computacionais*), a marca guarda-chuva da **D&C** (Donovan & Christopher) para sistemas, principalmente da área financeira. É uma aplicação web pensada primeiro para uso em **desktop**, mas que também deve funcionar bem no **celular**, adaptando o layout ao tamanho da tela.
+**Razão Finance ARC** é o **gestor financeiro** do ecossistema **ARC** (*Análises Reais e Computacionais*), a marca guarda-chuva da **D&C** (Donovan & Christopher) para sistemas, principalmente da área financeira. É uma aplicação web pensada primeiro para o **computador**, que também funciona no **celular** e pode ser **instalada como app** (PWA).
 
 No futuro, ele será a **fonte de dados financeira** usada pelo **Assessor Financeiro ARC (WhatsApp)**. O usuário vai poder consultar e registrar informações financeiras por mensagem, e tudo o que for registrado deve aparecer no Razão, e vice-versa.
 
 ### Objetivos
-1. Controlar contas a pagar e a receber, contas bancárias e cartões de crédito em um só lugar.
-2. Dar visão clara do saldo atual e do que está por vir (fluxo de caixa).
+1. Controlar contas a pagar e a receber, contas bancárias, caixa e cartões de crédito em um só lugar.
+2. Dar visão clara do saldo atual e do que está por vir (fluxo de caixa e agenda de vencimentos).
 3. Gerar relatórios para tomada de decisão.
-4. Servir de base (dados e regras) para o Assessor Financeiro ARC no WhatsApp.
+4. Organizar atendimentos e compromissos (agenda) ligados ao financeiro.
+5. Servir de base (dados e regras) para o Assessor Financeiro ARC no WhatsApp.
 
 ### Público
-- Pessoa física e/ou pequena empresa (o cadastro de clientes já distingue PF e PJ). *A definir: ver seção 9.*
+- **Empresas e pessoas** (PF ou PJ). Cada cliente do sistema é um **ID EMPRESA**, com uma ou mais empresas, vários usuários e permissões por tela.
 
 ---
 
@@ -28,23 +30,32 @@ No futuro, ele será a **fonte de dados financeira** usada pelo **Assessor Finan
 |---|---|
 | Frontend | React 19 + TypeScript + Vite 8 |
 | Rotas | React Router 7 |
-| Ícones | lucide-react |
+| Ícones e gráficos | lucide-react · Recharts |
 | Estilo | CSS puro, um arquivo por componente; variáveis globais em `src/styles/global.css` |
-| Identidade visual | Marca ARC (D&C): tema escuro, azul elétrico `#1a7cff` / ciano `#4fc3ff` com brilho, texto branco/prata. Fontes Inter (texto), Exo 2 (títulos) e Michroma (marca). Logo em `src/assets/arc-logo.png`, símbolo em `components/ArcMark`. Todas as cores vêm das variáveis do `global.css` (um tema claro pode ser criado só trocando essas variáveis) |
-| Backend | Supabase (Auth + Postgres), acessado direto pelo frontend via `@supabase/supabase-js` |
+| Identidade visual | Marca ARC (D&C): **modo claro (padrão)** com fundo branco e tons de azul da marca, e **modo escuro** com azul elétrico e brilho. Fontes Inter (texto), Exo 2 (títulos) e Michroma (marca). Logo em `src/assets/arc-logo.png`, símbolo em `components/ArcMark` |
+| Backend | Supabase (Auth + Postgres com RLS + funções RPC), acessado pelo frontend via `@supabase/supabase-js` |
+| Funções no servidor | Supabase Edge Function `admin-users` (Deno), com a chave secreta: cadastro de usuários, troca de senha e empresas do usuário |
+| Serviços externos | ViaCEP (endereço pelo CEP) · CNPJ.ws e BrasilAPI (dados do CNPJ na Receita) |
+| Publicação | Vercel (https://razao-finance-arc.vercel.app), cada push na `main` publica · GitHub `donsmoreira/projetos` |
+| App instalável | PWA: `public/manifest.webmanifest`, `public/icons/`, `public/sw.js` (só guarda a página "Sem conexão") |
 | Config | `.env.local` com `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` |
 
 ### Estrutura de pastas
 ```
 src/
-  components/      componentes genéricos (Button, Card)
-  contexts/        AuthContext (sessão do Supabase)
-  layouts/         MainLayout (Sidebar + Topbar + conteúdo)
-  pages/<Módulo>/  página + components/ (SearchBar, Table, Form, Modal)
-  routes/          AppRoutes e ProtectedRoute
+  components/      componentes genéricos (AddressSection, CnpjLookup, CurrencyInput, Modal...)
+  contexts/        AuthContext (sessão) e CompanyProvider (empresa aberta e permissões)
+  hooks/           useCompany/usePermissions, useCnpjLookup, useTheme
+  layouts/         MainLayout (Sidebar com menu agrupado + Topbar)
+  pages/<Módulo>/  página + components/
+  routes/          AppRoutes, ProtectedRoute, CompanyGate, ModuleRoute
   services/        acesso ao Supabase, um arquivo por módulo
   types/           tipos de domínio
+  utils/           formatação, CEP, CNPJ, documento, login com ID
   styles/          CSS global
+supabase/
+  migrations/      SQLs rodados no Supabase, em ordem
+  functions/       Edge Function admin-users
 ```
 
 ---
@@ -53,199 +64,193 @@ src/
 
 Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 
-### 3.1 Autenticação
+### 3.1 Login e conta
 | Item | Status | Observação |
 |---|---|---|
-| Login com e-mail e senha | ✅ | `pages/Login` |
-| Rotas protegidas | ✅ | `routes/ProtectedRoute.tsx` |
-| Logout | ✅ | botão na Topbar |
-| Cadastro de usuário | 🟡 | `pages/Signup`: e-mail + senha, conta ativada por código enviado ao e-mail. Depende de configurar o modelo de e-mail no Supabase |
-| Recuperação de senha | 🟡 | `pages/ForgotPassword`: código por e-mail + nova senha. Mesma dependência |
-| Perfil do usuário | ✅ | Configurações → Meu perfil: nome, telefone/WhatsApp, CPF, endereço |
-| Multiempresa e multiusuário | ✅ | empresas, membros com permissões por tela (administrador; em cada tela Ver, Cadastrar, Alterar, Excluir e Baixar em contas a pagar/receber; grade por grupo Geral / Cadastros / Financeiro com divisão Lançamentos), convite por código com a mesma grade; ID EMPRESA (grupo, sequencial a partir do 2; empresas com código 1, 2, 3...); login com ID EMPRESA, e-mail e senha; escolha da empresa após o login; cadastro de usuário por e-mail e senha nas empresas marcadas (Edge Function `admin-users`); primeira empresa com cadastro completo; empresa aberta no topo com seletor |
+| Login com **ID EMPRESA**, e-mail e senha | ✅ | o ID fica lembrado no navegador; ID de outro cliente é barrado (no login e no banco) |
+| Escolha da empresa depois do login | ✅ | "Em qual empresa você vai operar?", com as empresas do ID liberadas para a pessoa |
+| Primeiro acesso (conta sem empresa) | ✅ | ID em branco → "Cadastre sua empresa" com o cadastro completo; nasce um ID novo com a pessoa como administradora |
+| Rotas protegidas e sair | ✅ | `ProtectedRoute`, `CompanyGate`, `ModuleRoute` |
+| Criar conta (cadastro público) | 🟡 | tela pronta com código por e-mail; **fechado no Supabase** durante os testes. Usuários são criados pelo administrador |
+| Esqueceu a senha (código por e-mail) | 🟡 | tela pronta; o e-mail só chega a quem é da equipe do Supabase até configurar o SMTP próprio |
+| Meu perfil | ✅ | nome, telefone/WhatsApp, CPF, endereço |
+| Mensagens de erro em português | ✅ | |
 
-### 3.2 Dashboard (`/`)
+### 3.2 Empresas, usuários e permissões (Configurações)
 | Item | Status | Observação |
 |---|---|---|
-| Total a pagar (pendentes) | ✅ | soma valor original + juros + multa |
-| Total a receber (pendentes) | ✅ | |
-| Saldo em contas | ✅ | saldo inicial + soma das `bank_transactions` |
-| Limite utilizado em cartões | ✅ | soma das compras em aberto dos cartões ativos |
-| Próximas 6 contas a pagar e a receber | ✅ | |
-| Saldo por conta bancária | ✅ | |
-| Contas vencidas em destaque | ❌ | |
-| Gráficos | ❌ | |
+| ID EMPRESA (grupo) | ✅ | sequencial a partir do **2** (o 1 é reservado); a Dons é o ID 2. Empresas do ID têm código 1, 2, 3... ID e código não mudam |
+| Multiempresa | ✅ | todos os dados são da empresa aberta; empresa no centro do topo, com seletor (só entre as empresas do ID) |
+| Empresas | ✅ | lista com **Cadastro** e **Abrir**; **Nova empresa** abre o cadastro completo; todos os administradores do ID entram nas empresas novas |
+| Cadastro da empresa | ✅ | CPF/CNPJ pelo número de dígitos; CNPJ **busca os dados na Receita** (razão social, nome fantasia, enquadramento Simples/MEI, inscrição estadual ativa, contato, endereço, situação cadastral); PF/PJ, regime tributário, inscrições |
+| Permissões por tela | ✅ | Administrador; em cada tela **Ver, Cadastrar, Alterar, Excluir** e **Baixar** (contas a pagar/receber). Grade por grupo: Geral (Painel, Agenda, Relatórios), Cadastros, Financeiro (Lançamentos / Contas e caixa). Sem "Ver" a tela some do menu |
+| Cadastrar usuário | ✅ | nome, e-mail, senha, empresas do ID (caixinhas) e grade de permissões; se o e-mail já tiver conta, só entra nas empresas. Pelo botão no topo; roda na Edge Function `admin-users` |
+| Editar usuário | ✅ | nome, permissões, empresas em que opera e troca de senha (só de quem opera apenas em empresas suas) |
+| Convite por código | ✅ | vale 7 dias, uso único, com a mesma grade; mensagem pronta para o WhatsApp |
+| Convite por e-mail | ❌ | depende do SMTP |
+| Logo da empresa | ❌ | |
 
-### 3.3 Cadastros
+### 3.3 Dashboard (`/`)
+| Item | Status | Observação |
+|---|---|---|
+| Total a pagar e a receber (pendentes) | ✅ | valor original + juros + multa |
+| Saldo em contas e no caixa | ✅ | saldo inicial + `bank_transactions` |
+| Limite utilizado em cartões | ✅ | |
+| Próximos vencimentos e saldo por conta | ✅ | |
+| Contas vencidas em destaque | ❌ | (na Agenda as vencidas já aparecem destacadas) |
+| Gráficos no painel | ❌ | já existem em Relatórios |
+
+### 3.4 Cadastros
 | Módulo | Status | Campos |
 |---|---|---|
-| Clientes (`/clientes`) | ✅ CRUD + busca + filtro por UF/cidade | nome/razão social, tipo (PF/PJ automático pelo documento), CPF/CNPJ (CNPJ busca os dados na Receita); com PJ: nome fantasia, enquadramento, inscrição estadual; telefone, e-mail, observações, endereço opcional (CEP com preenchimento automático pelo ViaCEP) |
-| Fornecedores (`/fornecedores`) | ✅ CRUD + busca + filtro por UF/cidade | nome/razão social, tipo (PF/PJ automático pelo documento), CPF/CNPJ (CNPJ busca os dados na Receita); com PJ: nome fantasia, enquadramento, inscrição estadual; telefone, e-mail, observações, endereço opcional (CEP com preenchimento automático pelo ViaCEP) |
-| Contas gerenciais (`/contas-gerenciais`) | ✅ CRUD + busca | árvore de contas pai/subcontas; nome, receita/despesa, fixa/variável; filtro por tipo, busca, expandir/recolher |
+| Clientes (`/clientes`) | ✅ CRUD + busca + filtro por UF/cidade | tipo (PF/PJ automático pelo documento), CPF/CNPJ com **busca na Receita**, nome/razão social; com PJ: nome fantasia, enquadramento, inscrição estadual; telefone, e-mail, observações, endereço com CEP automático (ViaCEP) |
+| Fornecedores (`/fornecedores`) | ✅ CRUD + busca + filtro por UF/cidade | os mesmos campos dos clientes (inclusive o Tipo) |
 
-### 3.4 Contas bancárias (`/bancos`)
+### 3.5 Contas gerenciais (`/contas-gerenciais`, no grupo Financeiro)
+✅ Plano de contas de receita e despesa, fixa/variável, contas pai e subcontas em vários níveis, busca e filtro; regras no banco (tipo herdado, nome único por nível, conta em uso não exclui). Obrigatória nos lançamentos.
+
+### 3.6 Contas bancárias (`/bancos`)
 | Item | Status | Observação |
 |---|---|---|
-| CRUD de contas | ✅ | nome, banco, agência, número, saldo inicial, limite de cheque especial |
-| Extrato da conta (lista de lançamentos) | 🟡 | o service tem `listBankTransactions`, mas **nenhuma tela usa** |
-| Lançamento manual (entrada/saída avulsa) | 🟡 | o service tem `createBankTransaction` e `deleteBankTransaction`, mas **sem tela** |
-| Transferência entre contas | 🟡 | função `transfer_between_accounts` no banco; usada na tela do Caixa (banco ↔ caixa). Falta transferência banco ↔ banco |
-| Conciliação / importação de extrato (OFX/CSV) | ❌ | |
+| Cadastro de contas | ✅ | banco numa lista com código, agência, número, saldo inicial, cheque especial |
+| Extrato da conta | 🟡 | o service tem `listBankTransactions`, **sem tela** |
+| Lançamento manual em banco | 🟡 | existe no Caixa; falta tela para bancos |
+| Transferência | 🟡 | banco ↔ caixa pronto (e no fechamento do caixa); falta banco ↔ banco |
+| Importar extrato (OFX/CSV) | ❌ | |
 
-### 3.4b Caixa — dinheiro físico (`/caixa`)
+### 3.7 Caixa — dinheiro físico (`/caixa`)
 | Item | Status | Observação |
 |---|---|---|
-| Cadastro de caixas | ✅ | é uma conta em `bank_accounts` com `account_type = 'caixa'` (sem banco, sem cheque especial) |
-| Saldo atual e total em dinheiro | ✅ | saldo inicial + movimentações |
-| Entrada e saída avulsas | ✅ | `transaction_type = 'manual'` |
-| Transferência banco ↔ caixa (saque/depósito) | ✅ | duas movimentações gravadas juntas (`transaction_type = 'transfer'`); não conta como receita/despesa |
-| Pagamento e recebimento em dinheiro | ✅ | nas telas de baixa, o caixa aparece junto das contas, com saldo antes/depois |
-| Fluxo de caixa por período | ✅ | saldo anterior, entradas, saídas, saldo linha a linha |
-| Saldo nunca negativo | ✅ | regra no banco (inclusive ao desfazer um recebimento) |
-| Fechamento de caixa (turnos) | ✅ | caixa de operação abre conferindo o troco e fecha com valor contado obrigatório (esperado × contado × diferença, confirmação da quebra), envio para caixa de retaguarda e/ou depósito no banco, reserva para a próxima abertura; trava do turno fechado, reabertura só pelo administrador; relatório de quebra de caixa (`cash_sessions`, SQL `20261111_fechamento_caixa.sql`) |
-| Agenda com horários | ✅ | visões Mês/Semana/Dia/Lista; cliente opcional, serviço, valor e responsável (cor por usuário); aviso de conflito; status agendado/confirmado/concluído/cancelado/faltou; concluir oferece conta a receber; arrastar para outro dia/horário com cartão que balança; concluído travado; permissão própria. Google Agenda: próxima etapa |
-| Cadastro da empresa | ✅ | Configurações → Empresas → Cadastro (por empresa da lista) ou Nova empresa; CNPJ busca os dados na Receita (CNPJ.ws, reserva BrasilAPI), inclusive a inscrição estadual; CPF/CNPJ pelo número de dígitos, PF/PJ, razão social, nome fantasia, regime tributário, inscrições, contato, endereço |
+| Caixa de **operação** e de **retaguarda** (cofre) | ✅ | operação abre e fecha em turnos; retaguarda não abre nem fecha e recebe o dinheiro no fechamento |
+| Abertura conferindo o troco | ✅ | troco esperado (reserva do último fechamento) × contado; diferença só com confirmação |
+| Fechamento | ✅ | valor contado **obrigatório**; esperado × contado × diferença; envio para a retaguarda e/ou depósito no banco; o resto fica de **reserva** para a próxima abertura |
+| Quebra de caixa | ✅ | diferença confirmada vira o lançamento "Quebra de caixa (sobra/falta)" |
+| Trava | ✅ | caixa fechado não recebe nem tem saída (inclusive pagar/receber em dinheiro); lançamentos de turno fechado não mudam; só o administrador reabre o último fechamento (desfaz o que ele lançou) |
+| Vários turnos por dia e histórico | ✅ | "Aberturas e fechamentos" na tela do Caixa |
+| Entradas e saídas avulsas, saque/depósito com o banco | ✅ | |
+| Pagar e receber em dinheiro | ✅ | com o caixa aberto |
+| Fluxo de caixa por período | ✅ | |
+| Saldo nunca negativo | ✅ | regra no banco |
 
-### 3.5 Contas a pagar (`/contas-pagar`)
+### 3.8 Contas a pagar (`/contas-pagar`) e a receber (`/contas-receber`)
 | Item | Status | Observação |
 |---|---|---|
-| CRUD (apenas enquanto pendente) | ✅ | |
-| Parcelamento | ✅ | gera N registros ligados por `installment_group_id` |
-| Juros e multa | ✅ | informados manualmente |
-| Baixa (pagamento) via conta bancária ou caixa | ✅ | gera `bank_transaction` negativa; `payment_method` = `banco` ou `caixa` |
-| Estorno de pagamento | ✅ | apaga a transação e volta para pendente |
-| Pagamento com cartão de crédito | 🟡 | colunas `card_id` e `card_transaction_id` existem, **sem uso** |
-| Status "vencido" | ❌ | só existem `pendente` e `pago` |
-| Pagamento parcial | ❌ | |
-| Conta gerencial | ✅ | obrigatória; só contas de **despesa** (regra no banco). O caminho da conta fica guardado em `category` |
-| Recorrência (contas fixas mensais) | ❌ | |
+| Cadastro e edição (enquanto pendente) | ✅ | |
+| Parcelamento | ✅ | vencimento no fim do mês corrigido |
+| Juros e multa | ✅ | |
+| Pagar / receber pela conta ou pelo caixa | ✅ | operação única no banco, sem pagamento em dobro |
+| Estorno | ✅ | |
+| Conta gerencial obrigatória | ✅ | pagar só despesa; receber só receita |
+| Conta a receber criada ao concluir atendimento | ✅ | pela Agenda |
+| Pagar com cartão | 🟡 | colunas existem, sem uso |
+| Status "vencido" | ❌ | só `pendente` e `pago`/`recebido` (a Agenda destaca as vencidas) |
+| Pagamento/recebimento parcial | ❌ | |
+| Contas recorrentes | ❌ | |
 | Anexos (boleto, comprovante) | ❌ | |
 
-### 3.6 Contas a receber (`/contas-receber`)
-Espelha as contas a pagar: CRUD, parcelamento, juros e multa, baixa via conta bancária ou caixa (transação positiva) e estorno. ✅
-Conta gerencial obrigatória, só contas de **receita** (regra no banco). ✅
-Mesmas lacunas: status vencido, recebimento parcial, recorrência. ❌
-
-### 3.7 Cartões de crédito (`/cartoes`)
+### 3.9 Cartões de crédito (`/cartoes`)
 | Item | Status | Observação |
 |---|---|---|
-| CRUD de cartões | ✅ | código corrigido para bater com o banco (D12) |
-| Exclusão lógica | ✅ | `active = false` |
-| Tabelas de compras e faturas no banco | ✅ | `card_transactions` (com parcelas) e `card_settlements` já existem, sem tela |
-| Lançamento de compras no cartão | ❌ | |
-| Compras parceladas no cartão | ❌ | |
-| Faturas (abertura, fechamento, pagamento) | ❌ | |
-| Cálculo automático do limite disponível | ✅ | limite total − (gastos em `card_transactions` − baixas em `card_settlements`); só exibido, não editável |
-| Banco do cartão | ✅ | escolhido entre as contas bancárias cadastradas (`bank_account_id`) |
-| Bandeiras | ✅ | lista fixa das bandeiras do Brasil (`src/constants/cardBrands.ts`) |
-| Nome do cartão | ✅ | automático: banco + bandeira em maiúsculas (ex.: SICREDI VISA), sem o código do banco (`src/utils/bank.ts`) |
-| Valores em reais | 🟡 | componente `CurrencyInput` (edita qualquer casa, formata 5.000,00) no limite do cartão; aplicar nos demais formulários |
-| Banco nas contas bancárias | ✅ | lista fixa de bancos do Brasil (`src/constants/banks.ts`) + "Outro banco"; o código numérico é removido ao salvar |
+| Cadastro, banco e bandeira em listas, nome automático | ✅ | |
+| Desativar cartão | ✅ | |
+| Limite calculado sozinho | ✅ | |
+| Lançar compras (à vista e parceladas) | ❌ | tabelas `card_transactions` e `card_settlements` já existem |
+| Faturas | ❌ | |
 
-### 3.8 Relatórios (`/relatorios`)
+### 3.10 Agenda (`/agenda`)
 | Item | Status | Observação |
 |---|---|---|
-| Entradas x saídas por período | ✅ | baseado em `bank_transactions` |
-| Filtro entrada/saída/todos | ✅ | |
-| Resumo (receitas, despesas, saldo, quantidade) | ✅ | |
-| Descritivo (tabela) | ✅ | agora com conta/caixa e conta gerencial |
-| Torres (barras entradas x saídas) | ✅ | por dia até 62 dias; acima, por mês |
-| Curvas (linhas + resultado acumulado) | ✅ | |
-| Pizza | ✅ | saídas, entradas ou entradas x saídas; fatias por conta gerencial (principal/subconta), fornecedor/cliente, lançamento, conta/caixa ou origem; até 8 fatias + "Outros" |
-| Torres agrupadas ("Ver por") | ✅ | mesmas formas de agrupar da pizza, além do período; até 12 grupos + "Outros" |
-| Filtros do relatório | ✅ | conta/caixa, conta gerencial (com subcontas), estado e cidade do fornecedor/cliente, fornecedor/cliente, origem; valem para tabela, resumo e gráficos |
-| Agrupar por estado/cidade | ✅ | Torres e Pizza por UF ou cidade do fornecedor/cliente |
-| Atalhos de período | ✅ | hoje, este mês, mês passado, 30/90 dias, este ano, ano passado |
-| Transferências fora dos totais | ✅ | banco ↔ caixa não conta como entrada/saída |
-| Fluxo de caixa projetado (pendentes futuros) | ❌ | |
-| Exportação (PDF / Excel) | ❌ | |
+| Visões Mês (padrão), Semana, Dia e Lista | ✅ | Hoje e setas; a visão escolhida fica lembrada |
+| Agendamento | ✅ | cliente (opcional), serviço/assunto, data, início, término, responsável, valor (opcional), status, observações |
+| Responsável e conflito | ✅ | todos veem a agenda de todos; filtro por responsável; aviso se o responsável já tem horário sobreposto |
+| Status | ✅ | agendado, confirmado, concluído, cancelado, faltou |
+| Concluir com conta a receber | ✅ | com valor e cliente, oferece criar a conta a receber (ligada ao agendamento) |
+| Concluído travado | ✅ | não move nem altera (regra no banco); só excluir |
+| Arrastar | ✅ | para outro dia (Mês) ou dia/horário (Semana/Dia), de 15 em 15 min; cartão que balança como pêndulo; no celular, segura e arrasta |
+| Cor por agendamento | ✅ | azul por padrão, 11 sugestões ou qualquer cor (seletor RGB) |
+| Vencimentos de contas | ✅ | a pagar (vermelho) e a receber (verde) pela data de vencimento; vencidas destacadas, quitadas apagadas; botões para mostrar/esconder |
+| Permissão própria | ✅ | Ver, Cadastrar, Alterar, Excluir |
+| Integração com o Google Agenda | ❌ | próxima etapa (projeto no Google Cloud + autorização) |
 
-### 3.9 Layout e responsividade
+### 3.11 Relatórios
 | Item | Status | Observação |
 |---|---|---|
-| Layout desktop (Sidebar + Topbar) | ✅ | |
-| Ajustes de grid nas páginas para telas menores | 🟡 | há `@media` nas páginas |
-| Menu lateral recolhível | ✅ | botão no topo: no computador recolhe para só ícones (fica salvo); abaixo de 768px vira gaveta por cima da tela, que fecha ao escolher uma tela, no fundo escuro ou com Esc |
-| Tabelas no mobile | 🟡 | precisam virar cards ou ter rolagem horizontal |
-| Instalável (PWA) | ✅ | manifest, ícones ARC em fundo branco, página "Sem conexão"; service worker sem cache de dados |
+| Geral: Descritivo, Torres, Curvas e Pizza | ✅ | baseado em `bank_transactions`; transferências fora dos totais |
+| Filtros | ✅ | conta/caixa, conta gerencial, fornecedor/cliente, estado e cidade, origem; atalhos de período |
+| Quebra de caixa | ✅ | período e caixa; sobras, faltas e resultado; cada quebra com quem, esperado, contado e diferença |
+| Fluxo de caixa projetado | ❌ | |
+| Exportar PDF/Excel | ❌ | |
 
-### 3.10 Verificação feita em 09/11/2026
-Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o código atual:
+### 3.12 Visual, menu e celular
+| Item | Status | Observação |
+|---|---|---|
+| Identidade ARC, modo claro (padrão) e escuro | ✅ | chave em pílula no topo, que se estica ao deslizar |
+| Menu agrupado | ✅ | Dashboard, Agenda, Cadastros, Financeiro, Relatórios, Configurações; telas sem permissão somem |
+| Pílula animada no menu | ✅ | o destaque desliza e estica até o item clicado |
+| Menu recolhível / gaveta no celular | ✅ | |
+| App instalável (PWA) | ✅ | ícone ARC em fundo branco, tela cheia, barra do celular na cor do sistema, página "Sem conexão" |
+| Páginas em telas menores | 🟡 | há ajustes; tabelas ainda precisam virar cartões no celular |
+| Formulários em tela cheia no celular | ❌ | |
 
+### 3.13 Segurança — situação em 12/11/2026
 | Ponto | Situação |
 |---|---|
-| Build de produção (`npm run build`) | ✅ passa sem erros (só um aviso de tamanho do pacote JS, 543 kB) |
-| Cartões de crédito (havia tela branca/404) | ❌ o código compila, mas **não bate com o banco**: usa `bank`, `final_digits`, `holder_name`, `limit_total`, `available_limit`, `color`, `notes` e `active`, que não existem. O banco tem `credit_limit` e `bank_account_id` |
-| Segurança (RLS) | ✅ as 11 tabelas têm RLS ativo, e cada usuário só acessa as próprias linhas (`auth.uid() = user_id`). Há políticas duplicadas em `credit_cards` e `receivables` (inofensivas) |
-| Tabelas extras no banco | `profiles` (criada no cadastro do usuário), `card_transactions`, `card_settlements` e `appointments` (agenda com clientes) |
-| Relatórios (não tinha confirmação final) | ✅ o código compila e usa `bank_transactions`. Falta testar na tela |
-| Convenção de sinais | ✅ confirmada no código: pagamentos gravam valor negativo, recebimentos positivo |
-| Tabelas no Supabase | ✅ as 7 tabelas existem (`clients`, `suppliers`, `bank_accounts`, `bank_transactions`, `payables`, `receivables`, `credit_cards`), e o acesso sem login é negado |
-| Repositório no GitHub | ⚠️ existe, mas guarda a versão antiga em HTML/CSS/JS puro, anterior à migração para Vite. A pasta local não tem git |
-| Deploy na Vercel | ❌ nunca foi criado |
-| `vercel.json` (rotas do BrowserRouter) | ❌ não existe: no ar, atualizar uma página interna daria erro 404 |
-| Nome da variável da chave do Supabase | ⚠️ o código usa `VITE_SUPABASE_PUBLISHABLE_KEY`, e o histórico orientava `VITE_SUPABASE_ANON_KEY`. A Vercel precisa usar o nome novo |
-| `.env.local` fora do git | ✅ coberto pela regra `*.local` do `.gitignore` |
-
-### 3.11 Segurança — diagnóstico de 10/11/2026 (antes do teste com outra pessoa)
-| Ponto | Situação |
-|---|---|
-| Criptografia na transmissão | ✅ HTTPS no Supabase e na Vercel |
-| Criptografia no armazenamento | ✅ disco e backups criptografados pelo Supabase; senhas guardadas só como hash. Dados **não** são criptografados campo a campo: o dono do projeto vê os dados no painel (avisar o testador) |
-| Acesso sem login | ✅ testado: as 12 tabelas e a função de transferência negam leitura e gravação |
-| Isolamento entre usuários | ✅ RLS `auth.uid() = user_id` em todas as operações de todas as tabelas |
-| Chaves | ✅ o site usa só a chave pública; `.env.local` nunca foi para o git (histórico conferido) |
-| Código do site | ✅ sem `dangerouslySetInnerHTML`/`eval`; dependências do site final com 0 vulnerabilidades |
-| Cabeçalhos de segurança | ✅ `vercel.json`: Content-Security-Policy (só o próprio site, Supabase e Google Fonts; nada de script embutido), bloqueio de exibição dentro de outro site, HSTS, nosniff, Referrer-Policy, Permissions-Policy. O script do tema saiu do `index.html` para `public/theme-init.js` |
-| Ferramentas de desenvolvimento | 🟡 `npm audit fix`: as 5 altas resolvidas (Vite 8.3.7); sobram 10 moderadas só no ESLint, que exigiriam rebaixar versão |
-| E-mail dos códigos (SMTP) | ❌ o envio padrão do Supabase só chega a quem é da equipe do projeto. Para o teste: e-mail próprio (Resend/Brevo) ou criar a conta do testador à mão |
-| Cadastro público | ✅ fechado em 10/11/2026 ("Allow new users to sign up" desligado); contas de teste são criadas pelo painel |
-| Senha mínima no Supabase | ❓ conferir se está em 8 (igual à tela) e "Confirm email" ligado |
+| Criptografia | ✅ HTTPS no Supabase e na Vercel; disco e backups criptografados; senhas só como hash. Dados não são criptografados campo a campo |
+| Acesso sem login | ✅ tabelas e funções negam leitura e gravação |
+| Isolamento entre clientes | ✅ RLS por **empresa aberta**, que só vale se for do **ID EMPRESA** com que a pessoa entrou; testado: IDs 1, 3, 999 e em branco barrados; empresa de fora barrada |
+| Permissões | ✅ o banco confere a permissão da tela em cada gravação (`has_module_permission`); pagar/receber/estornar pela tela certa; caixa e agenda com travas próprias |
+| Chaves | ✅ o site usa só a chave pública; a chave secreta fica só na Edge Function `admin-users`. Papel de servidor (`service_role`) com acesso às tabelas |
+| Cabeçalhos de segurança | ✅ `vercel.json`: CSP (próprio site, Supabase, Google Fonts, ViaCEP, CNPJ.ws, BrasilAPI; nada de script embutido), anti-iframe, HSTS, nosniff, Referrer-Policy, Permissions-Policy |
+| Cadastro público | ✅ fechado ("Allow new users to sign up" desligado); usuários criados pelo administrador |
+| Ferramentas de desenvolvimento | 🟡 10 vulnerabilidades moderadas só no ESLint (não vão para o site) |
+| E-mail dos códigos (SMTP) | ❌ o envio padrão do Supabase só chega a quem é da equipe do projeto |
+| Senha mínima no Supabase | ❓ conferir se está em 8 (igual à tela) |
 | Verificação em duas etapas | ❓ ligar no Supabase, GitHub, Vercel e no e-mail |
-| Chaves estrangeiras entre usuários | 🟡 um cadastro poderia apontar para o fornecedor/conta de outro usuário; risco quase nulo (UUIDs) |
-| LGPD | 🟡 falta termo de consentimento simples para o testador; apagar o usuário apaga todos os dados dele |
+| Security Advisor do Supabase | ❓ revisar os avisos |
+| LGPD | 🟡 falta termo de consentimento simples para testadores |
 
 ---
 
 ## 4. Modelo de dados (Supabase)
 
-> Estrutura real exportada em 10/11/2026 para `supabase/schema-atual.json` (gerada por `supabase/levantamento-schema.sql`). São 11 tabelas, todas com RLS ativo. Valores em `numeric(14,2)`.
+> Todas as tabelas de dados têm `company_id` e RLS ativo. Valores em `numeric(14,2)`. Os SQLs ficam em `supabase/migrations/` (rodados à mão no SQL Editor, em ordem de data).
 
 | Tabela | Campos principais | Relações |
 |---|---|---|
-| `clients` | name, type, document, phone, email, notes, zip_code, street, address_number, complement, neighborhood, city, state | user_id |
-| `suppliers` | name, document, phone, email, notes, zip_code, street, address_number, complement, neighborhood, city, state | user_id |
-| `bank_accounts` | name, bank, agency, account_number, initial_balance, overdraft_limit | user_id |
-| `bank_transactions` | transaction_date, description, value (+ entrada / − saída), transaction_type (`manual`, `payable_payment`, ...), reference_type, reference_id | bank_account_id, payable_id |
-| `payables` | description, category, original_value, interest, penalty, issue_date, due_date, status, payment_*, paid_value, installment_* | supplier_id, bank_account_id, bank_transaction_id, card_id, card_transaction_id |
-| `receivables` | igual a payables, com received_value / receipt_date | client_id, bank_account_id, bank_transaction_id |
-| `credit_cards` | name, brand, credit_limit, closing_day, due_day (1–31) | user_id, bank_account_id |
-| `card_transactions` | transaction_date, description, value, settled, installment_* | card_id, payable_id, settlement_id |
-| `card_settlements` (pagamento de fatura) | settlement_date, value | card_id, bank_account_id, bank_transaction_id |
-| `profiles` | full_name, company_name, phone, preferred_theme, currency | user_id (criado automaticamente no cadastro) |
-| `appointments` (agenda) | appointment_date, start_time, end_time, title, amount, responsible_id, status (agendado/confirmado/concluido/cancelado/faltou), receivable_id, confirmed_at/completed_at/canceled_at | company_id, client_id (opcional) |
-| `management_accounts` (contas gerenciais) — usada em `payables` / `receivables.management_account_id` | name, type (`receita`/`despesa`), nature (`fixa`/`variavel`). Subconta tem o mesmo tipo da conta pai; nome único por nível; sem ciclos (regras no banco) | user_id, parent_id → management_accounts |
+| `company_groups` (ID EMPRESA) | id (a partir do 2), name | created_by |
+| `companies` | name, trade_name, document, person_type, tax_regime, inscrições, contato, endereço, **group_id**, **code** (1, 2, 3...) | group_id |
+| `company_members` | is_admin (+ permissões gerais antigas, usadas como resumo) | company_id, user_id |
+| `company_member_permissions` | module (tela), can_view, can_create, can_update, can_delete, can_settle | company_id, user_id |
+| `company_invites` | code, is_admin, module_permissions (JSON), expires_at, used_by/used_at | company_id |
+| `profiles` | full_name, phone, cpf, endereço, active_group_id, active_company_id | user_id |
+| `clients` | name, type, document, trade_name, state_registration, tax_regime, phone, email, notes, endereço | company_id |
+| `suppliers` | os mesmos campos de `clients` (inclusive type) | company_id |
+| `management_accounts` | name, type (receita/despesa), nature (fixa/variável) | company_id, parent_id |
+| `bank_accounts` | name, bank, agency, account_number, initial_balance, overdraft_limit, account_type (banco/caixa), cash_role (operacao/retaguarda) | company_id |
+| `bank_transactions` (o **razão**) | transaction_date, description, value (+ entrada / − saída), transaction_type (manual, payable_payment, receivable_receipt, card_settlement, transfer, cash_adjustment), reference_type, reference_id | bank_account_id, payable_id, cash_session_id |
+| `cash_sessions` (turnos do caixa) | status, abertura (esperado, contado, diferença), fechamento (esperado, contado, diferença, retaguarda, depósito, reserva), reabertura | cash_account_id, backoffice_account_id, bank_account_id |
+| `payables` | description, category, original_value, interest, penalty, issue_date, due_date, status, payment_*, paid_value, installment_* | supplier_id, bank_account_id, management_account_id, card_id |
+| `receivables` | igual a payables, com received_value / receipt_date | client_id, bank_account_id, management_account_id |
+| `appointments` (agenda) | appointment_date, start_time, end_time, title, amount, color, status, notes, confirmed_at/completed_at/canceled_at | client_id (opcional), responsible_id, receivable_id |
+| `credit_cards` | name, brand, credit_limit, closing_day, due_day, active | bank_account_id |
+| `card_transactions` / `card_settlements` | compras e pagamentos de fatura | card_id |
 
-| `companies` (empresas) | name (nome/razão social), trade_name, document (11 = CPF, 14 = CNPJ), person_type (PF/PJ), tax_regime, inscrições, contato, endereço | created_by |
-| `company_members` (usuários da empresa) | is_admin, can_create, can_update, can_delete, can_settle | company_id, user_id |
-| `company_invites` (convites) | code, permissões, expires_at (7 dias), used_by/used_at | company_id |
+**Funções principais:** `current_company_id()`, `current_group_id()`, `enter_group(id)`, `set_active_company`, `has_module_permission(tela, ação)`, `pay_payable` / `receive_receivable` e estornos, `transfer_between_accounts`, `open_cash_session` / `close_cash_session` / `reopen_cash_session`, `create_company`, `set_member_permissions`, `create_invite` / `accept_invite`, `update_member_name`.
 
-**ID EMPRESA (desde 11/11/2026):** `company_groups` (id a partir do 2; o 1 é reservado), `companies.group_id` + `companies.code` (1, 2, 3... dentro do ID) e `profiles.active_group_id`. O login chama `enter_group(id)`, que só aceita IDs de que a conta participa; `current_company_id()` só devolve a empresa aberta se ela for do ID com que a pessoa entrou.
-
-**Multiempresa (desde 11/11/2026):** todas as tabelas de dados têm `company_id`. As regras de acesso (RLS) mostram só a **empresa aberta** (`profiles.active_company_id`, conferida por `current_company_id()`) e checam a permissão da tela (`has_module_permission(tela, ação)`, tabela `company_member_permissions`) para cadastrar, alterar e excluir; caixa e conta bancária pela coluna `account_type`. Pagar/estornar exige "Baixar" em Contas a Pagar e receber/estornar em Contas a Receber. "Ver" controla a tela (menu e rota); a leitura dos dados continua liberada para quem é da empresa, porque uma tela usa dados de outras (ex.: fornecedores na conta a pagar). `user_id` passou a significar só "quem cadastrou".
-
-**Princípio central:** `bank_transactions` é o **razão** do sistema. Todo dinheiro que entra ou sai de uma conta vira uma linha nessa tabela, e saldos e relatórios saem dela.
+**Princípio central:** `bank_transactions` é o **razão** do sistema. Todo dinheiro que entra ou sai de uma conta ou caixa vira uma linha nessa tabela, e saldos e relatórios saem dela.
 
 ---
 
 ## 5. Regras de negócio atuais
-1. Toda tabela pertence a um usuário (`user_id`). O isolamento entre usuários **depende das políticas RLS do Supabase**.
-2. Contas a pagar e a receber só podem ser editadas ou excluídas enquanto estiverem `pendente`.
-3. Pagar ou receber gera uma `bank_transaction` (negativa ou positiva) e marca a conta como `pago` ou `recebido`.
-4. O estorno apaga a `bank_transaction` e devolve a conta para `pendente`.
+1. Todo dado pertence a uma **empresa**. A pessoa só vê a empresa aberta, que precisa ser do **ID EMPRESA** com que entrou e de que ela participa.
+2. O que cada usuário pode fazer é definido **por tela** (Ver, Cadastrar, Alterar, Excluir, Baixar). O administrador pode tudo.
+3. Contas a pagar e a receber só podem ser editadas ou excluídas enquanto estiverem `pendente`.
+4. Pagar ou receber gera uma `bank_transaction` e marca a conta como `pago`/`recebido`, numa operação só. O estorno desfaz os dois juntos.
 5. Parcelamento: N registros com vencimento mês a mês e descrição "(i/N)".
-6. Lançamentos bancários gerados por pagamento só podem ser apagados pelo estorno. Só os `manual` podem ser excluídos direto.
-7. Valor de uma conta = valor original + juros + multa.
+6. Valor de uma conta = valor original + juros + multa.
+7. Caixa de operação só movimenta com o turno **aberto**. Fechamento exige o valor contado; diferença confirmada vira "Quebra de caixa". Turno fechado fica travado; só o administrador reabre o último.
+8. O saldo do caixa nunca fica negativo.
+9. Atendimento **concluído** na agenda não pode ser movido nem alterado; só excluído.
 
 ---
 
@@ -253,19 +258,23 @@ Comparação entre o histórico do desenvolvimento anterior (ChatGPT) e o códig
 
 | # | Problema | Onde | Prioridade |
 |---|---|---|---|
-| D1 | ✅ **Resolvido em 11/11/2026.** Pagamento, recebimento e os dois estornos viraram funções no banco (`pay_payable`, `reverse_payable_payment`, `receive_receivable`, `reverse_receivable_receipt`): tudo ou nada, com trava contra pagamento em dobro | `supabase/migrations/20261111_pagamentos_atomicos.sql` | — |
-| D2 | Schema e RLS não versionados no repositório | — | Alta |
-| D3 | Projeto sem git | raiz | Alta |
-| D4 | Parcelas com vencimento no dia 29–31 "pulam" de mês (`setMonth`) | `createPayables` / `createReceivables` | Média |
-| D5 | Dashboard calcula saldo baixando **todas** as transações para o navegador (não escala) | `dashboardService.ts` | Média |
-| D6 | "Limite utilizado em cartões" fixo em 0 | `dashboardService.ts` | Média |
-| D7 | `getAuthenticatedUser` duplicado em vários services; `SearchBar` duplicado em todos os módulos | `services/`, `pages/*/components` | Baixa |
-| D8 | Excluir conta bancária com lançamentos: comportamento depende das FKs do banco | `bankAccountsService.ts` | Média |
-| D9 | README ainda é o template do Vite | `README.md` | Baixa |
-| D10 | Sem testes automatizados | — | Média |
-| D12 | Tela de Cartões não batia com a tabela `credit_cards`. **Código corrigido**; falta rodar o SQL de migração | `creditCardsService.ts`, `supabase/migrations/` | Alta |
-| D13 | Políticas RLS duplicadas em `credit_cards` e `receivables` (versões antigas para o papel `public`) | Supabase | Baixa |
-| D11 | `npm run lint` acusa 16 erros: `setState` chamado direto dentro de `useEffect` (padrão que o React 19 desaconselha) e um export misto no AuthContext. Não quebra o app | páginas e formulários | Baixa |
+| D1 | ✅ Resolvido: pagamento, recebimento e estornos atômicos no banco | `20261111_pagamentos_atomicos.sql` | — |
+| D2 | 🟡 Os SQLs ficam versionados em `supabase/migrations`, mas o esquema original (de antes da retomada) não tem migration própria | `supabase/` | Média |
+| D3 | ✅ Resolvido: git e GitHub | — | — |
+| D4 | ✅ Resolvido: parcelas no fim do mês | `src/utils/date.ts` | — |
+| D5 | Dashboard calcula saldo baixando **todas** as transações (não escala) | `dashboardService.ts` | Média |
+| D6 | ✅ Resolvido: limite utilizado em cartões | — | — |
+| D7 | 🟡 `getAuthenticatedUser` já unificado; falta um SearchBar genérico e unificar formatação de moeda/data | `pages/*/components` | Baixa |
+| D8 | Excluir conta bancária com lançamentos: comportamento depende das FKs do banco (o Caixa já bloqueia) | `bankAccountsService.ts` | Média |
+| D9 | ✅ Resolvido: README | — | — |
+| D10 | Testes automáticos: só scripts de regras rodados à parte; nenhum teste de tela | — | Média |
+| D11 | `npm run lint` acusa 15 erros antigos (`setState` direto em `useEffect` e um export misto no AuthContext). Não quebra o app | páginas e formulários | Baixa |
+| D12 | ✅ Resolvido: tela de Cartões batendo com o banco | — | — |
+| D13 | ✅ Resolvido: políticas RLS duplicadas | — | — |
+| D14 | Usuário com acesso limitado ainda não foi testado com uma segunda conta de verdade | permissões | Média |
+| D15 | A função `admin-users` é publicada à mão pelo painel do Supabase: toda mudança no arquivo precisa ser republicada | `supabase/functions/admin-users` | Baixa |
+| D16 | "Ver" controla a tela; a leitura dos dados pela API continua liberada a quem é da empresa (uma tela usa dados de outras) | RLS | Baixa |
+| D17 | Um cadastro poderia apontar para fornecedor/conta de outra empresa (identificadores impossíveis de adivinhar; risco quase nulo) | chaves estrangeiras | Baixa |
 
 ---
 
@@ -289,19 +298,19 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 
 **Regras do dia a dia**
 1. Toda entrega concluída ganha uma linha no [CHANGELOG.md](../CHANGELOG.md).
-2. A versão fica em `package.json` e será exibida no app (rodapé do menu).
-3. Com o git criado (Fase 0), cada versão vira uma tag: `v0.2.0`, `v1.0.0-beta.1`...
-4. A v0.1.0 é a **linha de base**: tudo que existia ao retomar o projeto. Versões anteriores não foram registradas.
+2. A versão fica em `package.json` e aparece no rodapé do menu.
+3. Cada versão vira uma tag no git: `v0.2.0`, `v1.0.0-beta.1`...
+4. A v0.1.0 é a **linha de base**: tudo que existia ao retomar o projeto.
 
 **Mapa de versões**
 | Versão | Entrega |
 |---|---|
-| v0.1.0 | Linha de base (estado atual) |
+| v0.1.0 | Linha de base |
 | v0.2.0 | Fase 0 — Fundação |
 | v0.3.0 | Fase 1 — Celular |
-| v0.4.0 → v0.7.0 | Fase 2 — Bancos (0.4), Contas (0.5), Categorias (0.6), Cartões (0.7) |
+| v0.4.0 → v0.7.0 | Fase 2 — Bancos (0.4), Contas (0.5), Contas gerenciais (0.6), Cartões (0.7); Caixa e Agenda adiantados |
 | v0.8.0 | Fase 3 — Painel e relatórios |
-| v0.9.0 | Fase 4 — Conta do usuário |
+| v0.9.0 | Fase 4 — Conta, empresas e usuários |
 | v1.0.0-beta → v1.0.0 | Fase 5 — Qualidade e publicação |
 | v1.1.0 | Fase 6 — Integração com o Assessor WhatsApp |
 
@@ -310,103 +319,108 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 ## 8. Roadmap (o que está planejado)
 
 ### Fase 0 — Fundação · v0.2.0
-- [x] Iniciar repositório git e primeiro commit (v0.1.0 no GitHub, versão antiga na tag `legado-html`)
+- [x] Repositório git e GitHub (versão antiga preservada como legado)
 - [x] Levantar a estrutura real do banco (`supabase/schema-atual.json`)
-- [ ] Transformar a estrutura em migrations versionadas (`supabase/migrations`)
-- [x] Revisar RLS de todas as tabelas (cada usuário só vê os próprios dados)
-- [x] Corrigir a tela de Cartões para bater com o banco (D12) — código pronto
-- [x] Rodar `supabase/migrations/20261110_cartoes_e_politicas.sql` no Supabase (colunas dos cartões + remove políticas duplicadas D13)
-- [ ] Gerar tipos TypeScript a partir do schema (`supabase gen types`)
-- [x] Mover pagamento, recebimento e estorno para funções no Postgres (RPC) com transação atômica (D1) — `supabase/migrations/20261111_pagamentos_atomicos.sql`
-- [x] Corrigir cálculo de vencimento das parcelas (D4) — `src/utils/date.ts`
-- [x] Juntar `getAuthenticatedUser` num só lugar (`src/services/auth.ts`)
+- [x] Revisar as regras de acesso (RLS) de todas as tabelas
+- [x] Corrigir a tela de Cartões e rodar os SQLs pendentes
+- [x] Pagamento, recebimento e estorno atômicos no Postgres (D1)
+- [x] Corrigir vencimento das parcelas (D4) · README (D9) · versão no menu
+- [x] Publicação na Vercel ligada ao GitHub, `vercel.json`, variáveis e endereços no Supabase
+- [x] Cabeçalhos de segurança, cadastro público fechado, ferramentas atualizadas
+- [ ] Gerar tipos TypeScript a partir do banco (`supabase gen types`)
 - [ ] Unificar formatação de moeda/data e um SearchBar genérico (D7)
-- [x] Escrever o README real do projeto (D9)
-- [x] Exibir a versão do app no rodapé do menu
 - [ ] Corrigir os avisos do lint (D11)
-- [ ] Levar a versão Vite para o repositório do GitHub, preservando a versão antiga em HTML como legado
-- [x] Criar o projeto na Vercel ligado ao GitHub — https://razao-finance-arc.vercel.app (time "Don's arc", plano Hobby; cada push na `main` publica sozinho)
-- [x] Criar `vercel.json` com rewrite para as rotas do BrowserRouter
-- [x] Na Vercel, cadastrar `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` (o nome antigo era `ANON_KEY`)
-- [x] Supabase: Site URL = endereço da Vercel; Redirect URLs = Vercel e `http://localhost:5173`
-- [ ] Testar na tela cada módulo, principalmente Cartões e Relatórios
+- [ ] E-mail próprio (SMTP) no Supabase
+- [ ] Senha mínima 8 no Supabase · verificação em duas etapas · revisar o Security Advisor
+- [ ] Testar cada módulo com um usuário de acesso limitado (D14)
 
-### Fase 1 — Responsividade e mobile · v0.3.0
-- [x] Sidebar vira menu recolhível (drawer) abaixo de 768px, com botão na Topbar — e no computador recolhe para só ícones
-- [ ] Tabelas viram lista de cards no mobile
-- [ ] Modais e formulários em tela cheia no mobile
-- [ ] Revisar tamanhos de toque (botões, inputs) e teclado numérico em campos de valor
-- [x] PWA: manifest + ícones, para "instalar" no celular e no desktop
+### Fase 1 — Celular · v0.3.0
+- [x] Menu recolhível (gaveta no celular, só ícones no computador)
+- [x] App instalável (PWA) com ícone ARC e página "Sem conexão"
+- [ ] Tabelas viram lista de cartões no celular
+- [ ] Formulários em tela cheia no celular
+- [ ] Tamanhos de toque e teclado numérico nos campos de valor
 
 ### Fase 2 — Completar os módulos · v0.4.0 → v0.7.0
 **Contas bancárias** (v0.4.0)
-- [ ] Tela de extrato por conta (usar `listBankTransactions`)
-- [ ] Lançamento manual de entrada/saída
-- [ ] Transferência entre contas (duas transações vinculadas)
-- [ ] Saldo calculado no banco (view ou RPC) (D5)
+- [x] Transferência banco ↔ caixa
+- [ ] Tela de extrato por conta
+- [ ] Lançamento manual em banco
+- [ ] Transferência banco ↔ banco
+- [ ] Saldo calculado no banco (D5)
+
+**Caixa** (adiantado)
+- [x] Caixa de dinheiro físico com fluxo de caixa; pagar e receber pelo caixa
+- [x] Abertura e fechamento em turnos, quebra de caixa, retaguarda, depósito, reserva e trava
+- [x] Relatório de quebra de caixa
+
+**Agenda** (adiantado)
+- [x] Mês, semana, dia e lista; responsável, conflito e status
+- [x] Concluir gera conta a receber; concluído travado
+- [x] Arrastar com cartão que balança; cor por agendamento (sugestões e RGB)
+- [x] Vencimentos de contas a pagar e a receber na agenda
+- [ ] Integração com o Google Agenda
 
 **Contas a pagar / receber** (v0.5.0)
 - [ ] Status "vencido" (calculado pela data)
 - [ ] Pagamento/recebimento parcial
-- [ ] Contas recorrentes (fixas mensais)
-- [ ] Filtros por período, status, fornecedor/cliente e categoria
-- [ ] Ações em lote (pagar várias)
+- [ ] Contas recorrentes
+- [ ] Filtros por período, status, fornecedor/cliente e conta gerencial
+- [ ] Pagar várias de uma vez
 
-**Categorias → Contas Gerenciais** (v0.6.0)
-- [x] Cadastro de contas gerenciais (`/contas-gerenciais`): nome, tipo receita/despesa, fixa/variável, conta pai e subcontas em quantos níveis quiser (adiantado; precisa rodar `supabase/migrations/20261110_contas_gerenciais.sql`)
-- [x] Substituir o campo texto livre "Categoria" de contas a pagar/receber pela escolha de uma conta gerencial (despesa/receita)
+**Contas gerenciais** (v0.6.0)
+- [x] Plano de contas com subcontas
+- [x] Conta gerencial obrigatória nos lançamentos
 
 **Cartões de crédito** (v0.7.0)
-- [ ] Lançamento de compras (à vista e parceladas)
-- [ ] Faturas: geração pelo dia de fechamento, fechamento e pagamento (gera `bank_transaction`)
-- [ ] Pagar conta a pagar com cartão (usar `card_id`)
-- [x] Limite disponível calculado automaticamente
-- [x] Dashboard com limite utilizado real (D6)
+- [x] Limite calculado sozinho; limite utilizado no Dashboard
+- [ ] Lançar compras (à vista e parceladas)
+- [ ] Faturas: fechar e pagar
+- [ ] Pagar conta com cartão
 
-### Fase 3 — Dashboard e relatórios · v0.8.0
-- [ ] Destaque de contas vencidas e que vencem hoje
-- [x] Gráfico de entradas x saídas (torres e curvas)
-- [x] Despesas/receitas por conta gerencial (pizza)
-- [ ] Fluxo de caixa projetado (saldo atual + pendentes futuros)
-- [ ] Exportação PDF e Excel
+### Fase 3 — Painel e relatórios · v0.8.0
+- [x] Torres, curvas e pizza; despesas e receitas por conta gerencial; filtros amplos
+- [x] Relatório de quebra de caixa
+- [ ] Contas vencidas e de hoje em destaque no painel
+- [ ] Gráficos no painel inicial
+- [ ] Fluxo de caixa projetado
+- [ ] Exportar PDF e Excel
 
-### Fase 4 — Conta do usuário · v0.9.0
-- [x] Cadastro de usuário com código de verificação por e-mail (adiantado)
-- [x] "Esqueceu a senha?" com código por e-mail (adiantado)
-- [ ] SMTP próprio no Supabase (o envio padrão só manda para e-mails da equipe do projeto e tem limite por hora)
-- [x] Tela de perfil (nome, telefone/WhatsApp, CPF, endereço) (adiantado)
-- [x] Multiempresa e multiusuário, com permissões e convite por código (adiantado)
-- [x] Cadastro da empresa: dados da própria empresa/pessoa, em Configurações → Empresas (adiantado)
+### Fase 4 — Conta, empresas e usuários · v0.9.0
+- [x] Criar conta e recuperar senha com código no e-mail (telas)
+- [x] Meu perfil (nome, WhatsApp, CPF, endereço)
+- [x] Multiempresa e multiusuário
+- [x] ID EMPRESA, login com ID, escolha da empresa e primeiro acesso com cadastro completo
+- [x] Cadastro da empresa com busca do CNPJ na Receita
+- [x] Permissões por tela
+- [x] Cadastrar e editar usuário (nome, empresas, permissões, senha); convite por código
 - [ ] Convite por e-mail (depende do SMTP)
 - [ ] Logo da empresa
 
 ### Fase 5 — Qualidade e publicação · v1.0.0-beta → v1.0.0
-- [ ] Testes unitários das regras (Vitest) e de fluxo (Playwright)
-- [ ] CI (lint + build + testes)
-- [ ] Deploy (ex.: Vercel/Netlify) com ambientes de homologação e produção
-- [ ] Monitoramento de erros
-- [ ] Beta com usuários convidados (`1.0.0-beta.N`)
-- [ ] Release candidate e lançamento da v1.0.0
+- [ ] Testes automáticos (Vitest e Playwright)
+- [ ] Checagem automática a cada mudança (CI: lint + build + testes)
+- [ ] Ambientes de teste e de produção
+- [ ] Monitorar erros
+- [ ] Beta com usuários convidados, release candidate e lançamento da v1.0.0
 
 ### Fase 6 — Integração com o Assessor Financeiro ARC (WhatsApp) · v1.1.0
 Objetivo: o Assessor no WhatsApp lê e escreve nos mesmos dados do Razão.
 
 **Arquitetura proposta**
-- Mesmo projeto Supabase e mesma base de usuários (login único ARC).
-- O Assessor **não** acessa as tabelas direto: usa uma **camada de API** (Supabase Edge Functions ou funções RPC) com as mesmas regras de negócio do app. Assim a regra fica num lugar só.
-- Vínculo do número de WhatsApp ao usuário (com verificação por código).
+- Mesmo projeto Supabase e mesma base de usuários.
+- O Assessor **não** acessa as tabelas direto: usa uma **camada de API** (Edge Functions ou funções RPC) com as mesmas regras do app.
+- Vínculo do número de WhatsApp ao usuário (com verificação por código), respeitando o ID EMPRESA e as permissões.
 - Coluna `source` (`app` | `whatsapp`) nos lançamentos, para auditoria.
 
 **Casos de uso previstos**
-- [ ] Vincular número de WhatsApp à conta do Razão
-- [ ] "Gastei R$ 50 no mercado" → registrar despesa (com categoria sugerida)
+- [ ] Vincular número de WhatsApp
+- [ ] "Gastei R$ 50 no mercado" → registrar despesa
 - [ ] "Quanto tenho na conta?" → consultar saldos
-- [ ] "O que vence essa semana?" → listar contas a pagar
-- [ ] Marcar conta como paga pelo WhatsApp
-- [ ] Lembretes automáticos de vencimento
-- [ ] Resumo diário/semanal/mensal
-
-**Pré-requisitos dentro do Razão:** Fases 0 (RPCs atômicas, RLS), 2 (categorias), 4 (telefone no perfil) e 5 (app publicado).
+- [ ] "O que vence essa semana?" → listar contas
+- [ ] Marcar conta como paga
+- [ ] Lembretes de vencimento e de agendamentos
+- [ ] Resumo diário, semanal e mensal
 
 ---
 
@@ -414,17 +428,25 @@ Objetivo: o Assessor no WhatsApp lê e escreve nos mesmos dados do Razão.
 
 | Produto | Papel | Relação com o Razão |
 |---|---|---|
-| **Razão Finance ARC** | Gestor financeiro (desktop + mobile) | este projeto |
+| **Razão Finance ARC** | Gestor financeiro (computador, celular e app instalável) | este projeto |
 | **Assessor Financeiro ARC (WhatsApp)** | Assistente financeiro conversacional | consome a API do Razão (Fase 6) |
 | *outros produtos ARC* | *a preencher* | |
 
 ---
 
-## 10. Decisões em aberto
-1. **Público-alvo:** pessoa física, pequena empresa, ou ambos (com perfis separados)?
-2. **"Desktop":** basta o app web no navegador (PWA instalável) ou precisa de um app desktop empacotado (ex.: Tauri/Electron)?
-3. **Assessor WhatsApp:** já existe? Em que tecnologia (API oficial do WhatsApp/Meta, Z-API, Evolution API...)? Usa o mesmo Supabase?
-4. **Login único ARC:** todos os produtos ARC vão compartilhar a mesma conta de usuário?
-5. ~~**Multiempresa:**~~ **decidido em 11/11/2026:** sim, multiempresa e multiusuário. Só administradores criam empresas; quem cria vira administrador.
-6. **Monetização/planos:** haverá limites por plano que o sistema precise controlar?
-7. **Agenda (`appointments`):** a tabela de agendamentos com clientes no banco é do Razão ou de outro produto ARC que usa o mesmo Supabase?
+## 10. Decisões
+
+**Já decididas**
+1. **Público:** empresas e pessoas (PF/PJ), organizadas por **ID EMPRESA**, com multiempresa, multiusuário e permissões por tela.
+2. **"Desktop":** o app web no navegador, **instalável como PWA** no celular e no computador.
+3. **Multiempresa:** sim. Só administradores criam empresas; quem cria vira administrador; os administradores do ID entram nas empresas novas.
+4. **Agenda (`appointments`):** é do Razão.
+5. **Login:** ID EMPRESA + e-mail + senha; usuários criados pelo administrador.
+
+**Em aberto**
+1. **ID 1:** reservado para um uso específico, a definir.
+2. **Google Agenda:** só enviar do sistema para o Google, ou nos dois sentidos?
+3. **Cadastro público:** quando reabrir o "Criar conta" (depende do SMTP)?
+4. **Assessor WhatsApp:** tecnologia (API oficial da Meta, Z-API, Evolution API) e se usa o mesmo Supabase.
+5. **Login único ARC:** todos os produtos ARC vão compartilhar a mesma conta?
+6. **Planos e cobrança:** limites por plano (o ID EMPRESA é a unidade natural de cobrança)?
