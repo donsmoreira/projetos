@@ -21,7 +21,7 @@ const MODULES = [
   "caixa", "contas_bancarias", "cartoes", "contas_gerenciais", "agenda"
 ];
 const VIEW_ONLY = ["painel", "relatorios"];
-const WITH_SETTLE = ["contas_pagar", "contas_receber"];
+const WITH_SETTLE = ["contas_pagar", "contas_receber", "cartoes"];
 
 const EMAIL_RULE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const UUID_RULE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

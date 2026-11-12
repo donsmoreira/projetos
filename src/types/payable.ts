@@ -5,7 +5,7 @@ export type PayableStatus =
 export type PayablePaymentMethod =
   | "banco"
   | "caixa"
-  | "cartao"
+  // Contas a pagar não são pagas com cartão (compras no cartão ficam em Cartões)
   | null;
 
 export interface PayableSupplier {

@@ -32,7 +32,7 @@ export const ACTION_HINTS: Record<ModuleAction, string> = {
   create: "Incluir novos registros",
   update: "Editar o que já existe",
   delete: "Apagar registros",
-  settle: "Pagar, receber e estornar"
+  settle: "Pagar, receber e estornar (contas e faturas de cartão)"
 };
 
 export const ALL_ACTIONS: ModuleAction[] = ["view", "create", "update", "delete", "settle"];
@@ -99,7 +99,7 @@ export const MODULE_GROUPS: ModuleGroup[] = [
         modules: [
           { key: "caixa", label: "Caixa", actions: CRUD },
           { key: "contas_bancarias", label: "Contas Bancárias", actions: CRUD },
-          { key: "cartoes", label: "Cartões de Crédito", actions: CRUD },
+          { key: "cartoes", label: "Cartões de Crédito", actions: ALL_ACTIONS },
           { key: "contas_gerenciais", label: "Contas Gerenciais", actions: CRUD }
         ]
       }

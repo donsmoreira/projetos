@@ -142,7 +142,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Estorno | ✅ | |
 | Conta gerencial obrigatória | ✅ | pagar só despesa; receber só receita |
 | Conta a receber criada ao concluir atendimento | ✅ | pela Agenda |
-| Pagar com cartão | 🟡 | colunas existem, sem uso |
+| Pagar com cartão | — | **não permitido**: compras no cartão ficam em Cartões (regra também no banco) |
 | Status "vencido" | ❌ | só `pendente` e `pago`/`recebido` (a Agenda destaca as vencidas) |
 | Pagamento/recebimento parcial | ❌ | |
 | Contas recorrentes | ❌ | |
@@ -154,8 +154,13 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Cadastro, banco e bandeira em listas, nome automático | ✅ | |
 | Desativar cartão | ✅ | |
 | Limite calculado sozinho | ✅ | |
-| Lançar compras (à vista e parceladas) | ❌ | tabelas `card_transactions` e `card_settlements` já existem |
-| Faturas | ❌ | |
+| Lançar compras (à vista e parceladas, até 24x) | ✅ | função `create_card_purchase`: divide o valor (centavos na 1ª) e coloca cada parcela na fatura certa pelo dia de fechamento |
+| Faturas | ✅ | mês a mês: fechamento, vencimento, situação, total e histórico (parcela 3/10, total da compra) |
+| Pagar fatura e estornar | ✅ | pela conta bancária ou caixa (`pay_card_invoice` / `reverse_card_payment`); permissão "Baixar" na tela Cartões |
+| Previsão das próximas faturas | ✅ | até o último mês com parcela |
+| Limite usado | ✅ | parcelas ainda não pagas |
+| Pagamento parcial da fatura | ❌ | |
+| Compras do cartão nos relatórios por conta gerencial | ❌ | hoje o relatório mostra o pagamento da fatura como uma saída |
 
 ### 3.10 Agenda (`/agenda`)
 | Item | Status | Observação |
@@ -374,9 +379,10 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 
 **Cartões de crédito** (v0.7.0)
 - [x] Limite calculado sozinho; limite utilizado no Dashboard
-- [ ] Lançar compras (à vista e parceladas)
-- [ ] Faturas: fechar e pagar
-- [ ] Pagar conta com cartão
+- [x] Lançar compras (à vista e parceladas)
+- [x] Faturas com histórico, pagamento e estorno; previsão das próximas
+- [ ] Pagamento parcial da fatura
+- [ ] Compras do cartão nos relatórios por conta gerencial
 
 ### Fase 3 — Painel e relatórios · v0.8.0
 - [x] Torres, curvas e pizza; despesas e receitas por conta gerencial; filtros amplos

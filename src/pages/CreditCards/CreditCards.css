@@ -590,3 +590,486 @@
     width: 100%;
   }
 }
+/* ------------------------------------------------------------------ */
+/* Faturas do cartão: compras parceladas, pagamento e previsão          */
+/* ------------------------------------------------------------------ */
+.card-invoices-area {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-invoices-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.card-invoices-picker span {
+  color: var(--text-light);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.card-invoices-picker button {
+  height: 32px;
+  padding: 0 12px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.card-invoices-picker button.is-active {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.card-invoices {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  padding: 18px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.card-invoices-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.card-invoices-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  color: var(--primary);
+}
+
+.card-invoices-title h3 {
+  margin: 0;
+
+  color: var(--text);
+  font-size: 18px;
+}
+
+.card-invoices-title p {
+  margin: 2px 0 0;
+
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.card-limit,
+.invoice-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 18px;
+}
+
+.card-limit div,
+.invoice-summary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-limit span,
+.invoice-summary span {
+  color: var(--text-light);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.card-limit strong,
+.invoice-summary strong {
+  color: var(--text);
+  font-size: 16px;
+}
+
+.card-invoices .is-income {
+  color: var(--success);
+}
+
+.card-invoices .is-expense {
+  color: var(--danger);
+}
+
+.invoice-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+
+  padding-top: 12px;
+
+  border-top: 1px solid var(--border);
+}
+
+.invoice-arrow,
+.invoice-today {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 34px;
+  min-width: 34px;
+  padding: 0 10px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.invoice-arrow:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.invoice-nav-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+
+  min-width: 180px;
+}
+
+.invoice-nav-title strong {
+  color: var(--text);
+  font-size: 17px;
+}
+
+.invoice-status {
+  padding: 2px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  color: var(--text-light);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.invoice-status.is-aberta {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.invoice-status.is-fechada {
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.invoice-status.is-vencida {
+  border-color: var(--danger-border);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.invoice-status.is-paga {
+  border-color: var(--success-border);
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.invoice-summary {
+  padding: 12px 14px;
+
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.invoice-pay {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  height: 36px;
+  margin-left: auto;
+  padding: 0 14px;
+
+  background: var(--primary);
+  border: none;
+  border-radius: 8px;
+
+  color: var(--on-primary);
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.invoice-payments {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.invoice-payment {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  padding: 8px 12px;
+
+  background: var(--success-soft);
+  border: 1px solid var(--success-border);
+  border-radius: 8px;
+
+  color: var(--text);
+  font-size: 13px;
+}
+
+.invoice-reverse {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  padding: 4px 10px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  color: var(--text);
+  font-size: 12px;
+
+  cursor: pointer;
+}
+
+.invoice-table-wrapper {
+  overflow-x: auto;
+
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.invoice-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  font-size: 13px;
+}
+
+.invoice-table th,
+.invoice-table td {
+  padding: 9px 12px;
+
+  border-bottom: 1px solid var(--border);
+
+  color: var(--text);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.invoice-table th {
+  background: var(--surface-alt);
+  color: var(--text-light);
+
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.invoice-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.invoice-table .is-number {
+  text-align: right;
+}
+
+.invoice-table small {
+  display: block;
+
+  color: var(--text-light);
+  font-size: 11px;
+}
+
+.invoice-table tr.is-paid td {
+  color: var(--text-light);
+}
+
+.invoice-installment {
+  display: inline-block;
+
+  padding: 2px 8px;
+
+  background: var(--primary-soft);
+  border-radius: 999px;
+
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.invoice-actions {
+  width: 1%;
+  text-align: right;
+}
+
+.invoice-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  color: var(--danger);
+
+  cursor: pointer;
+}
+
+.invoice-forecast h4 {
+  margin: 0 0 8px;
+
+  color: var(--text);
+  font-size: 14px;
+}
+
+.invoice-forecast ul {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.invoice-forecast button {
+  display: grid;
+  grid-template-columns: 70px 1fr 110px;
+  align-items: center;
+  gap: 10px;
+
+  width: 100%;
+  padding: 6px 10px;
+
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  color: var(--text);
+  font-size: 13px;
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.invoice-forecast button:hover,
+.invoice-forecast button.is-selected {
+  border-color: var(--border);
+  background: var(--surface-alt);
+}
+
+.invoice-forecast-month {
+  color: var(--text-light);
+  font-weight: 700;
+}
+
+.invoice-forecast-bar {
+  height: 10px;
+
+  overflow: hidden;
+
+  background: var(--surface-alt);
+  border-radius: 999px;
+}
+
+.invoice-forecast-bar i {
+  display: block;
+
+  height: 100%;
+
+  background: var(--primary);
+  border-radius: 999px;
+}
+
+.invoice-forecast strong {
+  text-align: right;
+}
+
+.invoice-forecast-empty {
+  margin: 0;
+
+  color: var(--text-light);
+  font-size: 13px;
+}
+
+/* Formulários do cartão */
+.card-purchase-preview,
+.card-pay-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  padding: 12px 14px;
+
+  background: var(--primary-soft);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+
+  color: var(--text);
+  font-size: 13px;
+}
+
+.card-purchase-preview strong,
+.card-pay-summary strong {
+  font-size: 16px;
+}
+
+.card-pay-summary span,
+.card-pay-summary small {
+  color: var(--text-light);
+}
+
+.card-purchase-warning {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .invoice-pay {
+    margin-left: 0;
+  }
+
+  .invoice-forecast button {
+    grid-template-columns: 56px 1fr 92px;
+  }
+}

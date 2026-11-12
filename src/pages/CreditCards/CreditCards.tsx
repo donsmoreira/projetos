@@ -16,6 +16,7 @@ import type {
 import SearchBar from "./components/SearchBar";
 import CreditCardTable from "./components/CreditCardTable";
 import CreditCardModal from "./components/CreditCardModal";
+import CardInvoices from "./components/CardInvoices";
 
 import { usePermissions } from "../../hooks/useCompany";
 
@@ -41,6 +42,10 @@ function CreditCards() {
 
   const [selectedCard, setSelectedCard] =
     useState<CreditCard | null>(null);
+
+  // Cartão cujas faturas aparecem embaixo (o primeiro, se nenhum escolhido)
+  const [invoiceCardId, setInvoiceCardId] =
+    useState("");
 
   async function loadCards() {
     try {
@@ -149,7 +154,7 @@ function CreditCards() {
           <h2>Cartões de Crédito</h2>
 
           <p>
-            Gerencie cartões, limites e datas de vencimento.
+            Cartões, limites, compras parceladas e faturas.
           </p>
         </div>
 
@@ -190,6 +195,39 @@ function CreditCards() {
           />
         )}
       </section>
+
+      {!loading && cards.length > 0 && (() => {
+        const invoiceCard = cards.find(card => card.id === invoiceCardId) ?? cards[0];
+
+        return (
+          <section className="card-invoices-area">
+            <div className="card-invoices-picker" role="tablist" aria-label="Faturas do cartão">
+              <span>Faturas:</span>
+              {cards.map(card => (
+                <button
+                  key={card.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={card.id === invoiceCard.id}
+                  className={card.id === invoiceCard.id ? "is-active" : ""}
+                  onClick={() => setInvoiceCardId(card.id)}
+                >
+                  {card.name}
+                </button>
+              ))}
+            </div>
+
+            <CardInvoices
+              key={invoiceCard.id}
+              card={invoiceCard}
+              canCreate={permissions.canCreate}
+              canDelete={permissions.canDelete}
+              canSettle={permissions.canSettle}
+              onChanged={loadCards}
+            />
+          </section>
+        );
+      })()}
 
       <CreditCardModal
         open={isModalOpen}

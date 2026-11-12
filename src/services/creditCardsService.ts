@@ -15,15 +15,14 @@ const CARD_SELECT = `
     bank
   ),
   card_transactions (
-    value
-  ),
-  card_settlements (
-    value
+    value,
+    settled
   )
 `;
 
 type ValueRow = {
   value: number | string | null;
+  settled?: boolean | null;
 };
 
 function sumValues(rows: ValueRow[] | undefined) {
@@ -39,22 +38,21 @@ function normalizeCreditCard(
 ): CreditCard {
   const {
     card_transactions,
-    card_settlements,
     bank_accounts,
     ...cardData
   } = card as Record<string, unknown> & {
     card_transactions?: ValueRow[];
-    card_settlements?: ValueRow[];
     bank_accounts?: unknown;
   };
 
   const limitTotal =
     Number(cardData.credit_limit || 0);
 
-  // Utilizado = total gasto no cartão - baixas (pagamentos de fatura)
+  // Utilizado = parcelas ainda não pagas (de todas as faturas, inclusive as futuras)
   const usedLimit = Math.max(
-    sumValues(card_transactions) -
-      sumValues(card_settlements),
+    Math.round(
+      sumValues((card_transactions ?? []).filter(row => !row.settled)) * 100
+    ) / 100,
     0
   );
 
