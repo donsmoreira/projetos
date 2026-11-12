@@ -1073,3 +1073,219 @@
     grid-template-columns: 56px 1fr 92px;
   }
 }
+
+/* ===== Resumo do cartão (valor da fatura + barra do limite) ===== */
+.card-overview {
+  --limit-used: #f97316;
+  --limit-free: var(--text);
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  padding: 16px 18px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.card-overview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.card-overview-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.card-overview-row > div.is-right {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.card-overview-row span {
+  color: var(--text-light);
+  font-size: 13px;
+}
+
+.card-overview-row strong {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  font-size: 16px;
+}
+
+.card-overview-row strong.card-overview-big {
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+.card-limit-bar {
+  display: flex;
+  gap: 3px;
+  height: 10px;
+}
+
+.card-limit-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.card-limit-bar i.is-used {
+  flex-grow: 0;
+  flex-shrink: 0;
+  background: var(--limit-used);
+}
+
+.card-limit-bar i.is-free {
+  flex: 1;
+  background: var(--limit-free);
+}
+
+.card-overview-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.card-overview-dot.is-used {
+  background: var(--limit-used);
+}
+
+.card-overview-dot.is-free {
+  background: var(--limit-free);
+}
+
+.card-overview-note {
+  margin: 0;
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.invoice-pay-locked {
+  margin-left: auto;
+  color: var(--text-light);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* ===== Extrato: gastos por conta e parcelamentos ===== */
+.card-insights {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.card-insights-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.card-insights-block h4 {
+  margin: 0;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.card-insights-block h4 small {
+  color: var(--text-light);
+  font-weight: 600;
+}
+
+.card-insights-bars,
+.card-installments {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card-insights-bars li {
+  display: grid;
+  grid-template-columns: minmax(80px, 140px) 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.card-insights-name {
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-installments li {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.card-installments-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+}
+
+.card-installments-top strong {
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card-installments-top span {
+  flex-shrink: 0;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.card-installments-track {
+  display: block;
+  height: 6px;
+  overflow: hidden;
+  background: var(--border);
+  border-radius: 999px;
+}
+
+.card-installments-track i {
+  display: block;
+  height: 100%;
+  background: var(--success);
+  border-radius: 999px;
+}
+
+.card-installments small {
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+@media (max-width: 760px) {
+  .card-insights {
+    grid-template-columns: 1fr;
+  }
+
+  .card-overview-row strong.card-overview-big {
+    font-size: 20px;
+  }
+
+  .invoice-pay-locked {
+    margin-left: 0;
+  }
+}

@@ -98,7 +98,7 @@ export const MODULE_GROUPS: ModuleGroup[] = [
         title: "Contas e caixa",
         modules: [
           { key: "caixa", label: "Caixa", actions: CRUD },
-          { key: "contas_bancarias", label: "Contas Bancárias", actions: CRUD },
+          { key: "contas_bancarias", label: "Controle Bancário", actions: CRUD },
           { key: "cartoes", label: "Cartões de Crédito", actions: ALL_ACTIONS },
           { key: "contas_gerenciais", label: "Contas Gerenciais", actions: CRUD }
         ]

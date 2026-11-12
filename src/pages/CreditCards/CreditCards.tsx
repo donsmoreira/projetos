@@ -154,7 +154,7 @@ function CreditCards() {
           <h2>Cartões de Crédito</h2>
 
           <p>
-            Cartões, limites, compras parceladas e faturas.
+            Cartões, limites, compras parceladas e extrato detalhado das faturas.
           </p>
         </div>
 
@@ -201,8 +201,8 @@ function CreditCards() {
 
         return (
           <section className="card-invoices-area">
-            <div className="card-invoices-picker" role="tablist" aria-label="Faturas do cartão">
-              <span>Faturas:</span>
+            <div className="card-invoices-picker" role="tablist" aria-label="Extrato detalhado do cartão">
+              <span>Extrato detalhado:</span>
               {cards.map(card => (
                 <button
                   key={card.id}

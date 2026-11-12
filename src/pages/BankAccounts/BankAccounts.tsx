@@ -6,10 +6,11 @@ import {
 
 import {
   deleteBankAccount,
-  listBankAccounts
+  listAccountsWithBalance
 } from "../../services/bankAccountsService";
 
 import type {
+  AccountWithBalance,
   BankAccount
 } from "../../types/bankAccount";
 
@@ -30,7 +31,7 @@ function BankAccounts() {
   const permissions = usePermissions("contas_bancarias");
 
   const [accounts, setAccounts] =
-    useState<BankAccount[]>([]);
+    useState<AccountWithBalance[]>([]);
 
   const [searchTerm, setSearchTerm] =
     useState("");
@@ -52,7 +53,7 @@ function BankAccounts() {
       setLoading(true);
       setErrorMessage("");
 
-      const data = await listBankAccounts("banco");
+      const data = await listAccountsWithBalance("banco");
 
       setAccounts(data);
     } catch (error) {
@@ -148,10 +149,10 @@ function BankAccounts() {
     <div className="bank-accounts-page">
       <section className="bank-accounts-header">
         <div>
-          <h2>Contas Bancárias</h2>
+          <h2>Controle Bancário</h2>
 
           <p>
-            Gerencie suas contas bancárias e saldos iniciais.
+            Suas contas bancárias com o saldo atual de cada uma.
           </p>
         </div>
 

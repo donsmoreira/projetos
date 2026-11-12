@@ -4,13 +4,14 @@ import {
 } from "lucide-react";
 
 import type {
+  AccountWithBalance,
   BankAccount
 } from "../../../types/bankAccount";
 
 import { formatAccountBank } from "../../../utils/bank";
 
 type BankAccountTableProps = {
-  accounts: BankAccount[];
+  accounts: AccountWithBalance[];
   onEdit?: (account: BankAccount) => void;
   onDelete?: (account: BankAccount) => void;
 };
@@ -57,7 +58,7 @@ function BankAccountTable({
             <th>Agência</th>
             <th>Conta</th>
             <th className="bank-accounts-value-column">
-              Saldo inicial
+              Saldo atual
             </th>
             <th className="bank-accounts-value-column">
               Limite
@@ -91,7 +92,7 @@ function BankAccountTable({
 
               <td className="bank-accounts-value">
                 {formatCurrency(
-                  account.initial_balance
+                  account.balance
                 )}
               </td>
 

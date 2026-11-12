@@ -397,8 +397,8 @@ const modules = [
   { name: "Contas gerenciais", route: "/contas-gerenciais", items: [
     ["Plano de contas de receita e despesa", 1], ["Fixa ou variável", 1], ["Conta pai e subcontas em vários níveis", 1],
     ["Busca, filtro por tipo, expandir/recolher", 1], ["Bloqueios no banco (tipo, nome repetido, conta em uso)", 1] ] },
-  { name: "Contas bancárias", route: "/bancos", items: [
-    ["Cadastro de contas", 1], ["Banco escolhido numa lista com código", 1], ["Extrato da conta", 0.5, "código pronto, falta a tela"],
+  { name: "Controle Bancário", route: "/bancos", items: [
+    ["Cadastro de contas com saldo atual", 1], ["Banco escolhido numa lista com código", 1], ["Extrato da conta", 0.5, "código pronto, falta a tela"],
     ["Lançamento manual", 0.5, "feito no Caixa; falta a tela para bancos"], ["Transferência entre contas", 0.5, "banco ↔ caixa pronto; falta banco ↔ banco"], ["Importar extrato (OFX/CSV)", 0] ] },
   { name: "Caixa (dinheiro físico)", route: "/caixa", items: [
     ["Caixa de operação e de retaguarda (cofre)", 1], ["Abertura conferindo o troco", 1],
@@ -418,7 +418,7 @@ const modules = [
   { name: "Cartões de crédito", route: "/cartoes", items: [
     ["Cadastro de cartões", 1], ["Banco e bandeira em listas, nome automático", 1], ["Desativar cartão", 1],
     ["Lançar compras à vista e parceladas (até 24x)", 1], ["Parcelas nas faturas certas pelo dia de fechamento", 1],
-    ["Faturas mês a mês com histórico (parcela 3/10, total da compra)", 1], ["Pagar fatura pela conta ou caixa, e estornar", 1],
+    ["Faturas mês a mês com histórico (parcela 3/10, total da compra)", 1], ["Pagar fatura pela conta ou caixa, e estornar", 1], ["Antecipar só a fatura do mês seguinte", 1], ["Extrato detalhado: limite em gráfico, gastos por conta, parcelamentos", 1],
     ["Previsão das próximas faturas", 1], ["Limite usado = parcelas não pagas", 1],
     ["Pagamento parcial da fatura", 0], ["Compras do cartão nos relatórios por conta gerencial", 0] ] },
   { name: "Relatórios", route: "/relatorios", items: [
@@ -446,7 +446,7 @@ const phases = [
     ["Bancos · v0.4.0", ["✓ Transferência banco ↔ caixa", "Tela de extrato", "Lançamento manual para bancos", "Transferência banco ↔ banco", "Saldo calculado no banco de dados"]],
     ["Contas · v0.5.0", ["Status vencido", "Pagamento e recebimento parcial", "Contas recorrentes", "Filtros por período, status e conta gerencial", "Pagar várias de uma vez"]],
     ["Contas gerenciais · v0.6.0", ["✓ Plano de contas de receita e despesa, com subcontas", "✓ Conta gerencial obrigatória nos lançamentos"]],
-    ["Cartões · v0.7.0", ["✓ Limite calculado sozinho", "✓ Lançar compras à vista e parceladas", "✓ Faturas com histórico, pagamento e estorno", "✓ Previsão das próximas faturas", "Pagamento parcial da fatura", "Compras do cartão nos relatórios por conta gerencial"]] ] },
+    ["Cartões · v0.7.0", ["✓ Limite calculado sozinho", "✓ Lançar compras à vista e parceladas", "✓ Faturas com histórico, pagamento e estorno", "✓ Previsão das próximas faturas", "✓ Antecipar fatura e extrato detalhado", "Pagamento parcial da fatura", "Compras do cartão nos relatórios por conta gerencial"]] ] },
   { n: 3, v: "v0.8.0", title: "Painel e relatórios", desc: "Ver o dinheiro de um jeito claro", groups: [
     ["Painel", ["Contas vencidas e de hoje em destaque", "Gráficos no painel inicial"]],
     ["Relatórios", ["✓ Torres, curvas e pizza", "✓ Despesas e receitas por conta gerencial", "✓ Filtros amplos e atalhos de período", "✓ Relatório de quebra de caixa", "Fluxo de caixa projetado", "Exportar PDF e Excel"]] ] },

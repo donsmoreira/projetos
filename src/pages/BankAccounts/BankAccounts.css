@@ -594,3 +594,8 @@
     width: 100%;
   }
 }
+.bank-account-hint {
+  font-size: 0.78rem;
+  color: var(--text-secondary, #64748b);
+  line-height: 1.35;
+}

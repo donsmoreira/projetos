@@ -67,7 +67,7 @@ export const MENU: MenuEntry[] = [
       { title: "Contas a Pagar", to: "/contas-pagar", icon: <Wallet size={17} />, module: "contas_pagar" },
       { title: "Contas a Receber", to: "/contas-receber", icon: <HandCoins size={17} />, module: "contas_receber" },
       { title: "Caixa", to: "/caixa", icon: <Banknote size={17} />, module: "caixa" },
-      { title: "Contas Bancárias", to: "/bancos", icon: <Landmark size={17} />, module: "contas_bancarias" },
+      { title: "Controle Bancário", to: "/bancos", icon: <Landmark size={17} />, module: "contas_bancarias" },
       { title: "Cartões de Crédito", to: "/cartoes", icon: <CreditCard size={17} />, module: "cartoes" },
       { title: "Contas Gerenciais", to: "/contas-gerenciais", icon: <FolderTree size={17} />, module: "contas_gerenciais" }
     ]

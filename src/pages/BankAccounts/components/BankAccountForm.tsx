@@ -30,6 +30,10 @@ import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
 // Valor da opção "Outro banco" na lista
 const OTHER_BANK = "__outro__";
 
+function roundCents(value: number) {
+  return Math.round(value * 100) / 100;
+}
+
 type BankAccountFormProps = {
   account: BankAccount | null;
   onCancel: () => void;
@@ -63,6 +67,14 @@ function BankAccountForm({
   const [isOtherBank, setIsOtherBank] =
     useState(false);
 
+  // Soma das movimentações já lançadas na conta (saldo atual − saldo inicial).
+  // O campo mostra o SALDO ATUAL; ao salvar, o saldo inicial é recalculado
+  // para que o saldo atual fique exatamente no valor digitado.
+  const movements =
+    account && "balance" in account
+      ? roundCents(Number(account.balance || 0) - Number(account.initial_balance || 0))
+      : 0;
+
   useEffect(() => {
     if (account) {
       // Contas antigas podem ter o código junto ("748 - Sicredi")
@@ -82,8 +94,11 @@ function BankAccountForm({
         agency: account.agency ?? "",
         accountNumber:
           account.account_number ?? "",
+        // Mostra o saldo atual (inicial + movimentações)
         initialBalance:
-          Number(account.initial_balance || 0),
+          "balance" in account
+            ? Number(account.balance || 0)
+            : Number(account.initial_balance || 0),
         overdraftLimit:
           Number(account.overdraft_limit || 0)
       });
@@ -138,8 +153,9 @@ function BankAccountForm({
         agency: formData.agency.trim(),
         accountNumber:
           formData.accountNumber.trim(),
+        // Saldo atual digitado − movimentações = saldo inicial a gravar
         initialBalance:
-          Number(formData.initialBalance || 0),
+          roundCents(Number(formData.initialBalance || 0) - movements),
         overdraftLimit:
           Number(formData.overdraftLimit || 0)
       };
@@ -280,7 +296,7 @@ function BankAccountForm({
 
         <div className="bank-account-field">
           <label htmlFor="bank-account-balance">
-            Saldo inicial (R$)
+            Saldo atual (R$)
           </label>
 
           <CurrencyInput
@@ -294,6 +310,12 @@ function BankAccountForm({
             }
             allowNegative
           />
+
+          <small className="bank-account-hint">
+            {account
+              ? "Saldo de hoje, já com todas as movimentações. Se alterar, o sistema ajusta para a conta ficar com este valor."
+              : "Quanto a conta tem hoje no banco."}
+          </small>
         </div>
 
         <div className="bank-account-field">

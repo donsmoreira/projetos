@@ -12,6 +12,7 @@ import {
 import { formatCurrency } from "../../../utils/currency";
 import {
   INVOICE_STATUS_LABELS,
+  addMonths,
   buildInvoices,
   formatDay,
   invoiceLabel
@@ -22,6 +23,8 @@ import type { CreditCard } from "../../../types/creditCard";
 
 import CardPurchaseForm from "./CardPurchaseForm";
 import PayInvoiceForm from "./PayInvoiceForm";
+import CardOverview from "./CardOverview";
+import CardInsights from "./CardInsights";
 
 type CardInvoicesProps = {
   card: CreditCard;
@@ -99,6 +102,13 @@ function CardInvoices({ card, canCreate, canDelete, canSettle, onChanged }: Card
   const month = selectedMonth && invoices.some(item => item.month === selectedMonth) ? selectedMonth : currentMonth;
   const index = invoices.findIndex(item => item.month === month);
   const invoice = invoices[index];
+  const currentInvoice = invoices.find(item => item.month === currentMonth);
+
+  // Atual e anteriores: "Pagar" · mês seguinte: "Antecipar" · mais à frente: bloqueada
+  const nextMonth = currentMonth ? addMonths(currentMonth, 1) : "";
+  const payMode = !invoice || invoice.month <= currentMonth
+    ? "pagar"
+    : invoice.month === nextMonth ? "antecipar" : "bloqueada";
 
   // Previsão: faturas depois da atual, até a última que tem parcela
   const forecast = invoices.filter(item => item.month > currentMonth && item.total > 0);
@@ -172,18 +182,14 @@ function CardInvoices({ card, canCreate, canDelete, canSettle, onChanged }: Card
           </div>
         </div>
 
-        <div className="card-limit">
-          <div><span>Limite</span><strong>{formatCurrency(card.limit_total)}</strong></div>
-          <div><span>Usado</span><strong className="is-expense">{formatCurrency(card.used_limit)}</strong></div>
-          <div><span>Disponível</span><strong className="is-income">{formatCurrency(card.available_limit)}</strong></div>
-        </div>
-
         {canCreate && (
           <button type="button" className="credit-cards-new-button" onClick={() => setModal("purchase")}>
             <Plus size={16} /> Lançar compra
           </button>
         )}
       </header>
+
+      {!loading && <CardOverview card={card} invoice={currentInvoice} />}
 
       {errorMessage && <div className="credit-cards-state credit-cards-state-error">{errorMessage}</div>}
 
@@ -237,10 +243,16 @@ function CardInvoices({ card, canCreate, canDelete, canSettle, onChanged }: Card
               </strong>
             </div>
 
-            {canSettle && invoice.open > 0 && (
+            {canSettle && invoice.open > 0 && payMode !== "bloqueada" && (
               <button type="button" className="invoice-pay" onClick={() => setModal("pay")}>
-                <Wallet size={15} /> Pagar fatura
+                <Wallet size={15} /> {payMode === "antecipar" ? "Antecipar fatura" : "Pagar fatura"}
               </button>
+            )}
+
+            {canSettle && invoice.open > 0 && payMode === "bloqueada" && (
+              <span className="invoice-pay-locked">
+                Só dá para antecipar a fatura de {invoiceLabel(nextMonth)}.
+              </span>
             )}
           </div>
 
@@ -316,6 +328,8 @@ function CardInvoices({ card, canCreate, canDelete, canSettle, onChanged }: Card
             </div>
           )}
 
+          <CardInsights purchases={purchases} invoice={invoice} />
+
           <div className="invoice-forecast">
             <h4>Próximas faturas</h4>
 
@@ -358,7 +372,7 @@ function CardInvoices({ card, canCreate, canDelete, canSettle, onChanged }: Card
       )}
 
       {modal === "pay" && invoice && (
-        <Modal title="Pagar fatura" subtitle={card.name} onClose={() => setModal(null)}>
+        <Modal title={payMode === "antecipar" ? "Antecipar fatura" : "Pagar fatura"} subtitle={card.name} onClose={() => setModal(null)}>
           <PayInvoiceForm
             card={card}
             invoice={invoice}

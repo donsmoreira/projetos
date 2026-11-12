@@ -109,10 +109,10 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 ### 3.5 Contas gerenciais (`/contas-gerenciais`, no grupo Financeiro)
 ✅ Plano de contas de receita e despesa, fixa/variável, contas pai e subcontas em vários níveis, busca e filtro; regras no banco (tipo herdado, nome único por nível, conta em uso não exclui). Obrigatória nos lançamentos.
 
-### 3.6 Contas bancárias (`/bancos`)
+### 3.6 Controle Bancário (`/bancos`)
 | Item | Status | Observação |
 |---|---|---|
-| Cadastro de contas | ✅ | banco numa lista com código, agência, número, saldo inicial, cheque especial |
+| Cadastro de contas | ✅ | banco numa lista com código, agência, número, **saldo atual** (o sistema ajusta o saldo inicial), cheque especial |
 | Extrato da conta | 🟡 | o service tem `listBankTransactions`, **sem tela** |
 | Lançamento manual em banco | 🟡 | existe no Caixa; falta tela para bancos |
 | Transferência | 🟡 | banco ↔ caixa pronto (e no fechamento do caixa); falta banco ↔ banco |
@@ -157,6 +157,8 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Lançar compras (à vista e parceladas, até 24x) | ✅ | função `create_card_purchase`: divide o valor (centavos na 1ª) e coloca cada parcela na fatura certa pelo dia de fechamento |
 | Faturas | ✅ | mês a mês: fechamento, vencimento, situação, total e histórico (parcela 3/10, total da compra) |
 | Pagar fatura e estornar | ✅ | pela conta bancária ou caixa (`pay_card_invoice` / `reverse_card_payment`); permissão "Baixar" na tela Cartões |
+| Antecipar fatura | ✅ | só a do mês seguinte (botão "Antecipar fatura"); mais à frente não paga (regra no banco) |
+| Extrato detalhado | ✅ | valor da fatura, vencimento, barra do limite (utilizado × disponível), gastos por conta gerencial e parcelamentos em andamento |
 | Previsão das próximas faturas | ✅ | até o último mês com parcela |
 | Limite usado | ✅ | parcelas ainda não pagas |
 | Pagamento parcial da fatura | ❌ | |
@@ -347,7 +349,7 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [ ] Tamanhos de toque e teclado numérico nos campos de valor
 
 ### Fase 2 — Completar os módulos · v0.4.0 → v0.7.0
-**Contas bancárias** (v0.4.0)
+**Controle Bancário** (v0.4.0)
 - [x] Transferência banco ↔ caixa
 - [ ] Tela de extrato por conta
 - [ ] Lançamento manual em banco

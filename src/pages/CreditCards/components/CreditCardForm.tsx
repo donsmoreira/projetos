@@ -318,7 +318,7 @@ function CreditCardForm({
               {loadingAccounts
                 ? "Carregando contas..."
                 : bankAccounts.length === 0
-                  ? "Cadastre uma conta em Contas Bancárias"
+                  ? "Cadastre uma conta em Controle Bancário"
                   : "Selecione o banco"}
             </option>
 
