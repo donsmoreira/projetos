@@ -9,7 +9,8 @@ export type ModuleKey =
   | "caixa"
   | "contas_bancarias"
   | "cartoes"
-  | "contas_gerenciais";
+  | "contas_gerenciais"
+  | "agenda";
 
 /** Ver (a tela aparece), Cadastrar, Alterar, Excluir, Baixar (pagar/receber/estornar) */
 export type ModuleAction = "view" | "create" | "update" | "delete" | "settle";
@@ -65,6 +66,7 @@ export const MODULE_GROUPS: ModuleGroup[] = [
         title: null,
         modules: [
           { key: "painel", label: "Painel inicial", actions: ["view"] },
+          { key: "agenda", label: "Agenda", actions: ["view", "create", "update", "delete"] },
           { key: "relatorios", label: "Relatórios", actions: ["view"] }
         ]
       }

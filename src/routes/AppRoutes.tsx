@@ -15,6 +15,7 @@ import Signup from "../pages/Signup/Signup";
 import ForgotPassword from "../pages/ForgotPassword/ForgotPassword";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Clients from "../pages/Clients/Clients";
+import Agenda from "../pages/Agenda/Agenda";
 import Suppliers from "../pages/Suppliers/Suppliers";
 import BankAccounts from "../pages/BankAccounts/BankAccounts";
 import Payables from "../pages/Payables/Payables";
@@ -58,6 +59,10 @@ function AppRoutes() {
               element={<ModuleRoute module="painel"><Dashboard /></ModuleRoute>}
             />
 
+            <Route
+              path="agenda"
+              element={<ModuleRoute module="agenda"><Agenda /></ModuleRoute>}
+            />
             <Route
               path="clientes"
               element={<ModuleRoute module="clientes"><Clients /></ModuleRoute>}

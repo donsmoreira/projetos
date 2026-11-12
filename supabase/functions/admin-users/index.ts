@@ -18,7 +18,7 @@ const ALLOWED_ORIGINS = [
 
 const MODULES = [
   "painel", "relatorios", "clientes", "fornecedores", "contas_pagar", "contas_receber",
-  "caixa", "contas_bancarias", "cartoes", "contas_gerenciais"
+  "caixa", "contas_bancarias", "cartoes", "contas_gerenciais", "agenda"
 ];
 const VIEW_ONLY = ["painel", "relatorios"];
 const WITH_SETTLE = ["contas_pagar", "contas_receber"];

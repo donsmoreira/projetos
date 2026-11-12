@@ -5,6 +5,7 @@ import type { ModuleKey } from "../../../../types/permissions";
 import {
   Banknote,
   BarChart3,
+  CalendarDays,
   Building2,
   ClipboardList,
   CreditCard,
@@ -46,6 +47,7 @@ export type MenuEntry =
 /** Menu lateral: telas soltas e grupos com submenus. */
 export const MENU: MenuEntry[] = [
   { kind: "link", title: "Dashboard", to: "/", icon: <House size={18} />, end: true, module: "painel" },
+  { kind: "link", title: "Agenda", to: "/agenda", icon: <CalendarDays size={18} />, module: "agenda" },
   {
     kind: "group",
     id: "cadastros",
