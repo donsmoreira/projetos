@@ -19,6 +19,10 @@ function normalizeAccount(
       account.account_type === "caixa"
         ? "caixa"
         : "banco",
+    cash_role:
+      account.cash_role === "retaguarda"
+        ? "retaguarda"
+        : "operacao",
     initial_balance: Number(account.initial_balance || 0),
     overdraft_limit: Number(account.overdraft_limit || 0)
   } as BankAccount;
@@ -100,6 +104,7 @@ export async function createBankAccount(
     .insert({
       user_id: user.id,
       account_type: accountType,
+      cash_role: account.cashRole ?? "operacao",
       name: account.name,
       bank: account.bank || null,
       agency: account.agency || null,
@@ -127,6 +132,7 @@ export async function updateBankAccount(
   const { data, error } = await supabase
     .from("bank_accounts")
     .update({
+      ...(account.cashRole ? { cash_role: account.cashRole } : {}),
       name: account.name,
       bank: account.bank || null,
       agency: account.agency || null,

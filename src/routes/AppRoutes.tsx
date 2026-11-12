@@ -21,6 +21,7 @@ import Payables from "../pages/Payables/Payables";
 import Receivables from "../pages/Receivables/Receivables";
 import CreditCards from "../pages/CreditCards/CreditCards";
 import Reports from "../pages/Reports/Reports";
+import CashBreaks from "../pages/CashBreaks/CashBreaks";
 import ManagementAccounts from "../pages/ManagementAccounts/ManagementAccounts";
 import Cash from "../pages/Cash/Cash";
 import CompanySettings from "../pages/Settings/CompanySettings";
@@ -100,6 +101,10 @@ function AppRoutes() {
             <Route
               path="relatorios"
               element={<ModuleRoute module="relatorios"><Reports /></ModuleRoute>}
+            />
+            <Route
+              path="relatorios/quebra-de-caixa"
+              element={<ModuleRoute module="relatorios"><CashBreaks /></ModuleRoute>}
             />
 
             <Route

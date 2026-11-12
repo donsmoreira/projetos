@@ -16,6 +16,7 @@ type CurrencyInputProps = {
   onChange: (value: number) => void;
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean;
   // Aceita "-" no início (ex.: saldo inicial negativo)
   allowNegative?: boolean;
 };
@@ -31,6 +32,7 @@ function CurrencyInput({
   onChange,
   placeholder = "0,00",
   required,
+  disabled = false,
   allowNegative = false
 }: CurrencyInputProps) {
   const inputRef =
@@ -97,6 +99,7 @@ function CurrencyInput({
       onBlur={() => setEditing(null)}
       placeholder={placeholder}
       required={required}
+      disabled={disabled}
     />
   );
 }

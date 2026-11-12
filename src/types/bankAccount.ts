@@ -3,11 +3,19 @@ export type AccountKind =
   | "banco"
   | "caixa";
 
+/** Caixa de operação (abre e fecha em turnos) ou de retaguarda (cofre: recebe no fechamento) */
+export type CashRole =
+  | "operacao"
+  | "retaguarda";
+
 export interface BankAccount {
   id: string;
   user_id: string;
 
   account_type: AccountKind;
+
+  /** Só para caixa */
+  cash_role: CashRole;
 
   name: string;
   bank: string | null;
@@ -23,6 +31,7 @@ export interface BankAccount {
 
 export interface BankAccountFormData {
   accountType?: AccountKind;
+  cashRole?: CashRole;
   name: string;
   bank: string;
   agency: string;
@@ -43,6 +52,9 @@ export interface BankTransaction {
 
   reference_type: string | null;
   reference_id: string | null;
+
+  /** Turno do caixa em que entrou (caixa de operação) */
+  cash_session_id?: string | null;
 
   created_at?: string;
 }

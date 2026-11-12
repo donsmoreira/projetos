@@ -134,6 +134,7 @@ function Sidebar({
                     icon={item.icon}
                     title={item.title}
                     to={item.to}
+                    end={item.end}
                   />
                 ))}
               </div>

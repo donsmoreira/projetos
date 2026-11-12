@@ -44,7 +44,10 @@ function formatTransactionType(
       "Transferência entre contas",
 
     card_settlement:
-      "Pagamento de fatura"
+      "Pagamento de fatura",
+
+    cash_adjustment:
+      "Quebra de caixa"
   };
 
   return labels[value] || value;

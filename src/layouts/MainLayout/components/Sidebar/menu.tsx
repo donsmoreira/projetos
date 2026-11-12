@@ -12,6 +12,8 @@ import {
   HandCoins,
   House,
   Landmark,
+  LineChart,
+  Scale,
   Settings,
   Truck,
   UserCog,
@@ -68,7 +70,16 @@ export const MENU: MenuEntry[] = [
       { title: "Contas Gerenciais", to: "/contas-gerenciais", icon: <FolderTree size={17} />, module: "contas_gerenciais" }
     ]
   },
-  { kind: "link", title: "Relatórios", to: "/relatorios", icon: <BarChart3 size={18} />, module: "relatorios" },
+  {
+    kind: "group",
+    id: "relatorios",
+    title: "Relatórios",
+    icon: <BarChart3 size={18} />,
+    items: [
+      { title: "Geral", to: "/relatorios", icon: <LineChart size={17} />, end: true, module: "relatorios" },
+      { title: "Quebra de caixa", to: "/relatorios/quebra-de-caixa", icon: <Scale size={17} />, module: "relatorios" }
+    ]
+  },
   {
     kind: "group",
     id: "configuracoes",
@@ -91,7 +102,9 @@ export const PAGE_TITLES: Record<string, string> = {
         ? [[entry.to, entry.title]]
         : entry.items.map(item => [item.to, item.title])
     ).filter(([to]) => to !== "/")
-  )
+  ),
+  // No menu o item se chama "Geral"; no topo, "Relatórios"
+  "/relatorios": "Relatórios"
 };
 
 /** Título da tela atual, incluindo as telas com código no endereço. */

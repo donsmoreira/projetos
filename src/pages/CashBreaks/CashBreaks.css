@@ -1,0 +1,172 @@
+/* Relatório de quebra de caixa */
+.breaks-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.breaks-header,
+.breaks-filters,
+.breaks-state {
+  padding: 18px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.breaks-header h2 {
+  margin: 0;
+
+  color: var(--text);
+  font-size: 22px;
+}
+
+.breaks-header p {
+  margin: 4px 0 0;
+
+  color: var(--text-light);
+  font-size: 13px;
+}
+
+.breaks-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.breaks-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  color: var(--text-light);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.breaks-filters input,
+.breaks-filters select {
+  min-width: 160px;
+  height: 38px;
+  padding: 0 10px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  color: var(--text);
+  font-size: 13px;
+}
+
+.breaks-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.breaks-summary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  padding: 14px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.breaks-summary span {
+  color: var(--text-light);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.breaks-summary strong {
+  color: var(--text);
+  font-size: 20px;
+}
+
+.breaks-page .is-income {
+  color: var(--success);
+}
+
+.breaks-page .is-expense {
+  color: var(--danger);
+}
+
+.breaks-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  color: var(--text-light);
+  font-size: 13px;
+}
+
+.breaks-state-error {
+  border-color: var(--danger-border);
+  color: var(--danger);
+}
+
+.breaks-table-wrapper {
+  overflow-x: auto;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.breaks-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  font-size: 13px;
+}
+
+.breaks-table th,
+.breaks-table td {
+  padding: 10px 12px;
+
+  border-bottom: 1px solid var(--border);
+
+  color: var(--text);
+  text-align: left;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.breaks-table th {
+  background: var(--surface-alt);
+  color: var(--text-light);
+
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.breaks-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.breaks-table .is-number {
+  text-align: right;
+}
+
+.breaks-table small {
+  display: block;
+
+  color: var(--text-light);
+  font-size: 11px;
+}
+
+@media (max-width: 760px) {
+  .breaks-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

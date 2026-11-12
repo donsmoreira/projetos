@@ -27,7 +27,8 @@ const ORIGIN_LABELS: Record<string, string> = {
   payable_payment: "Pagamento",
   receivable_receipt: "Recebimento",
   transfer: "Transferência",
-  card_settlement: "Fatura de cartão"
+  card_settlement: "Fatura de cartão",
+  cash_adjustment: "Quebra de caixa"
 };
 
 export function getOriginLabel(transactionType: string): string {

@@ -10,7 +10,11 @@ import {
   ArrowLeftRight,
   ArrowUpRight,
   Banknote,
+  Landmark,
+  Lock,
+  LockOpen,
   Pencil,
+  RotateCcw,
   Trash2
 } from "lucide-react";
 
@@ -22,10 +26,18 @@ import {
   listBankTransactions
 } from "../../services/bankAccountsService";
 
+import {
+  listCashSessions,
+  listOpenSessions,
+  reopenCashSession
+} from "../../services/cashSessionService";
+import { listCompanyMembers } from "../../services/companyService";
+
 import type {
   AccountWithBalance,
   BankTransaction
 } from "../../types/bankAccount";
+import type { CashSession } from "../../types/cashSession";
 
 import Modal from "../../components/Modal/Modal";
 import { formatCurrency } from "../../utils/currency";
@@ -37,15 +49,45 @@ import {
 import CashForm from "./components/CashForm";
 import CashMovementForm from "./components/CashMovementForm";
 import type { MovementKind } from "./components/CashMovementForm";
+import CloseCashForm from "./components/CloseCashForm";
+import OpenCashForm from "./components/OpenCashForm";
 
-import { usePermissions } from "../../hooks/useCompany";
+import { useCompany, usePermissions } from "../../hooks/useCompany";
 
 import "./Cash.css";
 
 type ModalState =
   | { kind: "cash"; cash: AccountWithBalance | null }
   | { kind: "movement"; cash: AccountWithBalance; movement: MovementKind }
+  | { kind: "open"; cash: AccountWithBalance }
+  | { kind: "close"; cash: AccountWithBalance; session: CashSession }
   | null;
+
+function formatDateTime(value: string | null) {
+  if (!value) {
+    return "—";
+  }
+
+  return new Date(value).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function formatTime(value: string) {
+  return new Date(value).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function differenceClass(value: number | null) {
+  if (!value) {
+    return "";
+  }
+
+  return value > 0 ? "is-income" : "is-expense";
+}
 
 function toISODate(date: Date) {
   const offset = date.getTimezoneOffset() * 60000;
@@ -66,15 +108,27 @@ function getErrorMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
 }
 
-function fetchAccounts(): Promise<[AccountWithBalance[], AccountWithBalance[]]> {
+function fetchAccounts(): Promise<[AccountWithBalance[], AccountWithBalance[], Map<string, CashSession>]> {
   return Promise.all([
     listAccountsWithBalance("caixa"),
-    listAccountsWithBalance("banco")
+    listAccountsWithBalance("banco"),
+    listOpenSessions()
   ]);
 }
 
 function Cash() {
   const permissions = usePermissions("caixa");
+  const { active } = useCompany();
+  const companyId = active?.company.id ?? "";
+
+  const [openSessions, setOpenSessions] =
+    useState<Map<string, CashSession>>(new Map());
+
+  const [sessions, setSessions] =
+    useState<CashSession[]>([]);
+
+  const [userNames, setUserNames] =
+    useState<Map<string, string>>(new Map());
 
   const [cashAccounts, setCashAccounts] =
     useState<AccountWithBalance[]>([]);
@@ -107,10 +161,11 @@ function Cash() {
     useState<ModalState>(null);
 
   const applyAccounts = useCallback((
-    [cash, banks]: [AccountWithBalance[], AccountWithBalance[]]
+    [cash, banks, open]: [AccountWithBalance[], AccountWithBalance[], Map<string, CashSession>]
   ) => {
     setCashAccounts(cash);
     setBankAccounts(banks);
+    setOpenSessions(open);
     setSelectedId(current =>
       cash.some(account => account.id === current)
         ? current
@@ -156,7 +211,12 @@ function Cash() {
     setLoadingFlow(true);
 
     try {
-      setTransactions(await listBankTransactions(cashId));
+      const [flowRows, sessionRows] = await Promise.all([
+        listBankTransactions(cashId),
+        listCashSessions(cashId)
+      ]);
+      setTransactions(flowRows);
+      setSessions(sessionRows);
     } catch (error) {
       setErrorMessage(getErrorMessage(error, "Não foi possível carregar o fluxo de caixa."));
     } finally {
@@ -171,10 +231,14 @@ function Cash() {
       return;
     }
 
-    listBankTransactions(selectedId)
-      .then(data => {
+    Promise.all([
+      listBankTransactions(selectedId),
+      listCashSessions(selectedId)
+    ])
+      .then(([data, sessionRows]) => {
         if (active) {
           setTransactions(data);
+          setSessions(sessionRows);
         }
       })
       .catch(error => {
@@ -188,9 +252,66 @@ function Cash() {
     };
   }, [selectedId]);
 
+  // Nomes de quem abriu/fechou (usuários da empresa)
+  useEffect(() => {
+    let active = true;
+
+    if (!companyId) {
+      return;
+    }
+
+    listCompanyMembers(companyId)
+      .then(members => {
+        if (active) {
+          setUserNames(new Map(members.map(member => [member.userId, member.fullName || member.email])));
+        }
+      })
+      .catch(() => {
+        // Sem os nomes o histórico continua funcionando
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [companyId]);
+
   const selectedCash = cashAccounts.find(
     account => account.id === selectedId
   );
+
+  const backofficeAccounts = cashAccounts.filter(account => account.cash_role === "retaguarda");
+  const closedSessionIds = new Set(
+    sessions.filter(session => session.status === "fechado").map(session => session.id)
+  );
+
+  /** Lançamento travado: é de turno fechado ou foi criado por um fechamento */
+  function isLocked(row: BankTransaction) {
+    return (
+      row.reference_type === "cash_closing" ||
+      row.reference_type === "cash_opening" ||
+      Boolean(row.cash_session_id && closedSessionIds.has(row.cash_session_id))
+    );
+  }
+  const lastSession = sessions[0];
+
+  function userName(id: string | null) {
+    return (id && userNames.get(id)) || "—";
+  }
+
+  async function handleReopen(session: CashSession) {
+    if (!window.confirm(
+      "Reabrir este fechamento? O que ele lançou (quebra de caixa, envio para a retaguarda e depósito) será desfeito e o caixa volta a ficar aberto."
+    )) {
+      return;
+    }
+
+    try {
+      await reopenCashSession(session.id);
+      await refreshAll();
+    } catch (error) {
+      window.alert(getErrorMessage(error, "Não foi possível reabrir o caixa."));
+    }
+  }
 
   const flow = useMemo(() => {
     if (!selectedCash || startDate > endDate) {
@@ -323,7 +444,13 @@ function Cash() {
       {!loading && !errorMessage && cashAccounts.length > 0 && (
         <>
           <section className="cash-cards">
-            {cashAccounts.map(cash => (
+            {cashAccounts.map(cash => {
+              const isBackoffice = cash.cash_role === "retaguarda";
+              const openSession = openSessions.get(cash.id);
+              // Caixa de operação só movimenta com o turno aberto
+              const canMove = isBackoffice || Boolean(openSession);
+
+              return (
               <article
                 key={cash.id}
                 className={`cash-card ${cash.id === selectedId ? "is-selected" : ""}`}
@@ -335,7 +462,7 @@ function Cash() {
                   aria-pressed={cash.id === selectedId}
                 >
                   <span className="cash-card-icon">
-                    <Banknote size={20} />
+                    {isBackoffice ? <Landmark size={20} /> : <Banknote size={20} />}
                   </span>
 
                   <span className="cash-card-info">
@@ -346,11 +473,32 @@ function Cash() {
                     <small>
                       {cash.transactionCount} {cash.transactionCount === 1 ? "movimentação" : "movimentações"}
                     </small>
+                    <span
+                      className={`cash-status ${isBackoffice ? "is-backoffice" : openSession ? "is-open" : "is-closed"}`}
+                    >
+                      {isBackoffice ? (
+                        <><Landmark size={12} /> Retaguarda</>
+                      ) : openSession ? (
+                        <><LockOpen size={12} /> Aberto desde {formatTime(openSession.opened_at)}</>
+                      ) : (
+                        <><Lock size={12} /> Fechado</>
+                      )}
+                    </span>
                   </span>
                 </button>
 
                 <div className="cash-card-actions">
-                  <>{permissions.canCreate && (
+                  {permissions.canCreate && !isBackoffice && !openSession && (
+                    <button
+                      type="button"
+                      className="cash-action cash-action-open"
+                      onClick={() => setModal({ kind: "open", cash })}
+                    >
+                      <LockOpen size={15} /> Abrir caixa
+                    </button>
+                  )}
+
+                  <>{permissions.canCreate && canMove && (
 <button
                     type="button"
                     className="cash-action cash-action-in"
@@ -360,7 +508,7 @@ function Cash() {
                   </button>
 )}</>
 
-                  <>{permissions.canCreate && (
+                  <>{permissions.canCreate && canMove && (
 <button
                     type="button"
                     className="cash-action cash-action-out"
@@ -370,7 +518,7 @@ function Cash() {
                   </button>
 )}</>
 
-                  <>{permissions.canCreate && (
+                  <>{permissions.canCreate && canMove && (
 <button
                     type="button"
                     className="cash-action"
@@ -379,6 +527,16 @@ function Cash() {
                     <ArrowLeftRight size={15} /> Transferir
                   </button>
 )}</>
+
+                  {permissions.canCreate && openSession && (
+                    <button
+                      type="button"
+                      className="cash-action cash-action-close"
+                      onClick={() => setModal({ kind: "close", cash, session: openSession })}
+                    >
+                      <Lock size={15} /> Fechar caixa
+                    </button>
+                  )}
 
                   <>{permissions.canUpdate && (
 <button
@@ -405,7 +563,8 @@ function Cash() {
 )}</>
                 </div>
               </article>
-            ))}
+              );
+            })}
 
             {cashAccounts.length > 1 && (
               <article className="cash-card cash-card-total">
@@ -516,7 +675,7 @@ function Cash() {
                                 <strong>{formatCurrency(row.balance)}</strong>
                               </td>
                               <td className="cash-table-actions">
-                                {(row.transaction_type === "manual" || row.transaction_type === "transfer") ? (
+                                {(row.transaction_type === "manual" || row.transaction_type === "transfer") && !isLocked(row) ? (
                                   <>{permissions.canDelete && (
 <button
                                     type="button"
@@ -531,9 +690,13 @@ function Cash() {
                                 ) : (
                                   <span
                                     className="cash-table-locked"
-                                    title="Para desfazer, use o estorno em Contas a Pagar ou Contas a Receber."
+                                    title={
+                                      isLocked(row)
+                                        ? "Lançamento de caixa fechado: só o administrador pode reabrir o fechamento."
+                                        : "Para desfazer, use o estorno em Contas a Pagar ou Contas a Receber."
+                                    }
                                   >
-                                    —
+                                    {isLocked(row) ? <Lock size={12} /> : "—"}
                                   </span>
                                 )}
                               </td>
@@ -544,6 +707,101 @@ function Cash() {
                     </div>
                   )}
                 </>
+              )}
+            </section>
+          )}
+
+          {selectedCash && selectedCash.cash_role === "operacao" && (
+            <section className="cash-flow">
+              <header className="cash-flow-header">
+                <div>
+                  <h3>Aberturas e fechamentos · {selectedCash.name}</h3>
+                  <p>Turnos do caixa: troco conferido na abertura, contagem no fechamento e para onde foi o dinheiro.</p>
+                </div>
+              </header>
+
+              {sessions.length === 0 ? (
+                <div className="cash-state">
+                  Este caixa ainda não foi aberto. Use "Abrir caixa" para começar o primeiro turno.
+                </div>
+              ) : (
+                <div className="cash-table-wrapper">
+                  <table className="cash-table cash-sessions-table">
+                    <thead>
+                      <tr>
+                        <th>Abertura</th>
+                        <th className="is-number">Troco</th>
+                        <th>Fechamento</th>
+                        <th className="is-number">Esperado</th>
+                        <th className="is-number">Contado</th>
+                        <th className="is-number">Diferença</th>
+                        <th className="is-number">Retaguarda</th>
+                        <th className="is-number">Depósito</th>
+                        <th className="is-number">Reserva</th>
+                        <th aria-label="Ações" />
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {sessions.map(session => {
+                        const isOpen = session.status === "aberto";
+                        const canReopen =
+                          permissions.isAdmin &&
+                          !isOpen &&
+                          session.id === lastSession?.id;
+
+                        return (
+                          <tr key={session.id}>
+                            <td>
+                              {formatDateTime(session.opened_at)}
+                              <small className="cash-table-sub">{userName(session.opened_by)}</small>
+                            </td>
+                            <td className="is-number">
+                              {formatCurrency(session.opening_counted)}
+                              {session.opening_difference !== 0 && (
+                                <small className={`cash-table-sub ${differenceClass(session.opening_difference)}`}>
+                                  {session.opening_difference > 0 ? "sobra " : "falta "}
+                                  {formatCurrency(Math.abs(session.opening_difference))}
+                                </small>
+                              )}
+                            </td>
+                            <td>
+                              {isOpen ? (
+                                <span className="cash-status is-open"><LockOpen size={12} /> Aberto</span>
+                              ) : (
+                                <>
+                                  {formatDateTime(session.closed_at)}
+                                  <small className="cash-table-sub">{userName(session.closed_by)}</small>
+                                </>
+                              )}
+                            </td>
+                            <td className="is-number">{isOpen ? "" : formatCurrency(session.closing_expected ?? 0)}</td>
+                            <td className="is-number">{isOpen ? "" : formatCurrency(session.closing_counted ?? 0)}</td>
+                            <td className={`is-number ${differenceClass(session.closing_difference)}`}>
+                              {isOpen ? "" : formatCurrency(session.closing_difference ?? 0)}
+                            </td>
+                            <td className="is-number">{isOpen || !session.to_backoffice ? "" : formatCurrency(session.to_backoffice)}</td>
+                            <td className="is-number">{isOpen || !session.to_bank ? "" : formatCurrency(session.to_bank)}</td>
+                            <td className="is-number"><strong>{isOpen ? "" : formatCurrency(session.reserve ?? 0)}</strong></td>
+                            <td className="cash-table-actions">
+                              {canReopen && (
+                                <button
+                                  type="button"
+                                  className="cash-icon-button"
+                                  onClick={() => void handleReopen(session)}
+                                  title="Reabrir este fechamento (administrador)"
+                                  aria-label="Reabrir fechamento"
+                                >
+                                  <RotateCcw size={14} />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </section>
           )}
@@ -559,6 +817,7 @@ function Cash() {
           <CashForm
             cash={modal.cash}
             existingNames={cashAccounts.map(account => account.name)}
+            hasOpenSession={Boolean(modal.cash && openSessions.get(modal.cash.id))}
             onCancel={() => setModal(null)}
             onSaved={handleSaved}
           />
@@ -575,6 +834,37 @@ function Cash() {
             cash={modal.cash}
             initialKind={modal.movement}
             otherAccounts={bankAccounts}
+            onCancel={() => setModal(null)}
+            onSaved={handleSaved}
+          />
+        </Modal>
+      )}
+
+      {modal?.kind === "open" && (
+        <Modal
+          title="Abrir caixa"
+          subtitle={`${modal.cash.name} · confira o troco`}
+          onClose={() => setModal(null)}
+        >
+          <OpenCashForm
+            cash={modal.cash}
+            onCancel={() => setModal(null)}
+            onSaved={handleSaved}
+          />
+        </Modal>
+      )}
+
+      {modal?.kind === "close" && (
+        <Modal
+          title="Fechar caixa"
+          subtitle={`${modal.cash.name} · conte o dinheiro`}
+          onClose={() => setModal(null)}
+        >
+          <CloseCashForm
+            cash={modal.cash}
+            session={modal.session}
+            backofficeAccounts={backofficeAccounts}
+            bankAccounts={bankAccounts}
             onCancel={() => setModal(null)}
             onSaved={handleSaved}
           />

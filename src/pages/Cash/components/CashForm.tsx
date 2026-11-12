@@ -6,13 +6,15 @@ import {
   updateBankAccount
 } from "../../../services/bankAccountsService";
 
-import type { AccountWithBalance } from "../../../types/bankAccount";
+import type { AccountWithBalance, CashRole } from "../../../types/bankAccount";
 
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
 
 type CashFormProps = {
   cash: AccountWithBalance | null;
   existingNames: string[];
+  /** Com turno aberto não dá para trocar a função do caixa */
+  hasOpenSession?: boolean;
   onCancel: () => void;
   onSaved: () => Promise<void> | void;
 };
@@ -20,11 +22,15 @@ type CashFormProps = {
 function CashForm({
   cash,
   existingNames,
+  hasOpenSession = false,
   onCancel,
   onSaved
 }: CashFormProps) {
   const [name, setName] =
     useState(cash?.name ?? "");
+
+  const [cashRole, setCashRole] =
+    useState<CashRole>(cash?.cash_role ?? "operacao");
 
   const [initialBalance, setInitialBalance] =
     useState(cash?.initial_balance ?? 0);
@@ -75,6 +81,7 @@ function CashForm({
 
     const data = {
       accountType: "caixa" as const,
+      cashRole,
       name: cleanName,
       bank: "",
       agency: "",
@@ -128,6 +135,49 @@ function CashForm({
           autoFocus
           required
         />
+      </div>
+
+      <div className="arc-field">
+        <span className="arc-field-label">
+          Função do caixa
+        </span>
+
+        <div
+          className="arc-choice-group"
+          role="radiogroup"
+          aria-label="Função do caixa"
+        >
+          {([
+            ["operacao", "Operação"],
+            ["retaguarda", "Retaguarda (cofre)"]
+          ] as [CashRole, string][]).map(([value, label]) => (
+            <label
+              key={value}
+              className={[
+                "arc-choice",
+                cashRole === value ? "is-selected" : ""
+              ].join(" ")}
+            >
+              <input
+                type="radio"
+                name="cash-role"
+                value={value}
+                checked={cashRole === value}
+                disabled={hasOpenSession}
+                onChange={() => setCashRole(value)}
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+
+        <small className="arc-hint">
+          {hasOpenSession
+            ? "Feche o caixa antes de trocar a função."
+            : cashRole === "operacao"
+              ? "Caixa do dia a dia: abre conferindo o troco e fecha contando o dinheiro, em turnos."
+              : "Cofre ou retaguarda: não abre nem fecha; recebe o dinheiro enviado nos fechamentos."}
+        </small>
       </div>
 
       <div className="arc-field">

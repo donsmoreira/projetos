@@ -488,3 +488,201 @@
     flex: 1;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Abertura e fechamento de caixa                                       */
+/* ------------------------------------------------------------------ */
+.cash-status {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 4px;
+
+  margin-top: 4px;
+  padding: 2px 8px;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cash-status.is-open {
+  border-color: var(--success-border);
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.cash-status.is-closed {
+  border-color: var(--border-strong);
+  color: var(--text-light);
+}
+
+.cash-status.is-backoffice {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.cash-action-open {
+  border-color: var(--success-border);
+  background: var(--success-soft);
+  color: var(--success);
+  font-weight: 700;
+}
+
+.cash-action-close {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 700;
+}
+
+.cash-action-open:hover,
+.cash-action-close:hover {
+  filter: brightness(1.05);
+}
+
+.cash-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.cash-summary-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cash-summary-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  padding: 10px 12px;
+
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.cash-summary-grid span {
+  color: var(--text-light);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.cash-summary-grid strong {
+  color: var(--text);
+  font-size: 18px;
+}
+
+.cash-summary-grid small {
+  color: var(--text-light);
+  font-size: 11px;
+}
+
+.cash-summary-grid .is-income,
+.cash-reserve.is-income {
+  color: var(--success);
+}
+
+.cash-summary-grid .is-expense,
+.cash-reserve.is-expense strong {
+  color: var(--danger);
+}
+
+.cash-destination {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  margin: 0;
+  padding: 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.cash-destination legend {
+  padding: 0 6px;
+
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cash-reserve {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 10px 12px;
+
+  background: var(--primary-soft);
+  border-radius: 8px;
+
+  color: var(--text);
+  font-size: 13px;
+}
+
+.cash-reserve strong {
+  font-size: 16px;
+}
+
+.cash-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  padding: 14px;
+
+  border: 1px solid var(--warning);
+  border-radius: 10px;
+
+  background: var(--warning-soft);
+  color: var(--text);
+}
+
+.cash-confirm strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: var(--warning);
+  font-size: 14px;
+}
+
+.cash-confirm p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cash-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.cash-table-sub {
+  display: block;
+
+  color: var(--text-light);
+  font-size: 11px;
+  font-weight: 400;
+}
+
+.cash-sessions-table td {
+  vertical-align: top;
+}
+
+@media (max-width: 600px) {
+  .cash-summary-grid,
+  .cash-summary-grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
