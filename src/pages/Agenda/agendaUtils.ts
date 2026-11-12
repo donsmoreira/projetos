@@ -16,16 +16,6 @@ export const HOUR_PX = 52;
 
 export const WEEKDAYS_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-/** Cores dos responsáveis (na ordem dos usuários) */
-const PALETTE = [
-  "#1a5cff", "#0f9d74", "#c2410c", "#7c3aed",
-  "#db2777", "#0891b2", "#a16207", "#4d7c0f"
-];
-
-export function colorFor(index: number): string {
-  return index < 0 ? "#64748b" : PALETTE[index % PALETTE.length];
-}
-
 export function toISO(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");

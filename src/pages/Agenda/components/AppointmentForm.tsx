@@ -18,7 +18,11 @@ import type {
   AppointmentFormData,
   AppointmentStatus
 } from "../../../types/appointment";
-import { APPOINTMENT_STATUS_LABELS } from "../../../types/appointment";
+import {
+  APPOINTMENT_COLORS,
+  APPOINTMENT_STATUS_LABELS,
+  DEFAULT_APPOINTMENT_COLOR
+} from "../../../types/appointment";
 import { minutes, timeFrom } from "../agendaUtils";
 
 export type Member = { userId: string; name: string };
@@ -54,6 +58,7 @@ function formFrom(
       startTime: appointment.start_time,
       endTime: appointment.end_time,
       amount: appointment.amount ?? 0,
+      color: appointment.color,
       responsibleId: appointment.responsible_id ?? "",
       status: appointment.status,
       notes: appointment.notes ?? ""
@@ -67,6 +72,7 @@ function formFrom(
     startTime: time,
     endTime: timeFrom(minutes(time) + 60),
     amount: 0,
+    color: DEFAULT_APPOINTMENT_COLOR,
     responsibleId,
     status: "agendado",
     notes: ""
@@ -350,6 +356,25 @@ function AppointmentForm({
                   <option key={status} value={status}>{APPOINTMENT_STATUS_LABELS[status]}</option>
                 ))}
             </select>
+          </div>
+        </div>
+
+        <div className="arc-field">
+          <span className="arc-field-label">Cor</span>
+          <div className="agenda-colors" role="radiogroup" aria-label="Cor do agendamento">
+            {APPOINTMENT_COLORS.map(option => (
+              <button
+                key={option.value}
+                type="button"
+                role="radio"
+                aria-checked={form.color.toLowerCase() === option.value}
+                aria-label={option.name}
+                title={option.name}
+                className={`agenda-color ${form.color.toLowerCase() === option.value ? "is-selected" : ""}`}
+                style={{ background: option.value }}
+                onClick={() => update("color", option.value)}
+              />
+            ))}
           </div>
         </div>
 

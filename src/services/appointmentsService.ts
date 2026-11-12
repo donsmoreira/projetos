@@ -1,7 +1,7 @@
 import { supabase } from "./supabase";
 import { translateCompanyError } from "./companyService";
 
-import { BUSY_STATUSES } from "../types/appointment";
+import { BUSY_STATUSES, DEFAULT_APPOINTMENT_COLOR } from "../types/appointment";
 import type {
   Appointment,
   AppointmentFormData,
@@ -27,6 +27,7 @@ function normalize(row: Record<string, unknown>): Appointment {
     start_time: hhmm(row.start_time),
     end_time: hhmm(row.end_time),
     amount: row.amount === null || row.amount === undefined ? null : Number(row.amount),
+    color: typeof row.color === "string" && row.color ? row.color : DEFAULT_APPOINTMENT_COLOR,
     clients: (client ?? null) as Appointment["clients"]
   };
 }
@@ -39,6 +40,7 @@ function toRow(form: AppointmentFormData) {
     start_time: form.startTime,
     end_time: form.endTime,
     amount: form.amount > 0 ? form.amount : null,
+    color: form.color || DEFAULT_APPOINTMENT_COLOR,
     responsible_id: form.responsibleId || null,
     status: form.status,
     notes: form.notes.trim() || null

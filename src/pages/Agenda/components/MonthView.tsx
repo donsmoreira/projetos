@@ -11,7 +11,6 @@ import {
 type MonthViewProps = {
   cursor: Date;
   appointments: Appointment[];
-  colorOf: (responsibleId: string | null) => string;
   onOpen: (appointment: Appointment) => void;
   onOpenDay: (date: Date) => void;
   onCreate?: (date: string) => void;
@@ -27,7 +26,6 @@ const MAX_PER_DAY = 3;
 function MonthView({
   cursor,
   appointments,
-  colorOf,
   onOpen,
   onOpenDay,
   onCreate,
@@ -106,7 +104,7 @@ function MonthView({
                     onDragStart && appointment.status !== "concluido" ? "is-draggable" : "",
                     dragPreview?.appointmentId === appointment.id ? "is-dragging" : ""
                   ].join(" ")}
-                  style={{ "--chip-color": colorOf(appointment.responsible_id) } as CSSProperties}
+                  style={{ "--chip-color": appointment.color } as CSSProperties}
                   // Concluído não se move
                     onPointerDown={onDragStart && appointment.status !== "concluido" ? event => onDragStart(event, appointment) : undefined}
                   onContextMenu={onDragStart && appointment.status !== "concluido" ? event => event.preventDefault() : undefined}

@@ -1,5 +1,4 @@
-import type { CSSProperties } from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -28,7 +27,6 @@ import TimeGridView from "./components/TimeGridView";
 import {
   VIEW_LABELS,
   addDays,
-  colorFor,
   minutes,
   timeFrom,
   rangeFor,
@@ -142,16 +140,6 @@ function Agenda() {
     };
   }, [companyId]);
 
-  const colorIndex = useMemo(
-    () => new Map(members.map((member, index) => [member.userId, index])),
-    [members]
-  );
-
-  const colorOf = useCallback(
-    (id: string | null) => colorFor(id ? colorIndex.get(id) ?? -1 : -1),
-    [colorIndex]
-  );
-
   const nameOf = useCallback(
     (id: string | null) => members.find(member => member.userId === id)?.name ?? "Sem responsável",
     [members]
@@ -184,6 +172,7 @@ function Agenda() {
       startTime,
       endTime,
       amount: appointment.amount ?? 0,
+      color: appointment.color,
       responsibleId: appointment.responsible_id ?? "",
       status: appointment.status,
       notes: appointment.notes ?? ""
@@ -319,10 +308,8 @@ function Agenda() {
               key={member.userId}
               type="button"
               className={responsibleFilter === member.userId ? "is-active" : ""}
-              style={{ "--chip-color": colorOf(member.userId) } as CSSProperties}
               onClick={() => setResponsibleFilter(current => current === member.userId ? "" : member.userId)}
             >
-              <span className="agenda-chip-dot" />
               {member.name}
             </button>
           ))}
@@ -337,7 +324,6 @@ function Agenda() {
         <MonthView
           cursor={cursor}
           appointments={visible}
-          colorOf={colorOf}
           onOpen={appointment => setModal({ kind: "form", appointment, date: "", time: "" })}
           onOpenDay={day => {
             setCursor(day);
@@ -351,7 +337,6 @@ function Agenda() {
       ) : view === "lista" ? (
         <ListView
           appointments={visible}
-          colorOf={colorOf}
           nameOf={nameOf}
           onOpen={appointment => setModal({ kind: "form", appointment, date: "", time: "" })}
         />
@@ -359,7 +344,6 @@ function Agenda() {
         <TimeGridView
           days={days}
           appointments={visible}
-          colorOf={colorOf}
           nameOf={nameOf}
           onOpen={appointment => setModal({ kind: "form", appointment, date: "", time: "" })}
           onCreate={permissions.canCreate ? (date, time) => openNew(date, time) : undefined}

@@ -5,13 +5,12 @@ import { formatMoney, fromISO } from "../agendaUtils";
 
 type ListViewProps = {
   appointments: Appointment[];
-  colorOf: (responsibleId: string | null) => string;
   nameOf: (responsibleId: string | null) => string;
   onOpen: (appointment: Appointment) => void;
 };
 
 /** Lista dos agendamentos agrupada por dia. */
-function ListView({ appointments, colorOf, nameOf, onOpen }: ListViewProps) {
+function ListView({ appointments, nameOf, onOpen }: ListViewProps) {
   if (appointments.length === 0) {
     return <div className="agenda-empty">Nenhum agendamento neste período.</div>;
   }
@@ -42,7 +41,7 @@ function ListView({ appointments, colorOf, nameOf, onOpen }: ListViewProps) {
                 key={appointment.id}
                 type="button"
                 className={`agenda-list-item is-${appointment.status}`}
-                style={{ "--chip-color": colorOf(appointment.responsible_id) } as CSSProperties}
+                style={{ "--chip-color": appointment.color } as CSSProperties}
                 onClick={() => onOpen(appointment)}
               >
                 <span className="agenda-list-time">

@@ -685,6 +685,50 @@ body.agenda-dragging * {
   gap: 5px;
 }
 
+/* Escolha da cor do agendamento */
+.agenda-colors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.agenda-color {
+  position: relative;
+
+  width: 28px;
+  height: 28px;
+
+  border: 2px solid var(--surface);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--border);
+
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.agenda-color:hover {
+  transform: scale(1.12);
+}
+
+.agenda-color.is-selected {
+  box-shadow: 0 0 0 2px var(--text);
+}
+
+.agenda-color.is-selected::after {
+  content: "✓";
+
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
 .agenda-completed-note {
   display: flex;
   flex-wrap: wrap;

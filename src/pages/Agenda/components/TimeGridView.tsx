@@ -19,7 +19,6 @@ type TimeGridViewProps = {
   /** 1 dia (visão Dia) ou 7 dias (visão Semana) */
   days: Date[];
   appointments: Appointment[];
-  colorOf: (responsibleId: string | null) => string;
   nameOf: (responsibleId: string | null) => string;
   onOpen: (appointment: Appointment) => void;
   onCreate?: (date: string, time: string) => void;
@@ -36,7 +35,6 @@ const TOTAL_PX = (LAST_HOUR - FIRST_HOUR) * HOUR_PX;
 function TimeGridView({
   days,
   appointments,
-  colorOf,
   nameOf,
   onOpen,
   onCreate,
@@ -143,7 +141,7 @@ function TimeGridView({
                       height,
                       left: `calc(${(lane / lanes) * 100}% + 2px)`,
                       width: `calc(${100 / lanes}% - 4px)`,
-                      "--chip-color": colorOf(appointment.responsible_id)
+                      "--chip-color": appointment.color
                     } as CSSProperties}
                     onClick={event => {
                       event.stopPropagation();
