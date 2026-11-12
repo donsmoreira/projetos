@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 
-import { AlertTriangle, Check, CheckCheck, Trash2, UserX, X } from "lucide-react";
+import { AlertTriangle, Check, CheckCheck, Plus, Trash2, UserX, X } from "lucide-react";
 
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
 import {
@@ -103,6 +103,8 @@ function AppointmentForm({
 
   // Concluído: só consulta (ou excluir); nunca é alterado nem movido
   const isCompleted = appointment?.status === "concluido";
+  // Cor fora das sugestões (escolhida no seletor completo)
+  const isCustomColor = !APPOINTMENT_COLORS.some(option => option.value === form.color.toLowerCase());
   const editable = appointment ? canUpdate && !isCompleted : canCreate;
 
   function update<K extends keyof AppointmentFormData>(field: K, value: AppointmentFormData[K]) {
@@ -375,6 +377,21 @@ function AppointmentForm({
                 onClick={() => update("color", option.value)}
               />
             ))}
+
+            {/* Qualquer cor: abre o seletor de cores do aparelho (RGB / hexadecimal) */}
+            <label
+              className={`agenda-color agenda-color-custom ${isCustomColor ? "is-selected" : ""}`}
+              style={isCustomColor ? { background: form.color } : undefined}
+              title="Escolher outra cor"
+            >
+              <input
+                type="color"
+                value={form.color}
+                onChange={event => update("color", event.target.value.toLowerCase())}
+                aria-label="Escolher outra cor"
+              />
+              {!isCustomColor && <Plus size={14} />}
+            </label>
           </div>
         </div>
 

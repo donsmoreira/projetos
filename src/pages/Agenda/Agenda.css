@@ -901,6 +901,39 @@ body.agenda-dragging * {
   font-weight: 800;
 }
 
+/* Cor personalizada: bolinha arco-íris com "+", que abre o seletor de cores */
+.agenda-color-custom {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: conic-gradient(#d93025, #f6bf26, #33b679, #039be5, #1a5cff, #8e24aa, #d93025);
+  color: #fff;
+}
+
+.agenda-color-custom svg {
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6));
+}
+
+/* O seletor do aparelho fica invisível por cima da bolinha (o clique abre ele) */
+.agenda-color-custom input {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+  padding: 0;
+
+  border: none;
+  opacity: 0;
+
+  cursor: pointer;
+}
+
+fieldset:disabled .agenda-color-custom {
+  cursor: not-allowed;
+}
+
 .agenda-completed-note {
   display: flex;
   flex-wrap: wrap;
