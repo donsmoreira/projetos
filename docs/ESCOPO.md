@@ -122,7 +122,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Transferência | 🟡 | banco ↔ caixa pronto (e no fechamento do caixa); falta banco ↔ banco |
 | Importar extrato (OFX/CSV) | ✅ | `/conciliacao`; repetidos pulados; tabela `bank_statement_lines` (`20261114_conciliacao_bancaria.sql`) |
 | Conciliação bancária | ✅ | sugestão automática; conciliar com movimentação, baixar conta (parcial/desconto), lançar avulso, ignorar, desfazer; **Conciliar todos** de uma vez |
-| Open Finance | ❌ | próximo: agregador (ex.: Pluggy) em sandbox, entrando na mesma conciliação |
+| Open Finance | ✅ (sandbox) | Pluggy em homologação: conectar banco, sincronizar (`/v2/transactions`), reconectar e desconectar; lançamentos entram na mesma conciliação. Produção (plano pago da Pluggy) depois |
 
 ### 3.7 Caixa — dinheiro físico (`/caixa`)
 | Item | Status | Observação |
@@ -362,7 +362,8 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [x] Transferência banco ↔ caixa
 - [x] Tela de extrato por conta (na Conciliação Bancária)
 - [x] Importar extrato OFX/CSV e conciliação bancária
-- [ ] Open Finance (agregador em sandbox → mesma conciliação)
+- [x] Open Finance em sandbox (Pluggy → mesma conciliação)
+- [ ] Open Finance em produção (plano pago da Pluggy, quando houver cliente)
 - [ ] Lançamento manual em banco (tela livre; pela conciliação já dá)
 - [ ] Transferência banco ↔ banco
 - [ ] Saldo calculado no banco (D5)
