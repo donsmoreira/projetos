@@ -32,8 +32,14 @@ function CashForm({
   const [cashRole, setCashRole] =
     useState<CashRole>(cash?.cash_role ?? "operacao");
 
-  const [initialBalance, setInitialBalance] =
-    useState(cash?.initial_balance ?? 0);
+  // O campo mostra o SALDO ATUAL (inicial + movimentações). Ao salvar, o saldo
+  // inicial é recalculado para o caixa ficar exatamente com o valor digitado.
+  const movements = cash
+    ? Math.round((Number(cash.balance || 0) - Number(cash.initial_balance || 0)) * 100) / 100
+    : 0;
+
+  const [currentBalance, setCurrentBalance] =
+    useState(cash ? Number(cash.balance || 0) : 0);
 
   const [submitting, setSubmitting] =
     useState(false);
@@ -62,22 +68,14 @@ function CashForm({
       return;
     }
 
-    if (initialBalance < 0) {
-      setErrorMessage("O saldo inicial do caixa não pode ser negativo.");
+    if (currentBalance < 0) {
+      setErrorMessage("O saldo do caixa não pode ser negativo.");
       return;
     }
 
-    // Ao editar, o saldo inicial novo não pode deixar o saldo atual negativo
-    if (cash) {
-      const newBalance = cash.balance - cash.initial_balance + initialBalance;
-
-      if (newBalance < 0) {
-        setErrorMessage(
-          "Com esse saldo inicial o caixa ficaria negativo, por causa das saídas já registradas."
-        );
-        return;
-      }
-    }
+    // Saldo atual digitado − movimentações = saldo inicial a gravar
+    const initialBalance =
+      Math.round((currentBalance - movements) * 100) / 100;
 
     const data = {
       accountType: "caixa" as const,
@@ -182,20 +180,22 @@ function CashForm({
 
       <div className="arc-field">
         <label htmlFor="cash-initial-balance">
-          Saldo inicial (R$)
+          Saldo atual (R$)
         </label>
 
         <CurrencyInput
           id="cash-initial-balance"
-          value={initialBalance}
+          value={currentBalance}
           onChange={value => {
-            setInitialBalance(value);
+            setCurrentBalance(value);
             setErrorMessage("");
           }}
         />
 
         <small className="arc-hint">
-          Quanto dinheiro em espécie havia neste caixa quando você começou a usar o sistema.
+          {cash
+            ? "Dinheiro em espécie no caixa hoje, já com todas as entradas e saídas. Se alterar, o sistema ajusta para o caixa ficar com este valor."
+            : "Quanto dinheiro em espécie há neste caixa hoje."}
         </small>
       </div>
 
