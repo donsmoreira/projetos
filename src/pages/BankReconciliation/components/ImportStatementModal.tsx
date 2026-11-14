@@ -4,7 +4,7 @@ import { FileUp } from "lucide-react";
 
 import Modal from "../../../components/Modal/Modal";
 
-import { importStatementLines } from "../../../services/statementService";
+import { importStatementLines, setBankReportedBalance } from "../../../services/statementService";
 import type { AccountWithBalance } from "../../../types/bankAccount";
 import type { ImportResult } from "../../../types/statement";
 import { formatCurrency } from "../../../utils/currency";
@@ -140,6 +140,18 @@ function ImportStatementModal({ account, onClose, onImported }: ImportStatementM
       setImporting(true);
       setErrorMessage("");
       const result = await importStatementLines(account.id, statement.source, statement.lines);
+
+      // O OFX traz o saldo do banco: guarda para comparar com o sistema
+      if (statement.source === "ofx" && statement.ledgerBalance !== null) {
+        const dates = statement.lines.map(line => line.date).sort();
+        await setBankReportedBalance(
+          account.id,
+          statement.ledgerBalance,
+          statement.ledgerDate || dates[dates.length - 1],
+          "ofx"
+        ).catch(() => undefined);
+      }
+
       await onImported(result, statement);
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : "Não foi possível importar o extrato.");

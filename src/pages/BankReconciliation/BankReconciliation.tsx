@@ -183,6 +183,32 @@ function BankReconciliation() {
     return map;
   }, [lines, data]);
 
+  // Saldo do banco × saldo do sistema na mesma data
+  const balanceCheck = useMemo(() => {
+    if (!account || account.bank_balance === null || account.bank_balance === undefined || !account.bank_balance_date) {
+      return null;
+    }
+
+    const date = account.bank_balance_date;
+    let systemCents = cents(account.initial_balance);
+
+    for (const tx of transactions) {
+      if (tx.transaction_date <= date) {
+        systemCents += cents(tx.value);
+      }
+    }
+
+    const bankCents = cents(account.bank_balance);
+
+    return {
+      date,
+      source: account.bank_balance_source === "openfinance" ? "Open Finance" : "arquivo OFX",
+      bank: bankCents / 100,
+      system: systemCents / 100,
+      difference: (systemCents - bankCents) / 100
+    };
+  }, [account, transactions]);
+
   // Extrato do sistema: saldo antes do período + movimentações dia a dia
   const systemStatement = useMemo(() => {
     if (!account) {
@@ -366,19 +392,49 @@ function BankReconciliation() {
               <div className="reconcile-card">
                 <span>Conciliados</span>
                 <strong>{counts.reconciled}</strong>
-                <small>no período</small>
+                <small>{counts.ignored > 0 ? `${counts.ignored} ignorado(s) · ` : ""}no período</small>
               </div>
               <div className="reconcile-card">
-                <span>Ignorados</span>
-                <strong>{counts.ignored}</strong>
-                <small>no período</small>
+                <span>Saldo no banco</span>
+                {balanceCheck ? (
+                  <>
+                    <strong>{formatCurrency(balanceCheck.bank)}</strong>
+                    <small>em {formatDateBR(balanceCheck.date)} · {balanceCheck.source}</small>
+                  </>
+                ) : (
+                  <>
+                    <strong>—</strong>
+                    <small>importe um OFX ou sincronize o Open Finance</small>
+                  </>
+                )}
               </div>
-              <div className="reconcile-card">
+              <div className={`reconcile-card${balanceCheck ? (balanceCheck.difference === 0 ? " is-match" : " is-diff") : ""}`}>
                 <span>Saldo no sistema</span>
                 <strong>{formatCurrency(account.balance)}</strong>
-                <small>hoje</small>
+                {balanceCheck ? (
+                  balanceCheck.difference === 0 ? (
+                    <small className="reconcile-in">✓ bate com o banco em {formatDateBR(balanceCheck.date)}</small>
+                  ) : (
+                    <small>
+                      em {formatDateBR(balanceCheck.date)}: {formatCurrency(balanceCheck.system)} ·{" "}
+                      <em className="reconcile-out">diferença {formatCurrency(balanceCheck.difference)}</em>
+                    </small>
+                  )
+                ) : (
+                  <small>hoje</small>
+                )}
               </div>
             </div>
+
+            {balanceCheck && balanceCheck.difference !== 0 && (
+              <div className="reconcile-balance-hint">
+                Em {formatDateBR(balanceCheck.date)} o banco tinha {formatCurrency(balanceCheck.bank)} e o sistema{" "}
+                {formatCurrency(balanceCheck.system)} (diferença de {formatCurrency(balanceCheck.difference)}).
+                {counts.pending > 0
+                  ? ` Concilie os ${counts.pending} lançamento(s) a conciliar (${formatCurrency(counts.pendingIn + counts.pendingOut)} no total) e confira de novo.`
+                  : " Confira se há movimentações no sistema que não aparecem no banco (ou o contrário) e se o saldo atual da conta no Controle Bancário está certo."}
+              </div>
+            )}
 
             <div className="reconcile-tabs" role="tablist">
               <button

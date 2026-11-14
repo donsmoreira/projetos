@@ -24,7 +24,11 @@ function normalizeAccount(
         ? "retaguarda"
         : "operacao",
     initial_balance: Number(account.initial_balance || 0),
-    overdraft_limit: Number(account.overdraft_limit || 0)
+    overdraft_limit: Number(account.overdraft_limit || 0),
+    bank_balance:
+      account.bank_balance === null || account.bank_balance === undefined
+        ? null
+        : Number(account.bank_balance)
   } as BankAccount;
 }
 

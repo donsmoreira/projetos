@@ -117,7 +117,7 @@ async function pluggy<T>(path: string, init: RequestInit = {}): Promise<T> {
     }
 
     // Motivo da Pluggy (sem dados sensíveis) para saber o que corrigir
-    let reason = "";
+    let reason: string;
 
     try {
       const parsed = JSON.parse(detail) as { message?: string; code?: number | string };

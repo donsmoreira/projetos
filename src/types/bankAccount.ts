@@ -25,6 +25,12 @@ export interface BankAccount {
   initial_balance: number;
   overdraft_limit: number;
 
+  /** Último saldo informado pelo próprio banco (OFX ou Open Finance) */
+  bank_balance?: number | null;
+  bank_balance_date?: string | null;
+  bank_balance_source?: "ofx" | "openfinance" | null;
+  bank_balance_updated_at?: string | null;
+
   created_at?: string;
   updated_at?: string;
 }

@@ -809,3 +809,27 @@
     transform: rotate(360deg);
   }
 }
+/* SALDO DO BANCO × SISTEMA */
+
+.reconcile-card.is-match {
+  border-color: var(--success);
+  background: var(--success-soft);
+}
+
+.reconcile-card.is-diff {
+  border-color: var(--warning);
+  background: var(--warning-soft);
+}
+
+.reconcile-balance-hint {
+  padding: 8px 12px;
+
+  border: 1px solid var(--warning);
+  border-radius: 6px;
+
+  background: var(--warning-soft);
+  color: var(--text);
+
+  font-size: 12px;
+  line-height: 1.45;
+}

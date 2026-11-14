@@ -130,6 +130,25 @@ export async function undoStatementReconciliation(lineId: string): Promise<void>
   }
 }
 
+/** Guarda o saldo que o próprio banco informou (OFX ou Open Finance). */
+export async function setBankReportedBalance(
+  accountId: string,
+  balance: number,
+  date: string,
+  source: "ofx" | "openfinance"
+): Promise<void> {
+  const { error } = await supabase.rpc("set_bank_reported_balance", {
+    p_account_id: accountId,
+    p_balance: balance,
+    p_date: date,
+    p_source: source
+  });
+
+  if (error) {
+    fail(error.message);
+  }
+}
+
 export async function deleteStatementLines(lineIds: string[]): Promise<number> {
   const { data, error } = await supabase.rpc("delete_statement_lines", {
     p_line_ids: lineIds

@@ -13,6 +13,7 @@ import {
   syncConnection
 } from "../../../services/openFinanceService";
 import type { BankConnection, ItemAccounts } from "../../../services/openFinanceService";
+import { setBankReportedBalance } from "../../../services/statementService";
 import type { AccountWithBalance } from "../../../types/bankAccount";
 import { formatCurrency } from "../../../utils/currency";
 import { formatDateBR } from "../../../utils/entryBatch";
@@ -91,6 +92,9 @@ function OpenFinancePanel({ account, connection, canCreate, canDelete, onChanged
       setBusy("sync");
       setErrorMessage("");
       const result = await syncConnection(connectionId);
+
+      // Saldo atual da conta no banco: guarda para comparar com o sistema
+      await setBankReportedBalance(account.id, result.bankBalance, result.to, "openfinance").catch(() => undefined);
 
       await onChanged(
         `${prefix ? `${prefix} ` : ""}Banco sincronizado: ${result.inserted} lançamento(s) novo(s)` +
