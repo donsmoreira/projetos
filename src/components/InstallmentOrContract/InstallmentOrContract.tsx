@@ -8,8 +8,8 @@ type InstallmentOrContractProps = {
   installmentCount: number;
   isContract: boolean;
   contractMonths: number;
-  /** Valor + juros + multa de cada conta criada */
-  valuePerEntry: number;
+  /** Valor + juros + multa de cada conta criada (usado no resumo) */
+  valuePerEntry?: number;
   /** Editando uma conta existente: nada disso muda */
   disabled: boolean;
   onInstallmentCountChange: (value: number) => void;
@@ -28,7 +28,6 @@ function InstallmentOrContract({
   installmentCount,
   isContract,
   contractMonths,
-  valuePerEntry,
   disabled,
   onInstallmentCountChange,
   onContractChange,
@@ -36,7 +35,6 @@ function InstallmentOrContract({
 }: InstallmentOrContractProps) {
   const field = `${prefix}-field`;
   const usingInstallments = !isContract && installmentCount > 1;
-  const count = isContract ? contractMonths : installmentCount;
 
   return (
     <>
@@ -91,16 +89,40 @@ function InstallmentOrContract({
         )}
       </div>
 
-      {!disabled && count > 1 && valuePerEntry > 0 && (
-        <div className={`${field} ${prefix}-field-full`}>
-          <small className="contract-summary">
-            {isContract
-              ? `Contrato: ${count} contas mensais de ${formatCurrency(valuePerEntry)} (total ${formatCurrency(Math.round(valuePerEntry * 100) * count / 100)}), uma por mês a partir do primeiro vencimento.`
-              : `Serão criadas ${count} parcelas de ${formatCurrency(valuePerEntry)} (total ${formatCurrency(Math.round(valuePerEntry * 100) * count / 100)}), uma por mês.`}
-          </small>
-        </div>
-      )}
     </>
+  );
+}
+
+type InstallmentSummaryProps = Pick<
+  InstallmentOrContractProps,
+  "prefix" | "installmentCount" | "isContract" | "contractMonths" | "valuePerEntry" | "disabled"
+>;
+
+/** Resumo depois do valor: quantas contas serão criadas e o total. */
+export function InstallmentSummary({
+  prefix,
+  installmentCount,
+  isContract,
+  contractMonths,
+  valuePerEntry,
+  disabled
+}: InstallmentSummaryProps) {
+  const count = isContract ? contractMonths : installmentCount;
+
+  if (disabled || count <= 1 || !valuePerEntry || valuePerEntry <= 0) {
+    return null;
+  }
+
+  const total = formatCurrency((Math.round(valuePerEntry * 100) * count) / 100);
+
+  return (
+    <div className={`${prefix}-field ${prefix}-field-full`}>
+      <small className="contract-summary">
+        {isContract
+          ? `Contrato: ${count} contas mensais de ${formatCurrency(valuePerEntry)} (total ${total}), uma por mês a partir do primeiro vencimento.`
+          : `Serão criadas ${count} parcelas de ${formatCurrency(valuePerEntry)} (total ${total}), uma por mês.`}
+      </small>
+    </div>
   );
 }
 

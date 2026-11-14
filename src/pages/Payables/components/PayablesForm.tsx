@@ -27,7 +27,7 @@ import type {
 
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
 import ManagementAccountSelect from "../../../components/ManagementAccountSelect/ManagementAccountSelect";
-import InstallmentOrContract from "../../../components/InstallmentOrContract/InstallmentOrContract";
+import InstallmentOrContract, { InstallmentSummary } from "../../../components/InstallmentOrContract/InstallmentOrContract";
 
 type PayableFormProps = {
   payable: Payable | null;
@@ -388,27 +388,6 @@ function PayableForm({
             )}
         </div>
 
-        <div className="payable-field">
-          <label htmlFor="payable-value">
-            {formData.isContract
-              ? "Valor mensal (R$)"
-              : formData.installmentCount > 1
-                ? "Valor de cada parcela (R$)"
-                : "Valor (R$)"}
-          </label>
-
-          <CurrencyInput
-            id="payable-value"
-            value={formData.value}
-            onChange={value =>
-              updateField(
-                "value",
-                value
-              )
-            }
-            required
-          />
-        </div>
 
         <InstallmentOrContract
           prefix="payable"
@@ -436,6 +415,28 @@ function PayableForm({
             updateField("contractMonths", months)
           }
         />
+
+        <div className="payable-field">
+          <label htmlFor="payable-value">
+            {formData.isContract
+              ? "Valor mensal (R$)"
+              : formData.installmentCount > 1
+                ? "Valor de cada parcela (R$)"
+                : "Valor (R$)"}
+          </label>
+
+          <CurrencyInput
+            id="payable-value"
+            value={formData.value}
+            onChange={value =>
+              updateField(
+                "value",
+                value
+              )
+            }
+            required
+          />
+        </div>
 
         <div className="payable-field">
           <label htmlFor="payable-interest">
@@ -508,6 +509,19 @@ function PayableForm({
             required
           />
         </div>
+
+        <InstallmentSummary
+          prefix="payable"
+          installmentCount={formData.installmentCount}
+          isContract={formData.isContract}
+          contractMonths={formData.contractMonths}
+          valuePerEntry={
+            Number(formData.value || 0) +
+            Number(formData.interest || 0) +
+            Number(formData.penalty || 0)
+          }
+          disabled={Boolean(payable)}
+        />
 
         <div className="payable-field payable-field-full">
           <label htmlFor="payable-notes">

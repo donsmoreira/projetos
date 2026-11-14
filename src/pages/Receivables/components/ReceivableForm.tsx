@@ -27,7 +27,7 @@ import type {
 
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
 import ManagementAccountSelect from "../../../components/ManagementAccountSelect/ManagementAccountSelect";
-import InstallmentOrContract from "../../../components/InstallmentOrContract/InstallmentOrContract";
+import InstallmentOrContract, { InstallmentSummary } from "../../../components/InstallmentOrContract/InstallmentOrContract";
 
 type ReceivableFormProps = {
   receivable: Receivable | null;
@@ -390,27 +390,6 @@ function ReceivableForm({
             )}
         </div>
 
-        <div className="receivable-field">
-          <label htmlFor="receivable-value">
-            {formData.isContract
-              ? "Valor mensal (R$)"
-              : formData.installmentCount > 1
-                ? "Valor de cada parcela (R$)"
-                : "Valor (R$)"}
-          </label>
-
-          <CurrencyInput
-            id="receivable-value"
-            value={formData.value}
-            onChange={value =>
-              updateField(
-                "value",
-                value
-              )
-            }
-            required
-          />
-        </div>
 
         <InstallmentOrContract
           prefix="receivable"
@@ -438,6 +417,28 @@ function ReceivableForm({
             updateField("contractMonths", months)
           }
         />
+
+        <div className="receivable-field">
+          <label htmlFor="receivable-value">
+            {formData.isContract
+              ? "Valor mensal (R$)"
+              : formData.installmentCount > 1
+                ? "Valor de cada parcela (R$)"
+                : "Valor (R$)"}
+          </label>
+
+          <CurrencyInput
+            id="receivable-value"
+            value={formData.value}
+            onChange={value =>
+              updateField(
+                "value",
+                value
+              )
+            }
+            required
+          />
+        </div>
 
         <div className="receivable-field">
           <label htmlFor="receivable-interest">
@@ -510,6 +511,19 @@ function ReceivableForm({
             required
           />
         </div>
+
+        <InstallmentSummary
+          prefix="receivable"
+          installmentCount={formData.installmentCount}
+          isContract={formData.isContract}
+          contractMonths={formData.contractMonths}
+          valuePerEntry={
+            Number(formData.value || 0) +
+            Number(formData.interest || 0) +
+            Number(formData.penalty || 0)
+          }
+          disabled={Boolean(receivable)}
+        />
 
         <div className="receivable-field receivable-field-full">
           <label htmlFor="receivable-notes">
