@@ -31,6 +31,9 @@ export interface Client extends AddressFields {
 
   notes: string | null;
 
+  /** false = inativo (some das listas de escolha) */
+  active?: boolean;
+
   created_at?: string;
 
   updated_at?: string;

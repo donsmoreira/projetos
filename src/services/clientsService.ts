@@ -120,3 +120,16 @@ export async function deleteClient(
     throw new Error(translateCompanyError(error.message));
   }
 }
+export async function setClientActive(
+  id: string,
+  active: boolean
+): Promise<void> {
+  const { error } = await supabase
+    .from("clients")
+    .update({ active, updated_at: new Date().toISOString() })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(translateCompanyError(error.message));
+  }
+}

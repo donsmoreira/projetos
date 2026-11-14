@@ -16,6 +16,7 @@ import SummaryCards from "./components/SummaryCards";
 import UpcomingPayables from "./components/UpcomingPayables";
 import UpcomingReceivables from "./components/UpcomingReceivables";
 import BankAccounts from "./components/BankAccounts";
+import WeekBoard from "./components/WeekBoard";
 
 import "./Dashboard.css";
 
@@ -84,6 +85,8 @@ function Dashboard() {
       <SummaryCards
         items={dashboardData.summary}
       />
+
+      <WeekBoard />
 
       <section className="dashboard-section">
         <header className="dashboard-section-title">

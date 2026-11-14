@@ -255,7 +255,9 @@ function AppointmentForm({
             onChange={event => update("clientId", event.target.value)}
           >
             <option value="">Sem cliente</option>
-            {clients.map(client => (
+            {clients
+              .filter(client => client.active !== false || client.id === form.clientId)
+              .map(client => (
               <option key={client.id} value={client.id}>
                 {client.name}{client.phone ? ` · ${client.phone}` : ""}
               </option>

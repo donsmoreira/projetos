@@ -46,11 +46,6 @@ function CompleteAppointmentForm({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (createReceivable && !accountId) {
-      setErrorMessage("Escolha a conta gerencial (receita) da conta a receber.");
-      return;
-    }
-
     if (createReceivable && !dueDate) {
       setErrorMessage("Informe o vencimento.");
       return;
@@ -154,7 +149,7 @@ function CompleteAppointmentForm({
                 </div>
 
                 <div className="arc-field">
-                  <label htmlFor="complete-account">Conta gerencial (receita)</label>
+                  <label htmlFor="complete-account">Conta gerencial (receita) <small>· opcional</small></label>
                   <ManagementAccountSelect
                     id="complete-account"
                     type="receita"
@@ -164,7 +159,6 @@ function CompleteAppointmentForm({
                       setAccountPath(path);
                       setErrorMessage("");
                     }}
-                    required
                   />
                 </div>
               </div>

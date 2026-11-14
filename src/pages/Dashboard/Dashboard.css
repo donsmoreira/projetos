@@ -391,3 +391,200 @@
     min-width: 140px;
   }
 }
+/* ===== Quadro de avisos da semana ===== */
+.week-board .dashboard-section-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.week-board-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  height: 34px;
+  padding: 0 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--primary);
+
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.week-board-totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.week-board-totals span {
+  padding: 5px 10px;
+
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+
+  font-size: 12px;
+}
+
+.week-board .is-pay {
+  color: #d93025;
+}
+
+.week-board .is-receive {
+  color: #0b8043;
+}
+
+.week-board-totals span.is-pay strong,
+.week-board-totals span.is-receive strong {
+  color: inherit;
+}
+
+.week-board-empty {
+  padding: 16px;
+
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-light);
+
+  font-size: 13px;
+  text-align: center;
+}
+
+.week-board-empty.is-error {
+  color: var(--danger);
+}
+
+.week-board-days {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.week-board-day {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 12px;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.week-board-day.is-today {
+  border-color: var(--primary);
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.week-board-day.is-past {
+  opacity: 0.7;
+}
+
+.week-board-date {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.week-board-date strong {
+  color: var(--text);
+  font-size: 14px;
+}
+
+.week-board-day.is-today .week-board-date strong {
+  color: var(--primary);
+}
+
+.week-board-date span,
+.week-board-nothing {
+  margin: 0;
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.week-board-nothing {
+  align-self: center;
+}
+
+.week-board-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.week-board-items li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.week-board-dot {
+  flex-shrink: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.week-board-time {
+  flex-shrink: 0;
+  min-width: 52px;
+  color: var(--text-light);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.week-board-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.week-board-items li.is-overdue .week-board-text {
+  color: var(--danger);
+}
+
+.week-board-items strong {
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.week-board-done {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--success);
+}
+
+@media (max-width: 760px) {
+  .week-board-day {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .week-board-date {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 8px;
+  }
+}

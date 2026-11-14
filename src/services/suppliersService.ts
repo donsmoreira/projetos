@@ -95,3 +95,16 @@ export async function deleteSupplier(
     throw new Error(translateCompanyError(error.message));
   }
 }
+export async function setSupplierActive(
+  id: string,
+  active: boolean
+): Promise<void> {
+  const { error } = await supabase
+    .from("suppliers")
+    .update({ active, updated_at: new Date().toISOString() })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(translateCompanyError(error.message));
+  }
+}

@@ -21,6 +21,9 @@ export interface Supplier extends AddressFields {
   email: string | null;
   notes: string | null;
 
+  /** false = inativo (some das listas de escolha) */
+  active?: boolean;
+
   created_at?: string;
   updated_at?: string;
 }

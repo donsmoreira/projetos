@@ -6,7 +6,8 @@ import {
 
 import {
   deleteClient,
-  listClients
+  listClients,
+  setClientActive
 } from "../../services/clientsService";
 
 import type {
@@ -38,6 +39,10 @@ function Clients() {
 
   const [cityFilter, setCityFilter] =
     useState("");
+
+  // Ativos (padrão), inativos ou todos
+  const [statusFilter, setStatusFilter] =
+    useState<"ativos" | "inativos" | "todos">("ativos");
 
   const [loading, setLoading] =
     useState(true);
@@ -82,6 +87,14 @@ function Clients() {
         .toLowerCase();
 
     return clients.filter(client => {
+      if (statusFilter === "ativos" && client.active === false) {
+        return false;
+      }
+
+      if (statusFilter === "inativos" && client.active !== false) {
+        return false;
+      }
+
       if (!matchesLocation(client, stateFilter, cityFilter)) {
         return false;
       }
@@ -108,7 +121,7 @@ function Clients() {
           .includes(normalizedSearch)
       );
     });
-  }, [clients, searchTerm, stateFilter, cityFilter]);
+  }, [clients, searchTerm, stateFilter, cityFilter, statusFilter]);
 
   const hasLocationFilter = Boolean(stateFilter || cityFilter);
 
@@ -151,6 +164,33 @@ function Clients() {
           : "Não foi possível excluir o cliente.";
 
       window.alert(message);
+    }
+  }
+
+  async function handleToggleClient(
+    client: Client
+  ) {
+    const activating = client.active === false;
+
+    const confirmed = window.confirm(
+      activating
+        ? `Reativar o cliente "${client.name}"?`
+        : `Inativar o cliente "${client.name}"? Ele deixa de aparecer em novos lançamentos e agendamentos, mas o histórico continua.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await setClientActive(client.id, activating);
+      await loadClients();
+    } catch (error) {
+      window.alert(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível alterar a situação do cadastro."
+      );
     }
   }
 
@@ -198,6 +238,21 @@ function Clients() {
             }}
             idPrefix="clients"
           />
+
+          <div className="location-filter-field list-status-field">
+          <label htmlFor="clients-status">Situação</label>
+          <select
+            id="clients-status"
+            value={statusFilter}
+            onChange={event =>
+              setStatusFilter(event.target.value as "ativos" | "inativos" | "todos")
+            }
+          >
+            <option value="ativos">Ativos</option>
+            <option value="inativos">Inativos</option>
+            <option value="todos">Todos</option>
+          </select>
+          </div>
         </div>
 
         {!loading && hasLocationFilter && (
@@ -232,6 +287,7 @@ function Clients() {
             clients={filteredClients}
             onEdit={permissions.canUpdate ? handleEditClient : undefined}
             onDelete={permissions.canDelete ? handleDeleteClient : undefined}
+            onToggleActive={permissions.canUpdate ? handleToggleClient : undefined}
           />
         )}
       </section>

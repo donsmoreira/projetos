@@ -183,13 +183,6 @@ function ReceivableForm({
       return;
     }
 
-    if (!formData.managementAccountId) {
-      setErrorMessage(
-        "Escolha a conta gerencial de receita."
-      );
-      return;
-    }
-
     if (
       Number(formData.value) <= 0
     ) {
@@ -310,7 +303,10 @@ function ReceivableForm({
                 : "Selecione o cliente"}
             </option>
 
-            {clients.map(client => (
+            {clients
+              // Inativos não aparecem (a não ser o que já está neste lançamento)
+              .filter(client => client.active !== false || client.id === formData.clientId)
+              .map(client => (
               <option
                 key={client.id}
                 value={client.id}
@@ -343,7 +339,7 @@ function ReceivableForm({
 
         <div className="receivable-field receivable-field-full">
           <label htmlFor="receivable-management-account">
-            Conta gerencial (receita)
+            Conta gerencial (receita) <small>· opcional</small>
           </label>
 
           <ManagementAccountSelect
@@ -357,14 +353,13 @@ function ReceivableForm({
                 category: path
               }))
             }
-            required
           />
 
           {receivable &&
             !receivable.management_account_id &&
             receivable.category && (
               <small className="management-account-hint">
-                Categoria antiga: "{receivable.category}". Escolha a conta gerencial correspondente.
+                Categoria antiga: "{receivable.category}". Se quiser, escolha a conta gerencial correspondente.
               </small>
             )}
         </div>

@@ -97,6 +97,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Saldo em contas e no caixa | ✅ | saldo inicial + `bank_transactions` |
 | Limite utilizado em cartões | ✅ | |
 | Próximos vencimentos e saldo por conta | ✅ | |
+| Quadro de avisos da semana | ✅ | agendamentos e contas em aberto de domingo a sábado, dia a dia |
 | Contas vencidas em destaque | ❌ | (na Agenda as vencidas já aparecem destacadas) |
 | Gráficos no painel | ❌ | já existem em Relatórios |
 
@@ -105,6 +106,8 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 |---|---|---|
 | Clientes (`/clientes`) | ✅ CRUD + busca + filtro por UF/cidade | tipo (PF/PJ automático pelo documento), CPF/CNPJ com **busca na Receita**, nome/razão social; com PJ: nome fantasia, enquadramento, inscrição estadual; telefone, e-mail, observações, endereço com CEP automático (ViaCEP) |
 | Fornecedores (`/fornecedores`) | ✅ CRUD + busca + filtro por UF/cidade | os mesmos campos dos clientes (inclusive o Tipo) |
+| Inativar / reativar | ✅ | filtro Ativos/Inativos/Todos; inativo some das listas de escolha e o banco recusa lançamento novo |
+| Exclusão bloqueada com movimentação | ✅ | cliente, fornecedor, conta/caixa e cartão com lançamentos ou contas em aberto não são excluídos (gatilho no banco) |
 
 ### 3.5 Contas gerenciais (`/contas-gerenciais`, no grupo Financeiro)
 ✅ Plano de contas de receita e despesa, fixa/variável, contas pai e subcontas em vários níveis, busca e filtro; regras no banco (tipo herdado, nome único por nível, conta em uso não exclui). Obrigatória nos lançamentos.
@@ -140,7 +143,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Juros e multa | ✅ | |
 | Pagar / receber pela conta ou pelo caixa | ✅ | operação única no banco, sem pagamento em dobro |
 | Estorno | ✅ | |
-| Conta gerencial obrigatória | ✅ | pagar só despesa; receber só receita |
+| Conta gerencial | ✅ | **opcional**; se escolhida: pagar só despesa, receber só receita |
 | Conta a receber criada ao concluir atendimento | ✅ | pela Agenda |
 | Pagar com cartão | — | **não permitido**: compras no cartão ficam em Cartões (regra também no banco) |
 | Status "vencido" | ❌ | só `pendente` e `pago`/`recebido` (a Agenda destaca as vencidas) |
@@ -272,7 +275,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | D5 | Dashboard calcula saldo baixando **todas** as transações (não escala) | `dashboardService.ts` | Média |
 | D6 | ✅ Resolvido: limite utilizado em cartões | — | — |
 | D7 | 🟡 `getAuthenticatedUser` já unificado; falta um SearchBar genérico e unificar formatação de moeda/data | `pages/*/components` | Baixa |
-| D8 | Excluir conta bancária com lançamentos: comportamento depende das FKs do banco (o Caixa já bloqueia) | `bankAccountsService.ts` | Média |
+| D8 | ~~Excluir conta bancária com lançamentos~~ ✅ resolvido em 13/11/2026: gatilho no banco bloqueia | `20261113_inativar_e_bloquear_exclusao.sql` | — |
 | D9 | ✅ Resolvido: README | — | — |
 | D10 | Testes automáticos: só scripts de regras rodados à parte; nenhum teste de tela | — | Média |
 | D11 | `npm run lint` acusa 15 erros antigos (`setState` direto em `useEffect` e um export misto no AuthContext). Não quebra o app | páginas e formulários | Baixa |
@@ -377,7 +380,7 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 
 **Contas gerenciais** (v0.6.0)
 - [x] Plano de contas com subcontas
-- [x] Conta gerencial obrigatória nos lançamentos
+- [x] Conta gerencial nos lançamentos (opcional desde 13/11/2026)
 
 **Cartões de crédito** (v0.7.0)
 - [x] Limite calculado sozinho; limite utilizado no Dashboard

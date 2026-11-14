@@ -122,7 +122,7 @@ function ManagementAccountSelect({
         <option value="">
           {loading
             ? "Carregando contas..."
-            : `Selecione a conta de ${typeLabel}`}
+            : required ? `Selecione a conta de ${typeLabel}` : "Sem conta gerencial"}
         </option>
 
         {options.map(option => {

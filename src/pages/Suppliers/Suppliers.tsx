@@ -6,7 +6,8 @@ import {
 
 import {
   deleteSupplier,
-  listSuppliers
+  listSuppliers,
+  setSupplierActive
 } from "../../services/suppliersService";
 
 import type {
@@ -38,6 +39,10 @@ function Suppliers() {
 
   const [cityFilter, setCityFilter] =
     useState("");
+
+  // Ativos (padrão), inativos ou todos
+  const [statusFilter, setStatusFilter] =
+    useState<"ativos" | "inativos" | "todos">("ativos");
 
   const [loading, setLoading] =
     useState(true);
@@ -82,6 +87,14 @@ function Suppliers() {
         .toLowerCase();
 
     return suppliers.filter(supplier => {
+      if (statusFilter === "ativos" && supplier.active === false) {
+        return false;
+      }
+
+      if (statusFilter === "inativos" && supplier.active !== false) {
+        return false;
+      }
+
       if (!matchesLocation(supplier, stateFilter, cityFilter)) {
         return false;
       }
@@ -107,7 +120,7 @@ function Suppliers() {
           .includes(normalizedSearch)
       );
     });
-  }, [suppliers, searchTerm, stateFilter, cityFilter]);
+  }, [suppliers, searchTerm, stateFilter, cityFilter, statusFilter]);
 
   const hasLocationFilter = Boolean(stateFilter || cityFilter);
 
@@ -150,6 +163,33 @@ function Suppliers() {
           : "Não foi possível excluir o fornecedor.";
 
       window.alert(message);
+    }
+  }
+
+  async function handleToggleSupplier(
+    supplier: Supplier
+  ) {
+    const activating = supplier.active === false;
+
+    const confirmed = window.confirm(
+      activating
+        ? `Reativar o fornecedor "${supplier.name}"?`
+        : `Inativar o fornecedor "${supplier.name}"? Ele deixa de aparecer em novos lançamentos, mas o histórico continua.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await setSupplierActive(supplier.id, activating);
+      await loadSuppliers();
+    } catch (error) {
+      window.alert(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível alterar a situação do cadastro."
+      );
     }
   }
 
@@ -197,6 +237,21 @@ function Suppliers() {
             }}
             idPrefix="suppliers"
           />
+
+          <div className="location-filter-field list-status-field">
+          <label htmlFor="suppliers-status">Situação</label>
+          <select
+            id="suppliers-status"
+            value={statusFilter}
+            onChange={event =>
+              setStatusFilter(event.target.value as "ativos" | "inativos" | "todos")
+            }
+          >
+            <option value="ativos">Ativos</option>
+            <option value="inativos">Inativos</option>
+            <option value="todos">Todos</option>
+          </select>
+          </div>
         </div>
 
         {!loading && hasLocationFilter && (
@@ -231,6 +286,7 @@ function Suppliers() {
             suppliers={filteredSuppliers}
             onEdit={permissions.canUpdate ? handleEditSupplier : undefined}
             onDelete={permissions.canDelete ? handleDeleteSupplier : undefined}
+            onToggleActive={permissions.canUpdate ? handleToggleSupplier : undefined}
           />
         )}
       </section>

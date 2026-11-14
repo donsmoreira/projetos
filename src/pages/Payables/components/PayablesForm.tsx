@@ -181,13 +181,6 @@ function PayableForm({
       return;
     }
 
-    if (!formData.managementAccountId) {
-      setErrorMessage(
-        "Escolha a conta gerencial de despesa."
-      );
-      return;
-    }
-
     if (
       Number(formData.value) <= 0
     ) {
@@ -308,7 +301,10 @@ function PayableForm({
                 : "Selecione o fornecedor"}
             </option>
 
-            {suppliers.map(supplier => (
+            {suppliers
+              // Inativos não aparecem (a não ser o que já está neste lançamento)
+              .filter(supplier => supplier.active !== false || supplier.id === formData.supplierId)
+              .map(supplier => (
               <option
                 key={supplier.id}
                 value={supplier.id}
@@ -341,7 +337,7 @@ function PayableForm({
 
         <div className="payable-field payable-field-full">
           <label htmlFor="payable-management-account">
-            Conta gerencial (despesa)
+            Conta gerencial (despesa) <small>· opcional</small>
           </label>
 
           <ManagementAccountSelect
@@ -355,14 +351,13 @@ function PayableForm({
                 category: path
               }))
             }
-            required
           />
 
           {payable &&
             !payable.management_account_id &&
             payable.category && (
               <small className="management-account-hint">
-                Categoria antiga: "{payable.category}". Escolha a conta gerencial correspondente.
+                Categoria antiga: "{payable.category}". Se quiser, escolha a conta gerencial correspondente.
               </small>
             )}
         </div>

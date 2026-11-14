@@ -382,7 +382,7 @@ const modules = [
     ["Convite por código", 1], ["Convite por e-mail", 0, "depende do SMTP"], ["Logo da empresa", 0] ] },
   { name: "Dashboard", route: "/", items: [
     ["Total a pagar e a receber", 1], ["Saldo em contas e no caixa", 1], ["Próximos vencimentos", 1], ["Saldo por conta bancária", 1],
-    ["Limite usado nos cartões", 1], ["Contas vencidas em destaque", 0, "na Agenda já aparecem"], ["Gráficos no painel", 0, "já existem em Relatórios"] ] },
+    ["Limite usado nos cartões", 1], ["Quadro de avisos da semana (agenda e vencimentos)", 1], ["Contas vencidas em destaque", 0, "na Agenda já aparecem"], ["Gráficos no painel", 0, "já existem em Relatórios"] ] },
   { name: "Agenda", route: "/agenda", items: [
     ["Mês, semana, dia e lista", 1], ["Cliente (opcional), serviço, valor e responsável", 1], ["Aviso de conflito do responsável", 1],
     ["Status: agendado, confirmado, concluído, cancelado, faltou", 1], ["Concluir gera a conta a receber", 1],
@@ -390,10 +390,10 @@ const modules = [
     ["Vencimentos a pagar (vermelho) e a receber (verde)", 1], ["Integração com o Google Agenda", 0] ] },
   { name: "Clientes", route: "/clientes", items: [
     ["Cadastro PF/PJ com tipo automático pelo documento", 1], ["Busca do CNPJ na Receita", 1], ["Razão social, nome fantasia, enquadramento e IE", 1],
-    ["Busca na lista", 1], ["Endereço com CEP automático (ViaCEP)", 1], ["Filtro por estado e cidade", 1] ] },
+    ["Busca na lista", 1], ["Endereço com CEP automático (ViaCEP)", 1], ["Filtro por estado e cidade", 1], ["Inativar / reativar", 1], ["Exclusão bloqueada com movimentação", 1] ] },
   { name: "Fornecedores", route: "/fornecedores", items: [
     ["Cadastro PF/PJ com tipo automático pelo documento", 1], ["Busca do CNPJ na Receita", 1], ["Razão social, nome fantasia, enquadramento e IE", 1],
-    ["Busca na lista", 1], ["Endereço com CEP automático (ViaCEP)", 1], ["Filtro por estado e cidade", 1] ] },
+    ["Busca na lista", 1], ["Endereço com CEP automático (ViaCEP)", 1], ["Filtro por estado e cidade", 1], ["Inativar / reativar", 1], ["Exclusão bloqueada com movimentação", 1] ] },
   { name: "Contas gerenciais", route: "/contas-gerenciais", items: [
     ["Plano de contas de receita e despesa", 1], ["Fixa ou variável", 1], ["Conta pai e subcontas em vários níveis", 1],
     ["Busca, filtro por tipo, expandir/recolher", 1], ["Bloqueios no banco (tipo, nome repetido, conta em uso)", 1] ] },
@@ -409,11 +409,11 @@ const modules = [
     ["Saldo nunca fica negativo", 1, "regra no banco"] ] },
   { name: "Contas a pagar", route: "/contas-pagar", items: [
     ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Pagamento pela conta ou pelo caixa", 1], ["Estorno", 1],
-    ["Conta gerencial obrigatória (só despesa)", 1], ["Não aceita pagamento com cartão (compras ficam em Cartões)", 1],
+    ["Conta gerencial opcional (só despesa)", 1], ["Não aceita pagamento com cartão (compras ficam em Cartões)", 1],
     ["Status vencido", 0], ["Pagamento parcial", 0], ["Contas recorrentes", 0], ["Anexos (boleto, comprovante)", 0] ] },
   { name: "Contas a receber", route: "/contas-receber", items: [
     ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Recebimento na conta ou no caixa", 1], ["Estorno", 1],
-    ["Conta gerencial obrigatória (só receita)", 1], ["Criada ao concluir atendimento na Agenda", 1],
+    ["Conta gerencial opcional (só receita)", 1], ["Criada ao concluir atendimento na Agenda", 1],
     ["Status vencido", 0], ["Recebimento parcial", 0], ["Contas recorrentes", 0] ] },
   { name: "Cartões de crédito", route: "/cartoes", items: [
     ["Cadastro de cartões", 1], ["Banco e bandeira em listas, nome automático", 1], ["Desativar cartão", 1],
@@ -445,7 +445,7 @@ const phases = [
     ["Agenda (adiantado)", ["✓ Mês, semana, dia e lista; responsável, conflito e status", "✓ Concluir gera conta a receber; concluído travado", "✓ Arrastar com cartão que balança; cor por agendamento (sugestões e RGB)", "✓ Vencimentos de contas a pagar e a receber na agenda", "Integração com o Google Agenda"]],
     ["Bancos · v0.4.0", ["✓ Transferência banco ↔ caixa", "Tela de extrato", "Lançamento manual para bancos", "Transferência banco ↔ banco", "Saldo calculado no banco de dados"]],
     ["Contas · v0.5.0", ["Status vencido", "Pagamento e recebimento parcial", "Contas recorrentes", "Filtros por período, status e conta gerencial", "Pagar várias de uma vez"]],
-    ["Contas gerenciais · v0.6.0", ["✓ Plano de contas de receita e despesa, com subcontas", "✓ Conta gerencial obrigatória nos lançamentos"]],
+    ["Contas gerenciais · v0.6.0", ["✓ Plano de contas de receita e despesa, com subcontas", "✓ Conta gerencial nos lançamentos (opcional)"]],
     ["Cartões · v0.7.0", ["✓ Limite calculado sozinho", "✓ Lançar compras à vista e parceladas", "✓ Faturas com histórico, pagamento e estorno", "✓ Previsão das próximas faturas", "✓ Antecipar fatura e extrato detalhado", "Pagamento parcial da fatura", "Compras do cartão nos relatórios por conta gerencial"]] ] },
   { n: 3, v: "v0.8.0", title: "Painel e relatórios", desc: "Ver o dinheiro de um jeito claro", groups: [
     ["Painel", ["Contas vencidas e de hoje em destaque", "Gráficos no painel inicial"]],

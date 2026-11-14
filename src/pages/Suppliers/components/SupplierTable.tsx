@@ -1,5 +1,7 @@
 import {
+  Ban,
   Pencil,
+  RotateCcw,
   Trash2
 } from "lucide-react";
 
@@ -13,6 +15,7 @@ type SupplierTableProps = {
   suppliers: Supplier[];
   onEdit?: (supplier: Supplier) => void;
   onDelete?: (supplier: Supplier) => void;
+  onToggleActive?: (supplier: Supplier) => void;
 };
 
 function displayValue(
@@ -24,7 +27,8 @@ function displayValue(
 function SupplierTable({
   suppliers,
   onEdit,
-  onDelete
+  onDelete,
+  onToggleActive
 }: SupplierTableProps) {
   if (suppliers.length === 0) {
     return (
@@ -57,9 +61,12 @@ function SupplierTable({
 
         <tbody>
           {suppliers.map(supplier => (
-            <tr key={supplier.id}>
+            <tr key={supplier.id} className={supplier.active === false ? "is-inactive" : ""}>
               <td>
                 <strong>{supplier.name}</strong>
+                {supplier.active === false && (
+                  <span className="list-badge-inactive">Inativo</span>
+                )}
               </td>
 
               <td>
@@ -88,6 +95,18 @@ function SupplierTable({
                   aria-label={`Editar ${supplier.name}`}
                 >
                   <Pencil size={16} />
+                </button>
+)}</>
+
+                <>{onToggleActive && (
+<button
+                  type="button"
+                  className="suppliers-action-button"
+                  onClick={() => onToggleActive(supplier)}
+                  title={supplier.active === false ? `Reativar ${supplier.name}` : `Inativar ${supplier.name}`}
+                  aria-label={supplier.active === false ? `Reativar ${supplier.name}` : `Inativar ${supplier.name}`}
+                >
+                  {supplier.active === false ? <RotateCcw size={16} /> : <Ban size={16} />}
                 </button>
 )}</>
 

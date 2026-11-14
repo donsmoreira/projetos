@@ -1,5 +1,7 @@
 import {
+  Ban,
   Pencil,
+  RotateCcw,
   Trash2
 } from "lucide-react";
 
@@ -13,6 +15,7 @@ type ClientTableProps = {
   clients: Client[];
   onEdit?: (client: Client) => void;
   onDelete?: (client: Client) => void;
+  onToggleActive?: (client: Client) => void;
 };
 
 function displayValue(
@@ -24,7 +27,8 @@ function displayValue(
 function ClientTable({
   clients,
   onEdit,
-  onDelete
+  onDelete,
+  onToggleActive
 }: ClientTableProps) {
   if (clients.length === 0) {
     return (
@@ -57,9 +61,12 @@ function ClientTable({
 
         <tbody>
           {clients.map(client => (
-            <tr key={client.id}>
+            <tr key={client.id} className={client.active === false ? "is-inactive" : ""}>
               <td>
                 <strong>{client.name}</strong>
+                {client.active === false && (
+                  <span className="list-badge-inactive">Inativo</span>
+                )}
               </td>
 
               <td>
@@ -92,6 +99,18 @@ function ClientTable({
                   aria-label={`Editar ${client.name}`}
                 >
                   <Pencil size={16} />
+                </button>
+)}</>
+
+                <>{onToggleActive && (
+<button
+                  type="button"
+                  className="clients-action-button"
+                  onClick={() => onToggleActive(client)}
+                  title={client.active === false ? `Reativar ${client.name}` : `Inativar ${client.name}`}
+                  aria-label={client.active === false ? `Reativar ${client.name}` : `Inativar ${client.name}`}
+                >
+                  {client.active === false ? <RotateCcw size={16} /> : <Ban size={16} />}
                 </button>
 )}</>
 
