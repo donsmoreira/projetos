@@ -724,3 +724,256 @@ a.settings-button {
     grid-template-columns: 1fr;
   }
 }
+/* NFS-e: caixa "Emissão de NFS-e" */
+.settings-nfse-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  margin-bottom: 14px;
+  padding: 12px 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background: var(--surface-alt);
+
+  cursor: pointer;
+}
+
+.settings-nfse-toggle.is-on {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.settings-nfse-toggle input {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+
+  accent-color: var(--primary);
+}
+
+.settings-nfse-toggle span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-nfse-toggle strong {
+  color: var(--text);
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.settings-nfse-toggle small {
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+/* Certificado digital */
+.cert-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  padding: 12px 14px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background: var(--surface);
+}
+
+.cert-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  color: var(--text);
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cert-tag {
+  padding: 2px 8px;
+
+  border-radius: 999px;
+
+  background: var(--primary-soft);
+  color: var(--primary);
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cert-muted {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.cert-info {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--success);
+  border-radius: 6px;
+
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.cert-info.is-soon {
+  border-color: var(--warning);
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.cert-info.is-expired {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.cert-info > div:not(.cert-actions) {
+  flex: 1;
+  min-width: 200px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cert-info strong {
+  color: var(--text);
+  font-size: 13px;
+  word-break: break-word;
+}
+
+.cert-info small {
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.cert-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cert-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 12px;
+
+  border: 2px dashed var(--border-strong);
+  border-radius: 8px;
+
+  background: var(--surface-alt);
+  color: var(--text);
+
+  cursor: pointer;
+
+  font-size: 13px;
+}
+
+.cert-file:hover {
+  border-color: var(--primary);
+}
+
+.cert-file input {
+  display: none;
+}
+
+.cert-password {
+  display: flex;
+  align-items: center;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: var(--surface-alt);
+}
+
+.cert-password input {
+  flex: 1;
+  height: 42px;
+
+  padding: 0 11px;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+  color: var(--text);
+
+  font-size: 13px;
+}
+
+.cert-eye {
+  width: 40px;
+  height: 40px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  background: transparent;
+  color: var(--text-light);
+
+  cursor: pointer;
+}
+
+.cert-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cert-button {
+  min-height: 36px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 0 14px;
+
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cert-button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.cert-button-primary {
+  border-color: var(--primary);
+
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.cert-button-danger {
+  border-color: var(--danger-border);
+  color: var(--danger);
+}

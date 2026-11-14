@@ -210,6 +210,7 @@ export async function updateCompany(
       website: form.website.trim() || null,
       ...addressToDb(form.address),
       // NFS-e
+      nfse_enabled: form.nfseEnabled,
       cnae: form.cnae.replace(/\D/g, "").length === 7 ? form.cnae.replace(/\D/g, "") : null,
       cnae_description: form.cnaeDescription.trim() || null,
       special_tax_regime: form.specialTaxRegime,

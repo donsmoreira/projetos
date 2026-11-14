@@ -57,6 +57,8 @@ export interface Company extends AddressFields {
   phone: string | null;
   email: string | null;
   website: string | null;
+  /** Emissão de NFS-e habilitada para esta empresa */
+  nfse_enabled?: boolean;
   /** NFS-e: CNAE principal (7 números) */
   cnae?: string | null;
   cnae_description?: string | null;
@@ -81,6 +83,7 @@ export interface CompanyFormData {
   website: string;
   address: AddressFormData;
   /** NFS-e */
+  nfseEnabled: boolean;
   cnae: string;
   cnaeDescription: string;
   specialTaxRegime: SpecialTaxRegime;

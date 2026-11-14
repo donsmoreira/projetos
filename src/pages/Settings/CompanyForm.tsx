@@ -9,6 +9,7 @@ import {
 import { useCnpjLookup } from "../../hooks/useCnpjLookup";
 import { documentKind, formatDocument } from "../../utils/document";
 import { formatCnae, validateCompanyForm } from "./companyFormData";
+import CertificateBox from "./CertificateBox";
 
 import type { AddressFormData } from "../../types/address";
 import type {
@@ -29,6 +30,8 @@ type CompanyFormProps = {
   savingLabel: string;
   /** Salva; devolve a mensagem de sucesso (ou "" se a tela vai mudar) */
   onSubmit: (form: CompanyFormData) => Promise<string>;
+  /** Empresa já cadastrada (para o certificado digital); vazio ao criar */
+  companyId?: string;
 };
 
 /** Cadastro completo da empresa: usado para criar uma nova e para alterar. */
@@ -37,7 +40,8 @@ function CompanyForm({
   canEdit,
   submitLabel,
   savingLabel,
-  onSubmit
+  onSubmit,
+  companyId
 }: CompanyFormProps) {
   const [form, setForm] = useState<CompanyFormData>(initial);
   const [saving, setSaving] = useState(false);
@@ -278,11 +282,20 @@ function CompanyForm({
 
           <section className="settings-card">
             <h3>Nota fiscal de serviço (NFS-e)</h3>
-            <p>
-              Dados usados na emissão da nota de serviço. O certificado digital e o cadastro de serviços
-              entram numa próxima etapa.
-            </p>
 
+            <label className={`settings-nfse-toggle${form.nfseEnabled ? " is-on" : ""}`}>
+              <input
+                type="checkbox"
+                checked={form.nfseEnabled}
+                onChange={event => update("nfseEnabled", event.target.checked)}
+              />
+              <span>
+                <strong>Emissão de NFS-e</strong>
+                <small>Marque para habilitar a emissão de nota de serviço por esta empresa e preencher os dados e o certificado digital.</small>
+              </span>
+            </label>
+
+            {form.nfseEnabled && (
             <div className="settings-grid">
               <div className="settings-field">
                 <label htmlFor="company-cnae">CNAE principal</label>
@@ -363,7 +376,12 @@ function CompanyForm({
                   ))}
                 </div>
               </div>
+
+              <div className="settings-field settings-field-full">
+                <CertificateBox companyId={companyId ?? null} canEdit={canEdit} />
+              </div>
             </div>
+            )}
           </section>
         </div>
       </fieldset>

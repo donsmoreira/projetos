@@ -69,6 +69,7 @@ function CompanySettings() {
       {/* key: ao trocar de empresa, o formulário recomeça com os dados dela */}
       <CompanyForm
         key={company.id}
+        companyId={company.id}
         initial={formFromCompany(company)}
         canEdit={permissions.isAdmin}
         submitLabel="Salvar dados da empresa"

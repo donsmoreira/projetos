@@ -449,7 +449,8 @@ Objetivo: emitir NFS-e (padrão nacional) pelo sistema, por meio de uma API de e
 - [x] Código IBGE da cidade no endereço (automático pelo CEP e pelo CNPJ)
 - [x] Empresa: CNAE principal, regime especial de tributação, série e próximo número, ambiente (homologação/produção); inscrição municipal
 - [x] Cliente PJ: inscrição municipal
-- [ ] Escolher a API de emissão; certificado digital A1 enviado para ela
+- [x] Caixa "Emissão de NFS-e" na empresa e importação do certificado digital A1 (conferido e guardado criptografado no servidor) — `20261114_certificado_nfse.sql`, função `nfse-certificate`
+- [ ] Escolher a API de emissão e repassar o certificado A1 para ela
 - [x] Menu SERVIÇOS: Cadastro de serviços (campos da NFS-e nacional, obrigatórios e opcionais) e Nota de serviço (listagem, montar NFS-e com prestador, tomador e serviço; cálculo de ISS, retenções e líquido) — `20261114_servicos_nfse.sql`
 - [ ] Emitir, consultar, cancelar pela API; guardar XML e PDF (5 anos); enviar e-mail
 - [ ] Relatórios de NFS-e emitidas
