@@ -30,6 +30,9 @@ import type { ReconcileData } from "../../utils/reconciliation";
 import ImportStatementModal from "./components/ImportStatementModal";
 import ReconcileModal from "./components/ReconcileModal";
 import BulkReconcileModal from "./components/BulkReconcileModal";
+import OpenFinancePanel from "./components/OpenFinancePanel";
+import { listBankConnections } from "../../services/openFinanceService";
+import type { BankConnection } from "../../services/openFinanceService";
 
 import "../../components/EntryBatch/EntryBatch.css";
 import "./BankReconciliation.css";
@@ -79,6 +82,7 @@ function BankReconciliation() {
   const [importOpen, setImportOpen] = useState(false);
   const [reconcileLine, setReconcileLine] = useState<StatementLine | null>(null);
   const [bulkOpen, setBulkOpen] = useState(false);
+  const [connections, setConnections] = useState<BankConnection[]>([]);
   const [busyId, setBusyId] = useState("");
 
   const account = accounts.find(item => item.id === accountId);
@@ -114,14 +118,17 @@ function BankReconciliation() {
       setLoading(true);
       setErrorMessage("");
 
-      const [lineData, txData, linked, payData, recData, accountData] = await Promise.all([
+      const [lineData, txData, linked, payData, recData, accountData, connectionData] = await Promise.all([
         listStatementLines(accountId, from, to),
         listBankTransactions(accountId),
         listReconciledTransactionIds(accountId),
         payPermissions.canView ? listPayables() : Promise.resolve([] as Payable[]),
         receivePermissions.canView ? listReceivables() : Promise.resolve([] as Receivable[]),
-        listAccountsWithBalance("banco")
+        listAccountsWithBalance("banco"),
+        listBankConnections()
       ]);
+
+      setConnections(connectionData);
 
       setLines(lineData);
       setTransactions(txData);
@@ -326,6 +333,27 @@ function BankReconciliation() {
 
         {account && (
           <>
+            <OpenFinancePanel
+              key={account.id}
+              account={account}
+              connection={connections.find(item => item.bank_account_id === account.id)}
+              canCreate={bankPermissions.canCreate}
+              canDelete={bankPermissions.canDelete}
+              onChanged={async (message, range) => {
+                if (message) {
+                  setNotice(message);
+                  setStatusFilter("pendente");
+                }
+
+                if (range) {
+                  if (range.from < from) setFrom(range.from);
+                  if (range.to > to) setTo(range.to);
+                }
+
+                await load();
+              }}
+            />
+
             <div className="reconcile-cards">
               <div className="reconcile-card">
                 <span>A conciliar</span>

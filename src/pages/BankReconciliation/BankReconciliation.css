@@ -710,3 +710,102 @@
   margin: 6px 0 0;
   padding-left: 18px;
 }
+/* OPEN FINANCE */
+
+.openfinance-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  padding: 12px 14px;
+
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+
+  background: var(--surface-alt);
+}
+
+.openfinance-panel.is-connected {
+  border-style: solid;
+  border-color: var(--success);
+
+  background: var(--success-soft);
+}
+
+.openfinance-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  min-width: 0;
+}
+
+.openfinance-info > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.openfinance-info strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.openfinance-info small {
+  color: var(--text-light);
+  font-size: 12px;
+}
+
+.openfinance-icon {
+  display: inline-flex;
+  padding: 7px;
+
+  border-radius: 8px;
+
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.openfinance-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.openfinance-error {
+  color: var(--danger) !important;
+}
+
+.openfinance-message {
+  flex-basis: 100%;
+
+  padding: 8px 10px;
+
+  border: 1px solid var(--danger-border);
+  border-radius: 6px;
+
+  background: var(--danger-soft);
+  color: var(--danger);
+
+  font-size: 12px;
+}
+
+.openfinance-choice {
+  align-items: center;
+}
+
+.openfinance-choice input {
+  accent-color: var(--primary);
+}
+
+.openfinance-spin {
+  animation: openfinance-spin 1s linear infinite;
+}
+
+@keyframes openfinance-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
