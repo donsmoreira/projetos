@@ -116,7 +116,20 @@ async function pluggy<T>(path: string, init: RequestInit = {}): Promise<T> {
       throw new Refusal("A conexão com o banco não foi encontrada na Pluggy. Conecte o banco de novo.", 404);
     }
 
-    throw new Refusal("O Open Finance não respondeu agora. Tente de novo em alguns minutos.", 502);
+    // Motivo da Pluggy (sem dados sensíveis) para saber o que corrigir
+    let reason = "";
+
+    try {
+      const parsed = JSON.parse(detail) as { message?: string; code?: number | string };
+      reason = String(parsed.message ?? "").slice(0, 160);
+    } catch {
+      reason = detail.slice(0, 160);
+    }
+
+    throw new Refusal(
+      `O Open Finance recusou a consulta (${response.status} em ${path.split("?")[0].replace(/\/[0-9a-f-]{20,}/gi, "/…")})${reason ? `: ${reason}` : ""}. Tente de novo em alguns minutos.`,
+      502
+    );
   }
 
   return await response.json() as T;
@@ -299,15 +312,19 @@ Deno.serve(async request => {
           : new Date(today.getTime() - 90 * 86400000);
 
         const lines: { external_id: string; date: string; amount: number; description: string }[] = [];
-        let page = 1;
-        let totalPages = 1;
 
-        do {
-          const result = await pluggy<{ results: PluggyTransaction[]; totalPages?: number }>(
-            `/transactions?accountId=${encodeURIComponent(account.id)}&from=${isoDate(start)}&to=${isoDate(today)}&pageSize=500&page=${page}`
-          );
+        // Endereço novo da Pluggy (/v2/transactions), páginas de 500 com cursor:
+        // cada resposta traz "next" (?accountId=...&after=...) até acabar (null)
+        let next: string | null =
+          `?accountId=${encodeURIComponent(account.id)}&dateFrom=${isoDate(start)}&dateTo=${isoDate(today)}`;
+        let pages = 0;
 
-          totalPages = Number(result.totalPages ?? 1);
+        while (next && pages < 40) {
+          const result: { results?: PluggyTransaction[]; next?: string | null } =
+            await pluggy<{ results?: PluggyTransaction[]; next?: string | null }>(`/v2/transactions${next}`);
+
+          pages += 1;
+          next = result.next && result.next.startsWith("?") ? result.next : null;
 
           for (const tx of result.results ?? []) {
             // Só lançamento efetivado (pendente ainda pode mudar)
@@ -326,9 +343,7 @@ Deno.serve(async request => {
               description: (tx.description || tx.descriptionRaw || "Lançamento do banco").slice(0, 300)
             });
           }
-
-          page += 1;
-        } while (page <= totalPages && page <= 20);
+        }
 
         let inserted = 0;
         let duplicates = 0;
