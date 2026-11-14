@@ -30,8 +30,8 @@ type CashMovementFormProps = {
 };
 
 const KINDS: { value: MovementKind; label: string }[] = [
-  { value: "entrada", label: "Entrada" },
-  { value: "saida", label: "Saída" },
+  { value: "entrada", label: "Suprimento" },
+  { value: "saida", label: "Sangria" },
   { value: "transferencia", label: "Transferência" }
 ];
 
@@ -192,8 +192,8 @@ function CashMovementForm({
         </div>
 
         <small className="arc-hint">
-          {kind === "entrada" && "Dinheiro que entrou no caixa sem ser de uma conta a receber (ex.: troco inicial, reforço)."}
-          {kind === "saida" && "Dinheiro que saiu do caixa sem ser de uma conta a pagar (ex.: pequena despesa, retirada)."}
+          {kind === "entrada" && "Suprimento: dinheiro colocado no caixa sem ser de uma conta a receber (ex.: troco, reforço)."}
+          {kind === "saida" && "Sangria: dinheiro retirado do caixa sem ser de uma conta a pagar (ex.: retirada, pequena despesa)."}
           {kind === "transferencia" && "Saque do banco para o caixa, ou depósito do caixa no banco. Não conta como receita nem despesa."}
         </small>
       </div>
@@ -302,9 +302,9 @@ function CashMovementForm({
           }}
           placeholder={
             kind === "entrada"
-              ? "Ex.: Troco inicial do dia"
+              ? "Ex.: Suprimento de troco"
               : kind === "saida"
-                ? "Ex.: Compra de café para o escritório"
+                ? "Ex.: Sangria para o cofre"
                 : "Ex.: Saque para pagamentos da semana"
           }
           maxLength={140}

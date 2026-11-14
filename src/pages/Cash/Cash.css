@@ -686,3 +686,21 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Saldo do caixa no formulário de edição (só leitura) */
+.cash-form-balance {
+  padding: 10px 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: var(--surface-alt);
+  color: var(--success);
+
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cash-form-balance.is-negative {
+  color: var(--danger);
+}

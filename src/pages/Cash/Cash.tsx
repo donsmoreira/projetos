@@ -506,7 +506,7 @@ function Cash() {
                     className="cash-action cash-action-in"
                     onClick={() => setModal({ kind: "movement", cash, movement: "entrada" })}
                   >
-                    <ArrowDownLeft size={15} /> Entrada
+                    <ArrowDownLeft size={15} /> Suprimento
                   </button>
 )}</>
 
@@ -516,7 +516,7 @@ function Cash() {
                     className="cash-action cash-action-out"
                     onClick={() => setModal({ kind: "movement", cash, movement: "saida" })}
                   >
-                    <ArrowUpRight size={15} /> Saída
+                    <ArrowUpRight size={15} /> Sangria
                   </button>
 )}</>
 
@@ -664,7 +664,9 @@ function Cash() {
                               <td className="cash-table-description">{row.description}</td>
                               <td>
                                 <span className={`cash-origin cash-origin-${row.transaction_type}`}>
-                                  {getOriginLabel(row.transaction_type)}
+                                  {row.transaction_type === "manual"
+                                    ? row.value < 0 ? "Sangria" : "Suprimento"
+                                    : getOriginLabel(row.transaction_type)}
                                 </span>
                               </td>
                               <td className="is-number is-income">

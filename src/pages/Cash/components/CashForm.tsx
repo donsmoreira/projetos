@@ -9,6 +9,7 @@ import {
 import type { AccountWithBalance, CashRole } from "../../../types/bankAccount";
 
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
+import { formatCurrency } from "../../../utils/currency";
 
 type CashFormProps = {
   cash: AccountWithBalance | null;
@@ -32,14 +33,11 @@ function CashForm({
   const [cashRole, setCashRole] =
     useState<CashRole>(cash?.cash_role ?? "operacao");
 
-  // O campo mostra o SALDO ATUAL (inicial + movimentações). Ao salvar, o saldo
-  // inicial é recalculado para o caixa ficar exatamente com o valor digitado.
-  const movements = cash
-    ? Math.round((Number(cash.balance || 0) - Number(cash.initial_balance || 0)) * 100) / 100
-    : 0;
-
+  // Caixa novo: informa o dinheiro com que começa.
+  // Caixa já cadastrado: o saldo NÃO se edita; só muda por suprimento, sangria,
+  // pagamentos, recebimentos, transferências e fechamento.
   const [currentBalance, setCurrentBalance] =
-    useState(cash ? Number(cash.balance || 0) : 0);
+    useState(0);
 
   const [submitting, setSubmitting] =
     useState(false);
@@ -68,14 +66,15 @@ function CashForm({
       return;
     }
 
-    if (currentBalance < 0) {
+    if (!cash && currentBalance < 0) {
       setErrorMessage("O saldo do caixa não pode ser negativo.");
       return;
     }
 
-    // Saldo atual digitado − movimentações = saldo inicial a gravar
-    const initialBalance =
-      Math.round((currentBalance - movements) * 100) / 100;
+    // Editando: mantém o saldo inicial que já existe (o saldo não muda aqui)
+    const initialBalance = cash
+      ? Number(cash.initial_balance || 0)
+      : Math.round(currentBalance * 100) / 100;
 
     const data = {
       accountType: "caixa" as const,
@@ -178,26 +177,40 @@ function CashForm({
         </small>
       </div>
 
-      <div className="arc-field">
-        <label htmlFor="cash-initial-balance">
-          Saldo atual (R$)
-        </label>
+      {cash ? (
+        <div className="arc-field">
+          <span className="arc-field-label">
+            Saldo atual
+          </span>
 
-        <CurrencyInput
-          id="cash-initial-balance"
-          value={currentBalance}
-          onChange={value => {
-            setCurrentBalance(value);
-            setErrorMessage("");
-          }}
-        />
+          <strong className={`cash-form-balance${cash.balance < 0 ? " is-negative" : ""}`}>
+            {formatCurrency(cash.balance)}
+          </strong>
 
-        <small className="arc-hint">
-          {cash
-            ? "Dinheiro em espécie no caixa hoje, já com todas as entradas e saídas. Se alterar, o sistema ajusta para o caixa ficar com este valor."
-            : "Quanto dinheiro em espécie há neste caixa hoje."}
-        </small>
-      </div>
+          <small className="arc-hint">
+            O saldo do caixa não se edita. Para colocar dinheiro, use <strong>Suprimento</strong>; para tirar, use <strong>Sangria</strong>.
+          </small>
+        </div>
+      ) : (
+        <div className="arc-field">
+          <label htmlFor="cash-initial-balance">
+            Saldo inicial (R$)
+          </label>
+
+          <CurrencyInput
+            id="cash-initial-balance"
+            value={currentBalance}
+            onChange={value => {
+              setCurrentBalance(value);
+              setErrorMessage("");
+            }}
+          />
+
+          <small className="arc-hint">
+            Dinheiro em espécie com que o caixa começa. Depois de cadastrado, o saldo só muda por suprimento, sangria, pagamentos, recebimentos e fechamento.
+          </small>
+        </div>
+      )}
 
       {errorMessage && (
         <div className="arc-form-error">
