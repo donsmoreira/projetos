@@ -90,7 +90,9 @@ function BankAccountTable({
                 )}
               </td>
 
-              <td className="bank-accounts-value">
+              <td
+                className={`bank-accounts-value${account.balance < 0 ? " bank-accounts-value-negative" : ""}`}
+              >
                 {formatCurrency(
                   account.balance
                 )}

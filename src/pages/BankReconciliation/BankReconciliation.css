@@ -655,8 +655,6 @@
   align-items: center;
   gap: 6px;
 
-  margin-right: auto;
-
   border-color: var(--primary);
 
   background: var(--primary);
@@ -832,4 +830,47 @@
 
   font-size: 12px;
   line-height: 1.45;
+}
+/* AÇÕES EM MASSA (conciliar, excluir e desfazer todos) */
+
+.reconcile-bulk-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-right: auto;
+}
+
+.reconcile-bulk-actions:empty {
+  display: none;
+}
+
+.reconcile-chips .reconcile-bulk-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  border-color: var(--danger-border);
+
+  background: var(--surface);
+  color: var(--danger);
+}
+
+.reconcile-chips .reconcile-bulk-danger:hover:not(:disabled) {
+  background: var(--danger-soft);
+}
+
+.reconcile-chips button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.reconcile-card strong.reconcile-out {
+  color: var(--danger);
+}
+
+.reconcile-balance-hint .reconcile-action {
+  display: inline-flex;
+
+  margin-top: 8px;
 }

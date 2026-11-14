@@ -9,6 +9,7 @@ import {
   deleteStatementLines,
   listReconciledTransactionIds,
   listStatementLines,
+  adjustBalanceToBank,
   reconcileStatementLine,
   setStatementLineIgnored,
   undoStatementReconciliation
@@ -257,7 +258,7 @@ function BankReconciliation() {
   async function act(lineId: string, action: () => Promise<void>, fallback: string) {
     try {
       setBusyId(lineId);
-      setNotice("");
+      if (lineId !== "bulk") setNotice("");
       await action();
       await load();
     } catch (error) {
@@ -295,6 +296,88 @@ function BankReconciliation() {
     }
 
     await act(line.id, () => undoStatementReconciliation(line.id), "Não foi possível desfazer.");
+  }
+
+  // Excluir todos os "a conciliar" do período (importados por engano, por exemplo)
+  async function handleDeleteAllPending() {
+    const pending = lines.filter(line => line.status === "pendente");
+
+    if (pending.length === 0) return;
+
+    const confirmed = await appConfirm(
+      `Tem certeza que deseja excluir os ${pending.length} lançamento(s) a conciliar deste período do extrato importado? ` +
+        "Nada muda nas movimentações do sistema; dá para importar o arquivo de novo depois.",
+      { title: "Excluir todos", confirmLabel: "Sim", cancelLabel: "Não", tone: "danger" }
+    );
+
+    if (!confirmed) return;
+
+    await act("bulk", async () => {
+      const removed = await deleteStatementLines(pending.map(line => line.id));
+      setNotice(`${removed} lançamento(s) excluído(s) do extrato importado.`);
+    }, "Não foi possível excluir.");
+  }
+
+  // Desfazer todas as conciliações do período, uma por uma
+  async function handleUndoAll() {
+    const reconciled = lines.filter(line => line.status === "conciliado");
+
+    if (reconciled.length === 0) return;
+
+    const settles = reconciled.filter(line => line.reconcile_kind === "payable" || line.reconcile_kind === "receivable").length;
+    const created = reconciled.filter(line => line.reconcile_kind === "created").length;
+
+    const confirmed = await appConfirm(
+      `Desfazer as ${reconciled.length} conciliação(ões) deste período? Todos voltam para "a conciliar".` +
+        (created > 0 ? ` ${created} lançamento(s) avulso(s) criado(s) pela conciliação serão excluídos.` : "") +
+        (settles > 0 ? ` ${settles} baixa(s) de contas a pagar/receber serão estornadas.` : ""),
+      { title: "Desfazer todos", confirmLabel: "Sim", cancelLabel: "Não", tone: "warning" }
+    );
+
+    if (!confirmed) return;
+
+    setBusyId("bulk");
+    setNotice("");
+    const problems: string[] = [];
+    let done = 0;
+
+    for (const line of reconciled) {
+      setNotice(`Desfazendo ${done + problems.length + 1} de ${reconciled.length}...`);
+
+      try {
+        await undoStatementReconciliation(line.id);
+        done += 1;
+      } catch (error) {
+        problems.push(`${line.description}: ${error instanceof Error ? error.message : "não foi possível desfazer"}`);
+      }
+    }
+
+    setBusyId("");
+    setNotice(`${done} conciliação(ões) desfeita(s).`);
+    await load();
+
+    if (problems.length > 0) {
+      await appAlert(`Algumas não foram desfeitas:\n${problems.join("\n")}`, { title: "Desfazer todos" });
+    }
+  }
+
+  async function handleAdjustBalance() {
+    if (!account || !balanceCheck) return;
+
+    const amount = -balanceCheck.difference;
+    const confirmed = await appConfirm(
+      `Lançar um ajuste de ${formatCurrency(amount)} em ${formatDateBR(balanceCheck.date)} na conta "${account.name}"? ` +
+        `O saldo do sistema nessa data passa de ${formatCurrency(balanceCheck.system)} para ${formatCurrency(balanceCheck.bank)}, igual ao banco. ` +
+        "O ajuste aparece no extrato do sistema e pode ser excluído depois.",
+      { title: "Ajustar saldo ao do banco", confirmLabel: "Sim", cancelLabel: "Não", tone: "warning" }
+    );
+
+    if (!confirmed) return;
+
+    await act("bulk", async () => {
+      const value = await adjustBalanceToBank(account.id);
+      setNotice(`Ajuste de ${formatCurrency(value)} lançado: o saldo do sistema agora bate com o do banco em ${formatDateBR(balanceCheck.date)}.`);
+    }, "Não foi possível ajustar o saldo.");
   }
 
   async function handleDelete(line: StatementLine) {
@@ -398,7 +481,7 @@ function BankReconciliation() {
                 <span>Saldo no banco</span>
                 {balanceCheck ? (
                   <>
-                    <strong>{formatCurrency(balanceCheck.bank)}</strong>
+                    <strong className={balanceCheck.bank < 0 ? "reconcile-out" : ""}>{formatCurrency(balanceCheck.bank)}</strong>
                     <small>em {formatDateBR(balanceCheck.date)} · {balanceCheck.source}</small>
                   </>
                 ) : (
@@ -410,7 +493,7 @@ function BankReconciliation() {
               </div>
               <div className={`reconcile-card${balanceCheck ? (balanceCheck.difference === 0 ? " is-match" : " is-diff") : ""}`}>
                 <span>Saldo no sistema</span>
-                <strong>{formatCurrency(account.balance)}</strong>
+                <strong className={account.balance < 0 ? "reconcile-out" : ""}>{formatCurrency(account.balance)}</strong>
                 {balanceCheck ? (
                   balanceCheck.difference === 0 ? (
                     <small className="reconcile-in">✓ bate com o banco em {formatDateBR(balanceCheck.date)}</small>
@@ -432,7 +515,18 @@ function BankReconciliation() {
                 {formatCurrency(balanceCheck.system)} (diferença de {formatCurrency(balanceCheck.difference)}).
                 {counts.pending > 0
                   ? ` Concilie os ${counts.pending} lançamento(s) a conciliar (${formatCurrency(counts.pendingIn + counts.pendingOut)} no total) e confira de novo.`
-                  : " Confira se há movimentações no sistema que não aparecem no banco (ou o contrário) e se o saldo atual da conta no Controle Bancário está certo."}
+                  : " Confira se há movimentações no sistema que não aparecem no banco (ou o contrário). Se estiver tudo certo, ajuste o saldo."}
+
+                {bankPermissions.canCreate && (
+                  <button
+                    type="button"
+                    className="reconcile-action"
+                    disabled={busyId !== ""}
+                    onClick={() => void handleAdjustBalance()}
+                  >
+                    Ajustar saldo ao do banco ({formatCurrency(-balanceCheck.difference)})
+                  </button>
+                )}
               </div>
             )}
 
@@ -462,16 +556,43 @@ function BankReconciliation() {
             {!loading && tab === "conciliacao" && (
               <>
                 <div className="reconcile-chips">
-                  {counts.pending > 0 && canReconcileAny && (
-                    <button
-                      type="button"
-                      className="reconcile-bulk-button"
-                      onClick={() => setBulkOpen(true)}
-                      title="Conciliar de uma vez todos os lançamentos a conciliar do período"
-                    >
-                      <CheckCheck size={14} /> Conciliar todos ({counts.pending})
-                    </button>
-                  )}
+                  <span className="reconcile-bulk-actions">
+                    {statusFilter === "pendente" && counts.pending > 0 && canReconcileAny && (
+                      <button
+                        type="button"
+                        className="reconcile-bulk-button"
+                        disabled={busyId !== ""}
+                        onClick={() => setBulkOpen(true)}
+                        title="Conciliar de uma vez todos os lançamentos a conciliar do período"
+                      >
+                        <CheckCheck size={14} /> Conciliar todos ({counts.pending})
+                      </button>
+                    )}
+
+                    {statusFilter === "pendente" && counts.pending > 0 && bankPermissions.canDelete && (
+                      <button
+                        type="button"
+                        className="reconcile-bulk-danger"
+                        disabled={busyId !== ""}
+                        onClick={() => void handleDeleteAllPending()}
+                        title="Excluir do extrato importado todos os lançamentos a conciliar do período"
+                      >
+                        <Trash2 size={14} /> Excluir todos ({counts.pending})
+                      </button>
+                    )}
+
+                    {statusFilter === "conciliado" && counts.reconciled > 0 && canReconcileAny && (
+                      <button
+                        type="button"
+                        className="reconcile-bulk-danger"
+                        disabled={busyId !== ""}
+                        onClick={() => void handleUndoAll()}
+                        title="Desfazer todas as conciliações do período"
+                      >
+                        <Undo2 size={14} /> Desfazer todos ({counts.reconciled})
+                      </button>
+                    )}
+                  </span>
 
                   {(["pendente", "conciliado", "ignorado", "todos"] as StatusFilter[]).map(status => (
                     <button
@@ -645,7 +766,7 @@ function BankReconciliation() {
                         <td className={`reconcile-value-col ${tx.value < 0 ? "reconcile-out" : "reconcile-in"}`}>
                           {formatCurrency(tx.value)}
                         </td>
-                        <td className="reconcile-value-col">{formatCurrency(balance)}</td>
+                        <td className={`reconcile-value-col${balance < 0 ? " reconcile-out" : ""}`}>{formatCurrency(balance)}</td>
                         <td>
                           {linkedIds.has(tx.id)
                             ? <span className="reconcile-linked"><CheckCheck size={14} /> Conciliado</span>

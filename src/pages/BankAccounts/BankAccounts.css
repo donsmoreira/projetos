@@ -265,6 +265,11 @@
   font-weight: 700;
 }
 
+/* Saldo negativo em vermelho, para destacar */
+.bank-accounts-value.bank-accounts-value-negative {
+  color: var(--danger) !important;
+}
+
 .bank-accounts-actions-column {
   width: 96px;
 

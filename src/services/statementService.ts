@@ -149,6 +149,19 @@ export async function setBankReportedBalance(
   }
 }
 
+/** Lança um ajuste para o saldo do sistema ficar igual ao do banco; devolve o valor do ajuste. */
+export async function adjustBalanceToBank(accountId: string): Promise<number> {
+  const { data, error } = await supabase.rpc("adjust_balance_to_bank", {
+    p_account_id: accountId
+  });
+
+  if (error) {
+    fail(error.message);
+  }
+
+  return Number(data ?? 0);
+}
+
 export async function deleteStatementLines(lineIds: string[]): Promise<number> {
   const { data, error } = await supabase.rpc("delete_statement_lines", {
     p_line_ids: lineIds
