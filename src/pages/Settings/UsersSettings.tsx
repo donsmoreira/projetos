@@ -33,6 +33,7 @@ import MemberAccessTools from "./MemberAccessTools";
 import MemberNameField from "./MemberNameField";
 
 import "./Settings.css";
+import { appConfirm } from "../../components/Dialog/dialog";
 
 function samePermissions(a: CompanyPermissions, b: CompanyPermissions) {
   return a.isAdmin === b.isAdmin && sameModulePermissions(a.modules, b.modules);
@@ -136,13 +137,13 @@ function UsersSettings() {
     }
   }
 
-  function handleRemove(member: CompanyMember) {
+  async function handleRemove(member: CompanyMember) {
     const self = member.userId === user?.id;
     const question = self
       ? "Deseja sair desta empresa? Você perde o acesso aos dados dela."
       : `Remover ${member.fullName || member.email} desta empresa?`;
 
-    if (!window.confirm(question)) {
+    if (!(await appConfirm(question, question.startsWith("Remover") ? { title: "Remover da empresa", confirmLabel: "Remover", tone: "danger" } : { title: "Sair da empresa", confirmLabel: "Sair", tone: "danger" }))) {
       return;
     }
 

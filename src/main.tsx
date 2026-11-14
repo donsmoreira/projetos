@@ -8,6 +8,7 @@ import {
 
 import App from "./App";
 import { AuthProvider } from "./contexts/AuthContext";
+import DialogHost from "./components/Dialog/DialogHost";
 
 import "./styles/global.css";
 
@@ -28,5 +29,7 @@ createRoot(
     <AuthProvider>
       <App />
     </AuthProvider>
+
+    <DialogHost />
   </StrictMode>
 );

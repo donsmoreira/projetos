@@ -24,6 +24,7 @@ import {
   DEFAULT_APPOINTMENT_COLOR
 } from "../../../types/appointment";
 import { minutes, timeFrom } from "../agendaUtils";
+import { appConfirm } from "../../../components/Dialog/dialog";
 
 export type Member = { userId: string; name: string };
 
@@ -189,7 +190,7 @@ function AppointmentForm({
   }
 
   async function handleDelete() {
-    if (!appointment || !window.confirm("Excluir este agendamento?")) {
+    if (!appointment || !await appConfirm("Excluir este agendamento?")) {
       return;
     }
 

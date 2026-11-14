@@ -24,6 +24,7 @@ import SupplierModal from "./components/SupplierModal";
 import { usePermissions } from "../../hooks/useCompany";
 
 import "./Suppliers.css";
+import { appAlert, appConfirm } from "../../components/Dialog/dialog";
 
 function Suppliers() {
   const permissions = usePermissions("fornecedores");
@@ -145,7 +146,7 @@ function Suppliers() {
     supplier: Supplier
   ) {
     const confirmed =
-      window.confirm(
+      await appConfirm(
         `Deseja realmente excluir o fornecedor "${supplier.name}"?`
       );
 
@@ -162,7 +163,7 @@ function Suppliers() {
           ? error.message
           : "Não foi possível excluir o fornecedor.";
 
-      window.alert(message);
+      await appAlert(message);
     }
   }
 
@@ -171,7 +172,7 @@ function Suppliers() {
   ) {
     const activating = supplier.active === false;
 
-    const confirmed = window.confirm(
+    const confirmed = await appConfirm(
       activating
         ? `Reativar o fornecedor "${supplier.name}"?`
         : `Inativar o fornecedor "${supplier.name}"? Ele deixa de aparecer em novos lançamentos, mas o histórico continua.`
@@ -185,7 +186,7 @@ function Suppliers() {
       await setSupplierActive(supplier.id, activating);
       await loadSuppliers();
     } catch (error) {
-      window.alert(
+      await appAlert(
         error instanceof Error
           ? error.message
           : "Não foi possível alterar a situação do cadastro."

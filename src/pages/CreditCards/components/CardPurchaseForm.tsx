@@ -14,6 +14,7 @@ import {
 } from "../../../utils/cardInvoices";
 
 import type { CreditCard } from "../../../types/creditCard";
+import { appConfirm } from "../../../components/Dialog/dialog";
 
 type CardPurchaseFormProps = {
   card: CreditCard;
@@ -69,7 +70,7 @@ function CardPurchaseForm({ card, onCancel, onSaved }: CardPurchaseFormProps) {
       return;
     }
 
-    if (overLimit && !window.confirm(
+    if (overLimit && !await appConfirm(
       `A compra (${formatCurrency(total)}) passa do limite disponível do cartão (${formatCurrency(card.available_limit)}). Lançar mesmo assim?`
     )) {
       return;

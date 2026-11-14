@@ -18,6 +18,7 @@ import { useCompany } from "../../../../hooks/useCompany";
 import { useTheme } from "../../../../hooks/useTheme";
 import { pageTitleFor } from "../Sidebar/menu";
 import "./Topbar.css";
+import { appAlert } from "../../../../components/Dialog/dialog";
 
 /** Nome da empresa aberta no centro do topo; com mais de uma, vira seletor. */
 function CompanySwitcher() {
@@ -53,7 +54,7 @@ function CompanySwitcher() {
         onChange={event => {
           setSwitching(true);
           switchCompany(event.target.value).catch(error => {
-            window.alert(error instanceof Error ? error.message : "Não foi possível trocar de empresa.");
+            void appAlert(error instanceof Error ? error.message : "Não foi possível trocar de empresa.");
             setSwitching(false);
           });
         }}
@@ -122,7 +123,7 @@ function Topbar({
           ? error.message
           : "Não foi possível sair do sistema.";
 
-      window.alert(message);
+      await appAlert(message);
     }
   }
 

@@ -24,6 +24,7 @@ import ClientModal from "./components/ClientModal";
 import { usePermissions } from "../../hooks/useCompany";
 
 import "./Clients.css";
+import { appAlert, appConfirm } from "../../components/Dialog/dialog";
 
 function Clients() {
   const permissions = usePermissions("clientes");
@@ -146,7 +147,7 @@ function Clients() {
     client: Client
   ) {
     const confirmed =
-      window.confirm(
+      await appConfirm(
         `Deseja realmente excluir o cliente "${client.name}"?`
       );
 
@@ -163,7 +164,7 @@ function Clients() {
           ? error.message
           : "Não foi possível excluir o cliente.";
 
-      window.alert(message);
+      await appAlert(message);
     }
   }
 
@@ -172,7 +173,7 @@ function Clients() {
   ) {
     const activating = client.active === false;
 
-    const confirmed = window.confirm(
+    const confirmed = await appConfirm(
       activating
         ? `Reativar o cliente "${client.name}"?`
         : `Inativar o cliente "${client.name}"? Ele deixa de aparecer em novos lançamentos e agendamentos, mas o histórico continua.`
@@ -186,7 +187,7 @@ function Clients() {
       await setClientActive(client.id, activating);
       await loadClients();
     } catch (error) {
-      window.alert(
+      await appAlert(
         error instanceof Error
           ? error.message
           : "Não foi possível alterar a situação do cadastro."

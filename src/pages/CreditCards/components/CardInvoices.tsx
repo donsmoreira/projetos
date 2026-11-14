@@ -25,6 +25,7 @@ import CardPurchaseForm from "./CardPurchaseForm";
 import PayInvoiceForm from "./PayInvoiceForm";
 import CardOverview from "./CardOverview";
 import CardInsights from "./CardInsights";
+import { appAlert, appConfirm } from "../../../components/Dialog/dialog";
 
 type CardInvoicesProps = {
   card: CreditCard;
@@ -134,7 +135,7 @@ function CardInvoices({ card, canCreate, canDelete, canSettle, onChanged }: Card
       ? `a compra "${item.description}" inteira (as ${item.installment_count} parcelas, ${formatCurrency(item.purchase_total ?? item.value)})`
       : `a compra "${item.description}" (${formatCurrency(item.value)})`;
 
-    if (!window.confirm(`Excluir ${whole}?`)) {
+    if (!await appConfirm(`Excluir ${whole}?`)) {
       return;
     }
 
@@ -142,12 +143,12 @@ function CardInvoices({ card, canCreate, canDelete, canSettle, onChanged }: Card
       await deleteCardPurchase(item.installment_group_id);
       await refresh();
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "Não foi possível excluir a compra.");
+      await appAlert(error instanceof Error ? error.message : "Não foi possível excluir a compra.");
     }
   }
 
   async function handleReverse(settlement: CardSettlementRow) {
-    if (!window.confirm(
+    if (!await appConfirm(
       `Estornar o pagamento de ${formatCurrency(settlement.value)} feito em ${formatDay(settlement.settlement_date)}? A saída da conta/caixa é desfeita e a fatura volta a ficar em aberto.`
     )) {
       return;
@@ -157,7 +158,7 @@ function CardInvoices({ card, canCreate, canDelete, canSettle, onChanged }: Card
       await reverseCardPayment(settlement.id);
       await refresh();
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "Não foi possível estornar.");
+      await appAlert(error instanceof Error ? error.message : "Não foi possível estornar.");
     }
   }
 

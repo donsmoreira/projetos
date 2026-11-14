@@ -26,6 +26,7 @@ import BankAccountModal from "./components/BankAccountModal";
 import { usePermissions } from "../../hooks/useCompany";
 
 import "./BankAccounts.css";
+import { appAlert, appConfirm } from "../../components/Dialog/dialog";
 
 function BankAccounts() {
   const permissions = usePermissions("contas_bancarias");
@@ -119,7 +120,7 @@ function BankAccounts() {
     account: BankAccount
   ) {
     const confirmed =
-      window.confirm(
+      await appConfirm(
         `Deseja realmente excluir a conta "${formatAccountLabel(account)}"?`
       );
 
@@ -136,7 +137,7 @@ function BankAccounts() {
           ? error.message
           : "Não foi possível excluir a conta bancária.";
 
-      window.alert(message);
+      await appAlert(message);
     }
   }
 

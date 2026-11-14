@@ -22,6 +22,7 @@ import ReceiptModal from "./components/ReceiptModal";
 import { usePermissions } from "../../hooks/useCompany";
 
 import "./Receivables.css";
+import { appAlert, appConfirm } from "../../components/Dialog/dialog";
 
 function Receivables() {
   const permissions = usePermissions("contas_receber");
@@ -155,7 +156,7 @@ function Receivables() {
     receivable: Receivable
   ) {
     const confirmed =
-      window.confirm(
+      await appConfirm(
         `Deseja realmente excluir a conta "${receivable.description}"?`
       );
 
@@ -175,7 +176,7 @@ function Receivables() {
           ? error.message
           : "Não foi possível excluir a conta.";
 
-      window.alert(message);
+      await appAlert(message);
     }
   }
 
@@ -183,7 +184,7 @@ function Receivables() {
     receivable: Receivable
   ) {
     const confirmed =
-      window.confirm(
+      await appConfirm(
         `Deseja estornar o recebimento de "${receivable.description}"?`
       );
 
@@ -203,7 +204,7 @@ function Receivables() {
           ? error.message
           : "Não foi possível estornar o recebimento.";
 
-      window.alert(message);
+      await appAlert(message);
     }
   }
 

@@ -22,6 +22,7 @@ import PaymentModal from "./components/PaymentModal";
 import { usePermissions } from "../../hooks/useCompany";
 
 import "./Payables.css";
+import { appAlert, appConfirm } from "../../components/Dialog/dialog";
 
 function Payables() {
   const permissions = usePermissions("contas_pagar");
@@ -149,7 +150,7 @@ function Payables() {
     payable: Payable
   ) {
     const confirmed =
-      window.confirm(
+      await appConfirm(
         `Deseja realmente excluir a conta "${payable.description}"?`
       );
 
@@ -166,7 +167,7 @@ function Payables() {
           ? error.message
           : "Não foi possível excluir a conta.";
 
-      window.alert(message);
+      await appAlert(message);
     }
   }
 
@@ -174,7 +175,7 @@ function Payables() {
     payable: Payable
   ) {
     const confirmed =
-      window.confirm(
+      await appConfirm(
         `Deseja estornar o pagamento de "${payable.description}"?`
       );
 
@@ -194,7 +195,7 @@ function Payables() {
           ? error.message
           : "Não foi possível estornar o pagamento.";
 
-      window.alert(message);
+      await appAlert(message);
     }
   }
 

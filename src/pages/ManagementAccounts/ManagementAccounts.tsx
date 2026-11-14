@@ -31,6 +31,7 @@ import AccountTree from "./components/AccountTree";
 import AccountModal from "./components/AccountModal";
 
 import "./ManagementAccounts.css";
+import { appAlert, appConfirm } from "../../components/Dialog/dialog";
 
 type TypeFilter = "todas" | ManagementAccountType;
 
@@ -174,13 +175,13 @@ function ManagementAccounts() {
     const descendants = getDescendantIds(accounts, account.id);
 
     if (descendants.size > 0) {
-      window.alert(
+      await appAlert(
         `A conta "${account.name}" tem ${descendants.size} ${descendants.size === 1 ? "subconta" : "subcontas"}. Exclua ou mova as subcontas para outra conta antes.`
       );
       return;
     }
 
-    const confirmed = window.confirm(
+    const confirmed = await appConfirm(
       `Deseja realmente excluir a conta "${account.name}"?`
     );
 
@@ -192,7 +193,7 @@ function ManagementAccounts() {
       await deleteManagementAccount(account.id);
       await reloadAccounts();
     } catch (error) {
-      window.alert(
+      await appAlert(
         getErrorMessage(error, "Não foi possível excluir a conta.")
       );
     }

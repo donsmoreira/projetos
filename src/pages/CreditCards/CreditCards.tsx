@@ -21,6 +21,7 @@ import CardInvoices from "./components/CardInvoices";
 import { usePermissions } from "../../hooks/useCompany";
 
 import "./CreditCards.css";
+import { appAlert, appConfirm } from "../../components/Dialog/dialog";
 
 function CreditCards() {
   const permissions = usePermissions("cartoes");
@@ -121,7 +122,7 @@ function CreditCards() {
     card: CreditCard
   ) {
     const confirmed =
-      window.confirm(
+      await appConfirm(
         `Deseja realmente excluir o cartão "${card.name}"?`
       );
 
@@ -138,7 +139,7 @@ function CreditCards() {
           ? error.message
           : "Não foi possível excluir o cartão.";
 
-      window.alert(message);
+      await appAlert(message);
     }
   }
 

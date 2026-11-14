@@ -55,6 +55,7 @@ import OpenCashForm from "./components/OpenCashForm";
 import { useCompany, usePermissions } from "../../hooks/useCompany";
 
 import "./Cash.css";
+import { appAlert, appConfirm } from "../../components/Dialog/dialog";
 
 type ModalState =
   | { kind: "cash"; cash: AccountWithBalance | null }
@@ -299,7 +300,7 @@ function Cash() {
   }
 
   async function handleReopen(session: CashSession) {
-    if (!window.confirm(
+    if (!await appConfirm(
       "Reabrir este fechamento? O que ele lançou (quebra de caixa, envio para a retaguarda e depósito) será desfeito e o caixa volta a ficar aberto."
     )) {
       return;
@@ -309,7 +310,7 @@ function Cash() {
       await reopenCashSession(session.id);
       await refreshAll();
     } catch (error) {
-      window.alert(getErrorMessage(error, "Não foi possível reabrir o caixa."));
+      await appAlert(getErrorMessage(error, "Não foi possível reabrir o caixa."));
     }
   }
 
@@ -343,13 +344,13 @@ function Cash() {
 
   async function handleDeleteCash(cash: AccountWithBalance) {
     if (cash.transactionCount > 0) {
-      window.alert(
+      await appAlert(
         `O caixa "${cash.name}" já tem ${cash.transactionCount} movimentações e não pode ser excluído. Assim o histórico do fluxo de caixa fica preservado.`
       );
       return;
     }
 
-    if (!window.confirm(`Deseja realmente excluir o caixa "${cash.name}"?`)) {
+    if (!await appConfirm(`Deseja realmente excluir o caixa "${cash.name}"?`)) {
       return;
     }
 
@@ -357,7 +358,7 @@ function Cash() {
       await deleteBankAccount(cash.id);
       await loadAccounts();
     } catch (error) {
-      window.alert(getErrorMessage(error, "Não foi possível excluir o caixa."));
+      await appAlert(getErrorMessage(error, "Não foi possível excluir o caixa."));
     }
   }
 
@@ -368,7 +369,7 @@ function Cash() {
       ? `Desfazer a transferência "${transaction.description}"? As duas pontas (caixa e banco) serão apagadas.`
       : `Excluir a movimentação "${transaction.description}"?`;
 
-    if (!window.confirm(message)) {
+    if (!await appConfirm(message)) {
       return;
     }
 
@@ -381,7 +382,7 @@ function Cash() {
 
       await refreshAll();
     } catch (error) {
-      window.alert(getErrorMessage(error, "Não foi possível excluir a movimentação."));
+      await appAlert(getErrorMessage(error, "Não foi possível excluir a movimentação."));
     }
   }
 

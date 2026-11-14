@@ -42,6 +42,7 @@ import type { AgendaView } from "./agendaUtils";
 
 import "../Cash/Cash.css";
 import "./Agenda.css";
+import { appAlert, appConfirm } from "../../components/Dialog/dialog";
 
 const VIEW_KEY = "arc-agenda-visao";
 const DUES_KEY = "arc-agenda-vencimentos";
@@ -251,7 +252,7 @@ function Agenda() {
             .join("\n");
           const who = members.find(member => member.userId === appointment.responsible_id)?.name ?? "O responsável";
 
-          if (!window.confirm(`${who} já tem horário neste período:\n${list}\n\nMover mesmo assim?`)) {
+          if (!await appConfirm(`${who} já tem horário neste período:\n${list}\n\nMover mesmo assim?`)) {
             return;
           }
         }
@@ -267,7 +268,7 @@ function Agenda() {
       await updateAppointment(appointment.id, form);
       await load();
     } catch (error) {
-      window.alert(error instanceof Error ? error.message : "Não foi possível mover o agendamento.");
+      await appAlert(error instanceof Error ? error.message : "Não foi possível mover o agendamento.");
       await load().catch(() => undefined);
     }
   }, [members, load]);
