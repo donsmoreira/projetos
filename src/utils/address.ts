@@ -59,6 +59,7 @@ function clean(value: string): string | null {
 export function addressToDb(address: AddressFormData): AddressFields {
   const zip = cepDigits(address.zipCode);
   const uf = address.state.trim().toUpperCase();
+  const cityCode = cityCodeDigits(address.cityCode);
 
   return {
     zip_code: zip.length === 8 ? zip : null,
@@ -67,8 +68,14 @@ export function addressToDb(address: AddressFormData): AddressFields {
     complement: clean(address.complement),
     neighborhood: clean(address.neighborhood),
     city: clean(address.city),
-    state: VALID_UFS.has(uf) ? uf : null
+    state: VALID_UFS.has(uf) ? uf : null,
+    city_code: cityCode.length === 7 ? cityCode : null
   };
+}
+
+/** Só os números do código IBGE do município, no máximo 7. */
+export function cityCodeDigits(value: string | null | undefined): string {
+  return (value ?? "").replace(/\D/g, "").slice(0, 7);
 }
 
 /** Colunas do banco → formulário. */
@@ -82,7 +89,8 @@ export function addressFromDb(
     complement: row?.complement ?? "",
     neighborhood: row?.neighborhood ?? "",
     city: row?.city ?? "",
-    state: row?.state ?? ""
+    state: row?.state ?? "",
+    cityCode: row?.city_code ?? ""
   };
 }
 
@@ -98,6 +106,12 @@ export function validateAddress(address: AddressFormData): string {
 
   if (uf && !VALID_UFS.has(uf.toUpperCase())) {
     return "Escolha um estado (UF) válido.";
+  }
+
+  const cityCode = cityCodeDigits(address.cityCode);
+
+  if (cityCode.length > 0 && cityCode.length < 7) {
+    return "O código IBGE da cidade precisa ter 7 números.";
   }
 
   return "";
@@ -211,6 +225,8 @@ export type CepResult = {
   neighborhood: string;
   city: string;
   state: string;
+  /** Código IBGE do município ("" se o serviço não trouxer) */
+  cityCode: string;
 };
 
 /**
@@ -246,17 +262,21 @@ export async function lookupCep(value: string): Promise<CepResult | null> {
       bairro?: string;
       localidade?: string;
       uf?: string;
+      ibge?: string;
     };
 
     if (data.erro) {
       return null;
     }
 
+    const cityCode = cityCodeDigits(data.ibge);
+
     return {
       street: data.logradouro ?? "",
       neighborhood: data.bairro ?? "",
       city: data.localidade ?? "",
-      state: data.uf ?? ""
+      state: data.uf ?? "",
+      cityCode: cityCode.length === 7 ? cityCode : ""
     };
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {

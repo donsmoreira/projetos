@@ -7,6 +7,8 @@ export interface AddressFields {
   neighborhood: string | null;
   city: string | null;
   state: string | null;
+  /** Código IBGE do município (7 números), usado na nota fiscal */
+  city_code?: string | null;
 }
 
 /** Endereço no formulário (campos de texto, vazio = não informado). */
@@ -18,6 +20,8 @@ export interface AddressFormData {
   neighborhood: string;
   city: string;
   state: string;
+  /** Código IBGE do município: vem sozinho pelo CEP */
+  cityCode: string;
 }
 
 export const EMPTY_ADDRESS: AddressFormData = {
@@ -27,5 +31,6 @@ export const EMPTY_ADDRESS: AddressFormData = {
   complement: "",
   neighborhood: "",
   city: "",
-  state: ""
+  state: "",
+  cityCode: ""
 };

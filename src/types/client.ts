@@ -22,6 +22,9 @@ export interface Client extends AddressFields {
 
   state_registration?: string | null;
 
+  /** Inscrição municipal (tomador PJ na NFS-e) */
+  municipal_registration?: string | null;
+
   /** Enquadramento: simples, simples_mei, normal, nao_contribuinte */
   tax_regime?: TaxRegime | null;
 
@@ -49,6 +52,8 @@ export interface ClientFormData {
   tradeName: string;
 
   stateRegistration: string;
+
+  municipalRegistration: string;
 
   taxRegime: TaxRegime | "";
 

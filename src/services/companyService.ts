@@ -209,6 +209,13 @@ export async function updateCompany(
       email: form.email.trim() || null,
       website: form.website.trim() || null,
       ...addressToDb(form.address),
+      // NFS-e
+      cnae: form.cnae.replace(/\D/g, "").length === 7 ? form.cnae.replace(/\D/g, "") : null,
+      cnae_description: form.cnaeDescription.trim() || null,
+      special_tax_regime: form.specialTaxRegime,
+      nfse_series: form.nfseSeries.trim() || "1",
+      nfse_next_number: Math.max(Math.floor(form.nfseNextNumber || 1), 1),
+      nfse_environment: form.nfseEnvironment,
       updated_at: new Date().toISOString()
     })
     .eq("id", id)

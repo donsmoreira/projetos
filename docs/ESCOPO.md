@@ -438,6 +438,17 @@ Objetivo: o Assessor no WhatsApp lê e escreve nos mesmos dados do Razão.
 - [ ] Lembretes de vencimento e de agendamentos
 - [ ] Resumo diário, semanal e mensal
 
+### Fase 7 — Nota fiscal de serviço (NFS-e)
+Objetivo: emitir NFS-e (padrão nacional) pelo sistema, por meio de uma API de emissão (ex.: Focus NFe, PlugNotas, NFE.io, Nuvem Fiscal), com chamadas feitas no servidor (Edge Functions). NF-e e NFC-e ficam para depois (dependem de produtos/estoque e PDV).
+
+- [x] Código IBGE da cidade no endereço (automático pelo CEP e pelo CNPJ)
+- [x] Empresa: CNAE principal, regime especial de tributação, série e próximo número, ambiente (homologação/produção); inscrição municipal
+- [x] Cliente PJ: inscrição municipal
+- [ ] Escolher a API de emissão; certificado digital A1 enviado para ela
+- [ ] Cadastro de serviços (código do serviço, ISS, retenções) — sob comando
+- [ ] Emitir, consultar, cancelar; guardar XML e PDF (5 anos)
+- [ ] Ambientes de homologação e produção do sistema (ramificações `homolog` e `prod`)
+
 ---
 
 ## 9. Ecossistema ARC

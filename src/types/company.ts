@@ -16,6 +16,29 @@ export const TAX_REGIME_LABELS: Record<TaxRegime, string> = {
   nao_contribuinte: "Não contribuinte"
 };
 
+/** Regime especial de tributação municipal (NFS-e) */
+export type SpecialTaxRegime =
+  | "nenhum"
+  | "cooperativa"
+  | "estimativa"
+  | "microempresa_municipal"
+  | "notario_registrador"
+  | "profissional_autonomo"
+  | "sociedade_profissionais";
+
+export const SPECIAL_TAX_REGIME_LABELS: Record<SpecialTaxRegime, string> = {
+  nenhum: "Nenhum",
+  cooperativa: "Ato cooperado (cooperativa)",
+  estimativa: "Estimativa",
+  microempresa_municipal: "Microempresa municipal",
+  notario_registrador: "Notário ou registrador",
+  profissional_autonomo: "Profissional autônomo",
+  sociedade_profissionais: "Sociedade de profissionais"
+};
+
+/** Ambiente da nota: homologação = testes sem valor fiscal */
+export type NfseEnvironment = "homologacao" | "producao";
+
 export interface Company extends AddressFields {
   id: string;
   /** ID EMPRESA (grupo) a que pertence */
@@ -34,6 +57,13 @@ export interface Company extends AddressFields {
   phone: string | null;
   email: string | null;
   website: string | null;
+  /** NFS-e: CNAE principal (7 números) */
+  cnae?: string | null;
+  cnae_description?: string | null;
+  special_tax_regime?: SpecialTaxRegime;
+  nfse_series?: string;
+  nfse_next_number?: number;
+  nfse_environment?: NfseEnvironment;
   created_at?: string;
   updated_at?: string;
 }
@@ -50,6 +80,13 @@ export interface CompanyFormData {
   email: string;
   website: string;
   address: AddressFormData;
+  /** NFS-e */
+  cnae: string;
+  cnaeDescription: string;
+  specialTaxRegime: SpecialTaxRegime;
+  nfseSeries: string;
+  nfseNextNumber: number;
+  nfseEnvironment: NfseEnvironment;
 }
 
 /** O que o usuário pode fazer na empresa */

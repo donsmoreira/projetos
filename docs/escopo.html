@@ -457,7 +457,10 @@ const phases = [
     ["Lançamento", ["Beta com usuários convidados (1.0.0-beta.N)", "Versão candidata (1.0.0-rc)", "Lançamento da v1.0.0"]] ] },
   { n: 6, v: "v1.1.0", title: "Assessor no WhatsApp", desc: "Integração com o Assessor Financeiro ARC Wpp", groups: [
     ["Base", ["API de regras usada pelo app e pelo Assessor", "Vincular número de WhatsApp com código (respeitando ID EMPRESA e permissões)", "Marcar a origem de cada lançamento (app ou WhatsApp)"]],
-    ["Conversas", ["Registrar despesa por mensagem", "Consultar saldo", "Listar o que vence na semana", "Marcar conta como paga", "Lembretes de vencimento e de agendamentos", "Resumo diário, semanal e mensal"]] ] }
+    ["Conversas", ["Registrar despesa por mensagem", "Consultar saldo", "Listar o que vence na semana", "Marcar conta como paga", "Lembretes de vencimento e de agendamentos", "Resumo diário, semanal e mensal"]] ] },
+  { n: 7, v: "NFS-e", title: "Nota fiscal de serviço", desc: "Emitir NFS-e pelo sistema, via API de emissão", groups: [
+    ["Cadastros", ["✓ Código IBGE da cidade pelo CEP", "✓ Empresa: CNAE, regime especial, série, número e ambiente", "✓ Cliente PJ: inscrição municipal", "Cadastro de serviços (ISS, retenções)"]],
+    ["Emissão", ["Escolher a API de emissão e enviar o certificado A1", "Emitir, consultar e cancelar", "Guardar XML e PDF por 5 anos", "Ambientes homolog e prod do sistema"]] ] }
 ];
 
 const debts = [

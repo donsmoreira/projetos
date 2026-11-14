@@ -21,6 +21,10 @@ export type CnpjResult = {
   openedOn: string;
   /** Atividade principal (CNAE) */
   activity: string;
+  /** CNAE principal só com os 7 números ("" se não vier) */
+  cnae: string;
+  /** Descrição do CNAE principal */
+  cnaeDescription: string;
   /** Serviço que respondeu */
   source: "CNPJ.ws" | "BrasilAPI";
 };
@@ -70,6 +74,18 @@ function streetName(type: string, street: string): string {
   return `${type} ${street}`;
 }
 
+/** CNAE com 7 números (aceita "6201-5/01" ou 6201501) */
+function cnaeDigits(value: string | number | null | undefined): string {
+  const digits = String(value ?? "").replace(/\D/g, "");
+  return digits.length === 7 ? digits : "";
+}
+
+/** Código IBGE do município com 7 números */
+function ibgeDigits(value: string | number | null | undefined): string {
+  const digits = String(value ?? "").replace(/\D/g, "");
+  return digits.length === 7 ? digits : "";
+}
+
 function taxRegimeFrom(mei: boolean, simples: boolean): TaxRegime | "" {
   if (mei) {
     return "simples_mei";
@@ -96,7 +112,7 @@ type CnpjWsResponse = {
     complemento?: string | null;
     bairro?: string | null;
     cep?: string | null;
-    cidade?: { nome?: string } | null;
+    cidade?: { nome?: string; ibge_id?: number | string } | null;
     estado?: { sigla?: string } | null;
     ddd1?: string | null;
     telefone1?: string | null;
@@ -135,11 +151,14 @@ export function cnpjResultFromCnpjWs(data: CnpjWsResponse): CnpjResult {
       complement: text(place.complemento),
       neighborhood: text(place.bairro),
       city: text(place.cidade?.nome),
-      state
+      state,
+      cityCode: ibgeDigits(place.cidade?.ibge_id)
     },
     status: text(place.situacao_cadastral).toUpperCase(),
     openedOn: formatDate(place.data_inicio_atividade),
     activity: [text(activity?.subclasse), text(activity?.descricao)].filter(Boolean).join(" - "),
+    cnae: cnaeDigits(activity?.subclasse),
+    cnaeDescription: text(activity?.descricao),
     source: "CNPJ.ws"
   };
 }
@@ -167,6 +186,7 @@ type BrasilApiResponse = {
   data_inicio_atividade?: string;
   cnae_fiscal?: number;
   cnae_fiscal_descricao?: string;
+  codigo_municipio_ibge?: number | string;
 };
 
 export function cnpjResultFromBrasilApi(data: BrasilApiResponse): CnpjResult {
@@ -184,11 +204,14 @@ export function cnpjResultFromBrasilApi(data: BrasilApiResponse): CnpjResult {
       complement: text(data.complemento),
       neighborhood: text(data.bairro),
       city: text(data.municipio),
-      state: text(data.uf).toUpperCase()
+      state: text(data.uf).toUpperCase(),
+      cityCode: ibgeDigits(data.codigo_municipio_ibge)
     },
     status: text(data.descricao_situacao_cadastral).toUpperCase(),
     openedOn: formatDate(data.data_inicio_atividade),
     activity: [text(data.cnae_fiscal), text(data.cnae_fiscal_descricao)].filter(Boolean).join(" - "),
+    cnae: cnaeDigits(data.cnae_fiscal),
+    cnaeDescription: text(data.cnae_fiscal_descricao),
     source: "BrasilAPI"
   };
 }

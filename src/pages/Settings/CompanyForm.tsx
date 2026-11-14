@@ -8,15 +8,17 @@ import {
 } from "../../components/CnpjLookup/CnpjLookupInfo";
 import { useCnpjLookup } from "../../hooks/useCnpjLookup";
 import { documentKind, formatDocument } from "../../utils/document";
-import { validateCompanyForm } from "./companyFormData";
+import { formatCnae, validateCompanyForm } from "./companyFormData";
 
 import type { AddressFormData } from "../../types/address";
 import type {
   CompanyFormData,
+  NfseEnvironment,
   PersonType,
+  SpecialTaxRegime,
   TaxRegime
 } from "../../types/company";
-import { TAX_REGIME_LABELS } from "../../types/company";
+import { SPECIAL_TAX_REGIME_LABELS, TAX_REGIME_LABELS } from "../../types/company";
 
 import "./Settings.css";
 
@@ -57,7 +59,10 @@ function CompanyForm({
       email: current.email.trim() ? current.email : result.email,
       address: result.address.zipCode || result.address.street
         ? result.address
-        : current.address
+        : current.address,
+      // CNAE principal da Receita (para a NFS-e)
+      cnae: result.cnae ? formatCnae(result.cnae) : current.cnae,
+      cnaeDescription: result.cnae ? result.cnaeDescription : current.cnaeDescription
     }));
   });
 
@@ -216,6 +221,7 @@ function CompanyForm({
                       value={form.municipalRegistration}
                       onChange={event => update("municipalRegistration", event.target.value)}
                     />
+                    <small>Necessária para emitir nota de serviço (NFS-e).</small>
                   </div>
                 </>
               )}
@@ -267,6 +273,96 @@ function CompanyForm({
                 classPrefix="settings"
                 idPrefix="company"
               />
+            </div>
+          </section>
+
+          <section className="settings-card">
+            <h3>Nota fiscal de serviço (NFS-e)</h3>
+            <p>
+              Dados usados na emissão da nota de serviço. O certificado digital e o cadastro de serviços
+              entram numa próxima etapa.
+            </p>
+
+            <div className="settings-grid">
+              <div className="settings-field">
+                <label htmlFor="company-cnae">CNAE principal</label>
+                <input
+                  id="company-cnae"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0000-0/00"
+                  value={form.cnae}
+                  onChange={event => update("cnae", formatCnae(event.target.value))}
+                  maxLength={9}
+                />
+                <small>{form.cnaeDescription || "Vem da Receita ao buscar o CNPJ."}</small>
+              </div>
+
+              <div className="settings-field">
+                <label htmlFor="company-special-regime">Regime especial de tributação</label>
+                <select
+                  id="company-special-regime"
+                  value={form.specialTaxRegime}
+                  onChange={event => update("specialTaxRegime", event.target.value as SpecialTaxRegime)}
+                >
+                  {(Object.keys(SPECIAL_TAX_REGIME_LABELS) as SpecialTaxRegime[]).map(regime => (
+                    <option key={regime} value={regime}>
+                      {SPECIAL_TAX_REGIME_LABELS[regime]}
+                    </option>
+                  ))}
+                </select>
+                <small>Regime municipal do ISS. Na dúvida, confirme com o contador.</small>
+              </div>
+
+              <div className="settings-field">
+                <label htmlFor="company-nfse-series">Série da nota</label>
+                <input
+                  id="company-nfse-series"
+                  type="text"
+                  value={form.nfseSeries}
+                  onChange={event => update("nfseSeries", event.target.value.replace(/[^0-9A-Za-z]/g, "").slice(0, 5))}
+                  maxLength={5}
+                />
+              </div>
+
+              <div className="settings-field">
+                <label htmlFor="company-nfse-number">Próximo número da nota</label>
+                <input
+                  id="company-nfse-number"
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={form.nfseNextNumber}
+                  onChange={event => update("nfseNextNumber", Math.floor(Number(event.target.value) || 0))}
+                />
+                <small>Se a empresa já emitia notas em outro sistema, continue a numeração de lá.</small>
+              </div>
+
+              <div className="settings-field settings-field-full">
+                <label>Ambiente de emissão</label>
+                <div className="settings-env-choice" role="radiogroup" aria-label="Ambiente de emissão">
+                  {([
+                    ["homologacao", "Homologação", "Testes: notas sem valor fiscal."],
+                    ["producao", "Produção", "Notas reais, com valor fiscal."]
+                  ] as [NfseEnvironment, string, string][]).map(([value, label, hint]) => (
+                    <label
+                      key={value}
+                      className={`settings-env-option${form.nfseEnvironment === value ? " is-selected" : ""}${value === "producao" ? " is-production" : ""}`}
+                    >
+                      <input
+                        type="radio"
+                        name="company-nfse-environment"
+                        checked={form.nfseEnvironment === value}
+                        onChange={() => update("nfseEnvironment", value)}
+                      />
+                      <span>
+                        <strong>{label}</strong>
+                        <small>{hint}</small>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
         </div>

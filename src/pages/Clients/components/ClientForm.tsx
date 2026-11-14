@@ -50,6 +50,7 @@ const emptyForm: ClientFormData = {
   document: "",
   tradeName: "",
   stateRegistration: "",
+  municipalRegistration: "",
   taxRegime: "",
   phone: "",
   email: "",
@@ -79,6 +80,7 @@ function ClientForm({
         document: client.document ?? "",
         tradeName: client.trade_name ?? "",
         stateRegistration: client.state_registration ?? "",
+        municipalRegistration: client.municipal_registration ?? "",
         taxRegime: client.tax_regime ?? "",
         phone: client.phone ?? "",
         email: client.email ?? "",
@@ -182,6 +184,7 @@ function ClientForm({
         // Pessoa física não guarda dados de empresa
         tradeName: isPj ? formData.tradeName.trim() : "",
         stateRegistration: isPj ? formData.stateRegistration.trim() : "",
+        municipalRegistration: isPj ? formData.municipalRegistration.trim() : "",
         taxRegime: isPj ? formData.taxRegime : "",
         phone: formData.phone.trim(),
         email: formData.email.trim(),
@@ -303,6 +306,28 @@ function ClientForm({
               setFormData(current => ({ ...current, [field]: value }))
             }
           />
+        )}
+
+        {isPj && (
+          <div className="client-field">
+            <label htmlFor="client-municipal-registration">
+              Inscrição municipal
+            </label>
+
+            <input
+              id="client-municipal-registration"
+              type="text"
+              value={formData.municipalRegistration}
+              onChange={event =>
+                updateField(
+                  "municipalRegistration",
+                  event.target.value
+                )
+              }
+            />
+
+            <small className="address-hint">Opcional. Usada na nota de serviço (NFS-e).</small>
+          </div>
         )}
 
         <div className="client-field">

@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useRef,
   useState
 } from "react";
@@ -10,6 +11,7 @@ import type { AddressFormData } from "../../types/address";
 import {
   BRAZIL_STATES,
   cepDigits,
+  cityCodeDigits,
   formatCep,
   lookupCep
 } from "../../utils/address";
@@ -55,8 +57,45 @@ function AddressSection({
   const fullField = `${classPrefix}-field ${classPrefix}-field-full`;
 
   function update<K extends keyof AddressFormData>(key: K, fieldValue: AddressFormData[K]) {
-    onChange(current => ({ ...current, [key]: fieldValue }));
+    onChange(current => ({
+      ...current,
+      [key]: fieldValue,
+      // Trocou a cidade ou o estado à mão: o código IBGE antigo deixa de valer
+      ...(key === "city" || key === "state" ? { cityCode: "" } : {})
+    }));
   }
+
+  // Cadastro antigo com CEP mas sem código IBGE: busca só o código, sem mexer no resto
+  const codeFilled = useRef(false);
+
+  useEffect(() => {
+    // O formulário pode chegar vazio e ser preenchido logo depois: espera ter o CEP
+    if (codeFilled.current || value.cityCode || cepDigits(value.zipCode).length !== 8) {
+      return;
+    }
+
+    codeFilled.current = true;
+
+    let active = true;
+
+    lookupCep(value.zipCode)
+      .then(result => {
+        if (active && result?.cityCode) {
+          onChange(current =>
+            current.cityCode || cepDigits(current.zipCode) !== cepDigits(value.zipCode)
+              ? current
+              : { ...current, cityCode: result.cityCode }
+          );
+        }
+      })
+      .catch(() => {
+        // Sem o serviço de CEP o código pode ser digitado à mão
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [value.cityCode, value.zipCode, onChange]);
 
   async function searchCep(cep: string) {
     const requestId = ++lastRequest.current;
@@ -83,7 +122,8 @@ function AddressSection({
         city: result.city || current.city,
         // O "complemento" do ViaCEP é a faixa de números da rua ("de 612 a 1510 - lado par"),
         // não o complemento da pessoa: esse campo fica como está
-        state: result.state || current.state
+        state: result.state || current.state,
+        cityCode: result.cityCode || current.cityCode
       }));
 
       setLookup({ kind: "found" });
@@ -108,6 +148,9 @@ function AddressSection({
   function handleCepChange(raw: string) {
     const formatted = formatCep(raw);
     const digits = cepDigits(raw);
+
+    // Digitou o CEP: a busca normal já traz o código IBGE
+    codeFilled.current = true;
 
     onChange(current => ({ ...current, zipCode: formatted }));
 
@@ -263,6 +306,24 @@ function AddressSection({
           value={value.city}
           onChange={event => update("city", event.target.value)}
         />
+      </div>
+
+      <div className={field}>
+        <label htmlFor={`${idPrefix}-city-code`}>
+          Código IBGE da cidade
+        </label>
+
+        <input
+          id={`${idPrefix}-city-code`}
+          type="text"
+          inputMode="numeric"
+          placeholder="Vem pelo CEP"
+          value={value.cityCode}
+          onChange={event => update("cityCode", cityCodeDigits(event.target.value))}
+          maxLength={7}
+        />
+
+        <small className="address-hint">Usado na nota fiscal. Preenchido sozinho pelo CEP.</small>
       </div>
     </>
   );

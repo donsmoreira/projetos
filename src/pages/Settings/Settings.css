@@ -663,3 +663,64 @@ a.settings-button {
   font-weight: 700;
   cursor: pointer;
 }
+/* NFS-e: escolha do ambiente de emissão */
+.settings-env-choice {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.settings-env-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background: var(--surface);
+
+  cursor: pointer;
+}
+
+.settings-env-option input {
+  width: auto;
+  height: auto;
+  margin-top: 3px;
+
+  accent-color: var(--primary);
+}
+
+.settings-env-option span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.settings-env-option strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.settings-env-option small {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.settings-env-option.is-selected {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.settings-env-option.is-production.is-selected {
+  border-color: var(--warning);
+  background: var(--warning-soft);
+}
+
+@media (max-width: 640px) {
+  .settings-env-choice {
+    grid-template-columns: 1fr;
+  }
+}
