@@ -539,16 +539,34 @@
   flex-direction: column;
   gap: 6px;
   margin: 0;
-  padding: 0;
+  padding: 0 0 2px;
   list-style: none;
+
+  /* Texto comprido: puxa para o lado para continuar lendo.
+     Grade de 4 colunas (bolinha, hora/tipo, texto, valor) para os valores ficarem alinhados */
+  display: grid;
+  grid-template-columns: auto auto minmax(max-content, 1fr) auto;
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 6px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .week-board-items li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
+  display: contents;
   font-size: 13px;
+  white-space: nowrap;
+}
+
+.week-board-items li > * {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.week-board-end {
+  justify-self: end;
 }
 
 .week-board-dot {
@@ -567,12 +585,7 @@
 }
 
 .week-board-text {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
   color: var(--text);
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .week-board-items li.is-overdue .week-board-text {
@@ -598,30 +611,6 @@
 
   .week-board-days {
     max-height: 360px;
-  }
-
-  .week-board-items li {
-    flex-wrap: wrap;
-    row-gap: 2px;
-  }
-
-  .week-board-items li {
-    align-items: flex-start;
-  }
-
-  .week-board-dot {
-    margin-top: 5px;
-  }
-
-  .week-board-items li .week-board-text {
-    flex-basis: calc(100% - 90px);
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-
-  .week-board-items li strong {
-    flex-basis: 100%;
-    padding-left: 17px;
   }
 
   .week-board-date {

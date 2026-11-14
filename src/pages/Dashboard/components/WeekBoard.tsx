@@ -181,9 +181,11 @@ function WeekBoard() {
                           {item.title || "Agendamento"}
                           {item.clients?.name ? ` · ${item.clients.name}` : ""}
                         </span>
-                        {item.status === "concluido" && (
-                          <span className="week-board-done" title="Concluído"><Check size={13} /></span>
-                        )}
+                        <span className="week-board-end">
+                          {item.status === "concluido" && (
+                            <span className="week-board-done" title="Concluído"><Check size={13} /></span>
+                          )}
+                        </span>
                       </li>
                     ))}
 
@@ -196,7 +198,7 @@ function WeekBoard() {
                           {item.counterparty ? ` · ${item.counterparty}` : ""}
                           {item.overdue ? " · vencida" : ""}
                         </span>
-                        <strong className={item.kind === "pagar" ? "is-pay" : "is-receive"}>
+                        <strong className={`week-board-end ${item.kind === "pagar" ? "is-pay" : "is-receive"}`}>
                           {formatMoney(item.value)}
                         </strong>
                       </li>
