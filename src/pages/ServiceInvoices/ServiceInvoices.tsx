@@ -133,7 +133,8 @@ function ServiceInvoices() {
       ...providerMissing(company).map(item => `Empresa: ${item}`),
       ...takerMissing(client)
         .filter(item => !item.startsWith("e-mail"))
-        .map(item => `Cliente: ${item}`)
+        .map(item => `Cliente: ${item}`),
+      ...(invoice.payment_account_id ? [] : ["Forma de pagamento: a conta ou o caixa que recebe"])
     ];
 
     if (problems.length > 0) {

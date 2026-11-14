@@ -9,6 +9,12 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 - **Baixa com valor menor que o total quitava a conta inteira** (Contas a Pagar e Contas a Receber). Agora, quando o valor pago/recebido é menor, a janela da baixa mostra quanto falta e pergunta: **Baixa parcial** (padrão: a conta fica paga/recebida só com o valor informado e o restante vira uma nova conta pendente, com o mesmo vencimento e "(restante)" na descrição) ou **Quitar com desconto** (quita pelo valor informado). O estorno de uma baixa parcial devolve o restante para a conta original (se o restante já foi baixado, é preciso estorná-lo primeiro). Regra no banco, numa operação só. SQL `supabase/migrations/20261114_baixa_parcial.sql`.
 
 ### Adicionado
+- **Forma de pagamento na nota de serviço** (nova aba ao lado de Prestador, Tomador e Serviço):
+  - **À vista**: dinheiro (entra num **caixa**), Pix / depósito ou cartão de débito (entram numa **conta bancária**). Vira 1 conta a receber **já recebida** na data da emissão.
+  - **A prazo**: **crediário** (até 60 parcelas no Contas a Receber) ou **cartão de crédito** em até 24 vezes (parcelas que a maquininha repassa para o banco escolhido). Vira X contas a receber **pendentes**, de mês em mês a partir do 1º vencimento (vazio = um mês depois da emissão).
+  - O valor é o **líquido** da nota (já sem as retenções); os centavos que sobram ficam na 1ª parcela. A aba mostra a prévia das parcelas.
+  - **Juros do parcelamento no cartão (maquininha)**: campos prontos (quem paga os juros e a taxa), marcados "em breve"; por enquanto o cartão é sem juros.
+  - O lançamento no Contas a Receber acontece quando a nota for **autorizada** (função `service_invoice_post_receivables`, que a emissão vai chamar; usa a mesma baixa do Contas a Receber e não lança duas vezes). Para emitir, é preciso escolher a conta ou o caixa que recebe. SQL `supabase/migrations/20261114_nfse_forma_pagamento.sql`.
 - **Cadastro de serviços completo para a NFS-e nacional** (e cópia na nota):
   - **Unidade de medida** (padrão **UN**; lista com hora, diária, mês, visita, projeto, m², km etc.).
   - **NBS com busca** na lista oficial da NFS-e (731 códigos do Anexo VIII da Receita, v1.02.00); as NBS ligadas ao item da LC 116 do serviço aparecem primeiro, e o sistema avisa quando a NBS escolhida não é desse item (a Receita rejeita).

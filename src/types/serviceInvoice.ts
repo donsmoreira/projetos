@@ -10,6 +10,35 @@ export const INVOICE_STATUS_LABELS: Record<ServiceInvoiceStatus, string> = {
   cancelada: "Cancelada"
 };
 
+/** À vista ou a prazo */
+export type PaymentTerm = "a_vista" | "a_prazo";
+
+/** À vista: dinheiro, pix, débito · A prazo: crediário, cartão de crédito */
+export type InvoicePaymentMethod = "dinheiro" | "pix" | "debito" | "crediario" | "credito";
+
+/** Quem paga os juros do parcelamento no cartão (preparado para o futuro) */
+export type CardInterestMode = "sem_juros" | "cliente" | "empresa";
+
+export const PAYMENT_METHODS: Record<PaymentTerm, [InvoicePaymentMethod, string, string][]> = {
+  a_vista: [
+    ["dinheiro", "Dinheiro", "Entra no caixa (dinheiro físico)"],
+    ["pix", "Pix / depósito", "Cai direto na conta bancária"],
+    ["debito", "Cartão de débito", "Maquininha repassa para a conta bancária"]
+  ],
+  a_prazo: [
+    ["crediario", "Crediário", "Parcelas no Contas a Receber"],
+    ["credito", "Cartão de crédito", "Em X vezes na maquininha"]
+  ]
+};
+
+export const PAYMENT_METHOD_LABELS: Record<InvoicePaymentMethod, string> = {
+  dinheiro: "Dinheiro",
+  pix: "Pix / depósito",
+  debito: "Cartão de débito",
+  crediario: "Crediário",
+  credito: "Cartão de crédito"
+};
+
 /** Nota de serviço (NFS-e). Valores calculados pelo banco de dados. */
 export interface ServiceInvoice {
   id: string;
@@ -64,6 +93,15 @@ export interface ServiceInvoice {
   ibs_cbs_cst: string | null;
   ibs_cbs_class_trib: string | null;
 
+  payment_term: PaymentTerm;
+  payment_method: InvoicePaymentMethod;
+  payment_account_id: string | null;
+  installments: number;
+  first_due_date: string | null;
+  card_interest_mode: CardInterestMode;
+  card_interest_rate: number;
+  card_interest_amount: number;
+
   tax_base: number;
   iss_amount: number;
   pis_amount: number;
@@ -104,6 +142,15 @@ export interface ServiceInvoiceFormData extends ServiceTaxFields {
   issTaxation: IssTaxation;
   issRate: number;
   issWithheld: boolean;
+
+  paymentTerm: PaymentTerm;
+  paymentMethod: InvoicePaymentMethod;
+  paymentAccountId: string;
+  installments: number;
+  /** 1º vencimento (a prazo); vazio = um mês depois da emissão */
+  firstDueDate: string;
+  cardInterestMode: CardInterestMode;
+  cardInterestRate: number;
 
   notes: string;
 }

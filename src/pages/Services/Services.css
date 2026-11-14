@@ -491,6 +491,148 @@
   font-weight: 700;
 }
 
+/* Montagem da nota: forma de pagamento */
+.nfse-pay-choice {
+  display: inline-flex;
+  align-self: flex-start;
+
+  padding: 3px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background: var(--surface-alt);
+}
+
+.nfse-pay-choice button {
+  padding: 8px 18px;
+
+  border: none;
+  border-radius: 6px;
+
+  background: transparent;
+  color: var(--text-light);
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.nfse-pay-choice button.is-active {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.nfse-pay-methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+}
+
+.nfse-pay-method {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background: var(--surface);
+
+  cursor: pointer;
+}
+
+.nfse-pay-method input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nfse-pay-method:focus-within {
+  outline: 2px solid var(--primary-soft);
+}
+
+.nfse-pay-method strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.nfse-pay-method small {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.nfse-pay-method.is-active {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.nfse-soon {
+  padding: 2px 8px;
+
+  border-radius: 999px;
+
+  background: var(--warning-soft);
+  color: var(--warning);
+
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.nfse-pay-interest {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.nfse-pay-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  padding: 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  background: var(--surface-alt);
+}
+
+.nfse-pay-plan-title {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.nfse-pay-plan table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  font-size: 12px;
+}
+
+.nfse-pay-plan th,
+.nfse-pay-plan td {
+  padding: 5px 6px;
+
+  border-bottom: 1px solid var(--border);
+
+  color: var(--text);
+  text-align: left;
+}
+
+.nfse-pay-plan th {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
 .svc-codes-line {
   display: flex;
   flex-wrap: wrap;

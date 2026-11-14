@@ -2,13 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import { Link } from "react-router-dom";
 
-import { Building2, FileText, UserRound } from "lucide-react";
+import { Building2, FileText, UserRound, Wallet } from "lucide-react";
 
 import Modal from "../../../components/Modal/Modal";
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
 
 import { listClients } from "../../../services/clientsService";
 import { listServices } from "../../../services/servicesService";
+import { listBankAccounts } from "../../../services/bankAccountsService";
 import { saveServiceInvoice } from "../../../services/serviceInvoicesService";
 
 import type { Client } from "../../../types/client";
@@ -16,7 +17,11 @@ import type { Company } from "../../../types/company";
 import { SPECIAL_TAX_REGIME_LABELS, TAX_REGIME_LABELS } from "../../../types/company";
 import type { IssTaxation, Service } from "../../../types/service";
 import { ISS_TAXATION_LABELS } from "../../../types/service";
-import type { ServiceInvoice, ServiceInvoiceFormData } from "../../../types/serviceInvoice";
+import type { BankAccount } from "../../../types/bankAccount";
+import type { PaymentTerm, ServiceInvoice, ServiceInvoiceFormData } from "../../../types/serviceInvoice";
+import { PAYMENT_METHODS } from "../../../types/serviceInvoice";
+import { accountKindFor, firstDueDateFor, paymentMissing, previewPaymentPlan } from "../../../utils/invoicePayment";
+import { formatDateBR } from "../../../utils/entryBatch";
 
 import { formatCurrency } from "../../../utils/currency";
 import { formatDocument } from "../../../utils/document";
@@ -26,7 +31,7 @@ import { computeInvoiceTotals, providerMissing, takerMissing } from "../../../ut
 import { formatNationalCode, formatNbs } from "../../../utils/serviceFormat";
 import { taxFieldsFromRow, taxFieldsProblem } from "../../../utils/serviceTax";
 
-type Tab = "prestador" | "tomador" | "servico";
+type Tab = "prestador" | "tomador" | "servico" | "pagamento";
 
 type InvoiceFormModalProps = {
   company: Company;
@@ -53,6 +58,13 @@ function formFromInvoice(invoice: ServiceInvoice | null): ServiceInvoiceFormData
     issRate: invoice?.iss_rate ?? 0,
     issWithheld: invoice?.iss_withheld ?? false,
     ...taxFieldsFromRow(invoice),
+    paymentTerm: invoice?.payment_term ?? "a_vista",
+    paymentMethod: invoice?.payment_method ?? "pix",
+    paymentAccountId: invoice?.payment_account_id ?? "",
+    installments: invoice?.installments ?? 1,
+    firstDueDate: invoice?.first_due_date ?? "",
+    cardInterestMode: invoice?.card_interest_mode ?? "sem_juros",
+    cardInterestRate: invoice?.card_interest_rate ?? 0,
     notes: invoice?.notes ?? ""
   };
 }
@@ -83,6 +95,7 @@ function InvoiceFormModal({ company, invoice, onClose, onSaved }: InvoiceFormMod
   const [form, setForm] = useState<ServiceInvoiceFormData>(() => formFromInvoice(invoice));
   const [clients, setClients] = useState<Client[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [accounts, setAccounts] = useState<BankAccount[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -90,11 +103,12 @@ function InvoiceFormModal({ company, invoice, onClose, onSaved }: InvoiceFormMod
   useEffect(() => {
     let active = true;
 
-    Promise.all([listClients(), listServices()])
-      .then(([clientData, serviceData]) => {
+    Promise.all([listClients(), listServices(), listBankAccounts()])
+      .then(([clientData, serviceData, accountData]) => {
         if (!active) return;
         setClients(clientData);
         setServices(serviceData);
+        setAccounts(accountData);
       })
       .catch(error => {
         if (active) setErrorMessage(error instanceof Error ? error.message : "Não foi possível carregar os cadastros.");
@@ -112,6 +126,34 @@ function InvoiceFormModal({ company, invoice, onClose, onSaved }: InvoiceFormMod
   const totals = useMemo(() => computeInvoiceTotals(form), [form]);
   const providerProblems = providerMissing(company);
   const takerProblems = form.clientId ? takerMissing(client) : [];
+  const paymentProblems = loading ? [] : paymentMissing(form, accounts);
+  const paymentPlan = previewPaymentPlan(form, totals.net);
+  const accountOptions = accounts.filter(item => item.account_type === accountKindFor(form.paymentMethod));
+
+  function choosePaymentTerm(term: PaymentTerm) {
+    setErrorMessage("");
+    setForm(current => {
+      if (current.paymentTerm === term) return current;
+      const method = PAYMENT_METHODS[term][0][0];
+      return { ...current, paymentTerm: term, paymentMethod: method, installments: 1, firstDueDate: "", ...accountReset(current, method) };
+    });
+  }
+
+  function choosePaymentMethod(method: ServiceInvoiceFormData["paymentMethod"]) {
+    setErrorMessage("");
+    setForm(current => ({
+      ...current,
+      paymentMethod: method,
+      installments: method === "credito" ? Math.min(current.installments, 24) : current.installments,
+      ...accountReset(current, method)
+    }));
+  }
+
+  /** Trocou entre dinheiro (caixa) e os outros (banco): limpa a conta se ela não serve mais */
+  function accountReset(current: ServiceInvoiceFormData, method: ServiceInvoiceFormData["paymentMethod"]) {
+    const account = accounts.find(item => item.id === current.paymentAccountId);
+    return account && account.account_type !== accountKindFor(method) ? { paymentAccountId: "" } : {};
+  }
 
   function update<K extends keyof ServiceInvoiceFormData>(key: K, value: ServiceInvoiceFormData[K]) {
     setErrorMessage("");
@@ -191,6 +233,13 @@ function InvoiceFormModal({ company, invoice, onClose, onSaved }: InvoiceFormMod
       return setErrorMessage(taxProblem);
     }
 
+    // No rascunho a conta que recebe pode ficar para depois; o resto precisa estar certo
+    const paymentErrors = paymentMissing(form, accounts).filter(item => !item.includes("que recebe"));
+    if (paymentErrors.length > 0) {
+      setTab("pagamento");
+      return setErrorMessage(`Forma de pagamento: informe ${paymentErrors.join(", ")}.`);
+    }
+
     try {
       setSaving(true);
       setErrorMessage("");
@@ -235,7 +284,8 @@ function InvoiceFormModal({ company, invoice, onClose, onSaved }: InvoiceFormMod
           {([
             ["prestador", "Prestador", <Building2 key="p" size={15} />, providerProblems.length > 0],
             ["tomador", "Tomador", <UserRound key="t" size={15} />, !form.clientId || takerProblems.length > 0],
-            ["servico", "Serviço", <FileText key="s" size={15} />, !form.serviceCode]
+            ["servico", "Serviço", <FileText key="s" size={15} />, !form.serviceCode],
+            ["pagamento", "Forma de pagamento", <Wallet key="f" size={15} />, paymentProblems.length > 0]
           ] as [Tab, string, ReactNode, boolean][]).map(([key, label, icon, warn]) => (
             <button
               key={key}
@@ -487,6 +537,170 @@ function InvoiceFormModal({ company, invoice, onClose, onSaved }: InvoiceFormMod
               </label>
               <textarea id="nfse-notes" rows={2} value={form.notes} onChange={event => update("notes", event.target.value)} />
             </div>
+          </>
+        )}
+
+        {/* FORMA DE PAGAMENTO: vira conta(s) a receber quando a nota for autorizada */}
+        {tab === "pagamento" && (
+          <>
+            <div className="nfse-pay-choice" role="radiogroup" aria-label="À vista ou a prazo">
+              {([["a_vista", "À vista"], ["a_prazo", "A prazo"]] as [PaymentTerm, string][]).map(([term, label]) => (
+                <button
+                  key={term}
+                  type="button"
+                  role="radio"
+                  aria-checked={form.paymentTerm === term}
+                  className={form.paymentTerm === term ? "is-active" : ""}
+                  onClick={() => choosePaymentTerm(term)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div className="nfse-pay-methods" role="radiogroup" aria-label="Forma de pagamento">
+              {PAYMENT_METHODS[form.paymentTerm].map(([method, label, hint]) => (
+                <label key={method} className={`nfse-pay-method ${form.paymentMethod === method ? "is-active" : ""}`}>
+                  <input
+                    type="radio"
+                    name="nfse-payment-method"
+                    checked={form.paymentMethod === method}
+                    onChange={() => choosePaymentMethod(method)}
+                  />
+                  <strong>{label}</strong>
+                  <small>{hint}</small>
+                </label>
+              ))}
+            </div>
+
+            <div className="arc-form-grid svc-grid-3">
+              <div className="arc-field">
+                <label htmlFor="nfse-pay-account">
+                  {form.paymentMethod === "dinheiro" ? "Caixa que recebe" : "Conta bancária que recebe"}{" "}
+                  <span className="svc-required">obrigatório para emitir</span>
+                </label>
+                <select
+                  id="nfse-pay-account"
+                  value={form.paymentAccountId}
+                  onChange={event => update("paymentAccountId", event.target.value)}
+                >
+                  <option value="">{loading ? "Carregando..." : "Selecione"}</option>
+                  {accountOptions.map(item => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}{item.bank ? ` · ${item.bank}` : ""}
+                    </option>
+                  ))}
+                </select>
+                {!loading && accountOptions.length === 0 && (
+                  <small className="arc-hint">
+                    Nenhum {form.paymentMethod === "dinheiro" ? "caixa" : "banco"} cadastrado.{" "}
+                    <Link to={form.paymentMethod === "dinheiro" ? "/caixa" : "/bancos"} onClick={onClose}>Cadastrar</Link>
+                  </small>
+                )}
+              </div>
+
+              {form.paymentTerm === "a_prazo" && (
+                <>
+                  <div className="arc-field">
+                    <label htmlFor="nfse-installments">
+                      Número de parcelas <span className="svc-required">obrigatório</span>
+                    </label>
+                    <input
+                      id="nfse-installments"
+                      type="number"
+                      min={1}
+                      max={form.paymentMethod === "credito" ? 24 : 60}
+                      step={1}
+                      inputMode="numeric"
+                      value={form.installments || ""}
+                      onChange={event => update("installments", Math.floor(Number(event.target.value || 0)))}
+                    />
+                    <small className="arc-hint">{form.paymentMethod === "credito" ? "De 1 a 24 vezes." : "De 1 a 60 parcelas."}</small>
+                  </div>
+
+                  <div className="arc-field">
+                    <label htmlFor="nfse-first-due">
+                      {form.paymentMethod === "credito" ? "1º repasse da maquininha" : "1º vencimento"}{" "}
+                      <span className="svc-optional">opcional</span>
+                    </label>
+                    <input
+                      id="nfse-first-due"
+                      type="date"
+                      value={form.firstDueDate}
+                      onChange={event => update("firstDueDate", event.target.value)}
+                    />
+                    <small className="arc-hint">Vazio = {formatDateBR(firstDueDateFor(form))} (um mês depois da emissão). As outras, de mês em mês.</small>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {form.paymentMethod === "credito" && (
+              <div className="nfse-pay-interest">
+                <div className="svc-section-title">
+                  Juros do parcelamento (maquininha) <span className="nfse-soon">em breve</span>
+                </div>
+                <div className="arc-form-grid svc-grid-3">
+                  <div className="arc-field">
+                    <label htmlFor="nfse-interest-mode">Quem paga os juros</label>
+                    <select id="nfse-interest-mode" value={form.cardInterestMode} disabled>
+                      <option value="sem_juros">Sem juros</option>
+                      <option value="cliente">Cliente (repassa os juros)</option>
+                      <option value="empresa">Empresa (absorve a taxa)</option>
+                    </select>
+                  </div>
+                  <div className="arc-field">
+                    <label htmlFor="nfse-interest-rate">Taxa do parcelamento (%)</label>
+                    <input id="nfse-interest-rate" type="number" value={form.cardInterestRate} disabled readOnly />
+                  </div>
+                </div>
+                <small className="arc-hint">
+                  O cálculo dos juros da maquininha será ligado depois. Por enquanto o parcelamento no cartão é sem juros.
+                </small>
+              </div>
+            )}
+
+            <div className="nfse-pay-plan">
+              <div className="nfse-pay-plan-title">
+                O que vai para o Contas a Receber quando a nota for autorizada
+              </div>
+              {totals.net > 0 ? (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Parcela</th>
+                      <th>{form.paymentTerm === "a_vista" ? "Data" : "Vencimento"}</th>
+                      <th className="svc-number">Valor</th>
+                      <th>Situação</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paymentPlan.map(row => (
+                      <tr key={row.installment}>
+                        <td>{row.installment}/{paymentPlan.length}</td>
+                        <td>{formatDateBR(row.dueDate)}</td>
+                        <td className="svc-number">{formatCurrency(row.value)}</td>
+                        <td>{row.received ? "Já recebida" : "Pendente"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <small className="arc-hint">Preencha o serviço e o valor para ver as parcelas.</small>
+              )}
+              <small className="arc-hint">
+                Valor líquido da nota {formatCurrency(totals.net)} (já sem as retenções).{" "}
+                {form.paymentTerm === "a_vista"
+                  ? "Entra como recebida na conta escolhida, na data da emissão."
+                  : "Os centavos que sobram da divisão ficam na 1ª parcela."}
+              </small>
+            </div>
+
+            {paymentProblems.length > 0 && (
+              <ul className="nfse-warnings">
+                <li>Para emitir, falta escolher: <strong>{paymentProblems.join(", ")}</strong>.</li>
+              </ul>
+            )}
           </>
         )}
 
