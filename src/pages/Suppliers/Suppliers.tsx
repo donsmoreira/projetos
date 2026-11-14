@@ -25,6 +25,7 @@ import { usePermissions } from "../../hooks/useCompany";
 
 import "./Suppliers.css";
 import { appAlert, appConfirm } from "../../components/Dialog/dialog";
+import { confirmDelete } from "../../services/deleteGuard";
 
 function Suppliers() {
   const permissions = usePermissions("fornecedores");
@@ -146,8 +147,10 @@ function Suppliers() {
     supplier: Supplier
   ) {
     const confirmed =
-      await appConfirm(
-        `Deseja realmente excluir o fornecedor "${supplier.name}"?`
+      await confirmDelete(
+        "suppliers",
+        supplier.id,
+        `Tem certeza que deseja excluir o fornecedor "${supplier.name}"?`
       );
 
     if (!confirmed) {

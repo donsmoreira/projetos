@@ -59,11 +59,11 @@ export function answerDialog(id: number, value: boolean) {
 }
 
 /** Escolhe título, botão e cor pelo texto da pergunta. */
-function guessConfirm(message: string): Pick<DialogRequest, "title" | "confirmLabel" | "tone"> {
+function guessConfirm(message: string): Pick<DialogRequest, "title" | "confirmLabel" | "tone"> & { cancelLabel?: string } {
   const text = message.toLowerCase();
 
   if (text.includes("excluir")) {
-    return { title: "Confirmar exclusão", confirmLabel: "Excluir", tone: "danger" };
+    return { title: "Excluir", confirmLabel: "Sim", cancelLabel: "Não", tone: "danger" };
   }
 
   if (text.includes("estornar") || text.includes("desfazer")) {
@@ -101,9 +101,8 @@ function guessAlert(message: string): Pick<DialogRequest, "title" | "confirmLabe
 
 function open(kind: DialogKind, message: string, options: DialogOptions): Promise<boolean> {
   return new Promise(resolve => {
-    const guessed = kind === "confirm"
-      ? guessConfirm(message)
-      : guessAlert(message);
+    const guessed: Pick<DialogRequest, "title" | "confirmLabel" | "tone"> & { cancelLabel?: string } =
+      kind === "confirm" ? guessConfirm(message) : guessAlert(message);
 
     queue.push({
       id: nextId++,
@@ -111,7 +110,7 @@ function open(kind: DialogKind, message: string, options: DialogOptions): Promis
       message,
       title: options.title ?? guessed.title,
       confirmLabel: options.confirmLabel ?? guessed.confirmLabel,
-      cancelLabel: options.cancelLabel ?? "Cancelar",
+      cancelLabel: options.cancelLabel ?? guessed.cancelLabel ?? "Cancelar",
       tone: options.tone ?? guessed.tone,
       resolve
     });

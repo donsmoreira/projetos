@@ -151,7 +151,7 @@ function Payables() {
   ) {
     const confirmed =
       await appConfirm(
-        `Deseja realmente excluir a conta "${payable.description}"?`
+        `Tem certeza que deseja excluir a conta "${payable.description}"?`
       );
 
     if (!confirmed) {

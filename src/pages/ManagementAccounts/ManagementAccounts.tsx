@@ -182,7 +182,7 @@ function ManagementAccounts() {
     }
 
     const confirmed = await appConfirm(
-      `Deseja realmente excluir a conta "${account.name}"?`
+      `Tem certeza que deseja excluir a conta "${account.name}"?`
     );
 
     if (!confirmed) {

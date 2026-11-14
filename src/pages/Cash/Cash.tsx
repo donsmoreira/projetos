@@ -56,6 +56,7 @@ import { useCompany, usePermissions } from "../../hooks/useCompany";
 
 import "./Cash.css";
 import { appAlert, appConfirm } from "../../components/Dialog/dialog";
+import { confirmDelete } from "../../services/deleteGuard";
 
 type ModalState =
   | { kind: "cash"; cash: AccountWithBalance | null }
@@ -350,7 +351,7 @@ function Cash() {
       return;
     }
 
-    if (!await appConfirm(`Deseja realmente excluir o caixa "${cash.name}"?`)) {
+    if (!await confirmDelete("bank_accounts", cash.id, `Tem certeza que deseja excluir o caixa "${cash.name}"?`)) {
       return;
     }
 

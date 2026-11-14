@@ -48,7 +48,7 @@ function DialogHost() {
   const isConfirm = current.kind === "confirm";
 
   const Icon = current.tone === "danger"
-    ? (current.confirmLabel === "Excluir" ? Trash2 : AlertTriangle)
+    ? (isConfirm && current.title === "Excluir" ? Trash2 : AlertTriangle)
     : current.tone === "info"
       ? Info
       : isConfirm ? HelpCircle : AlertTriangle;

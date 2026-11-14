@@ -26,7 +26,8 @@ import BankAccountModal from "./components/BankAccountModal";
 import { usePermissions } from "../../hooks/useCompany";
 
 import "./BankAccounts.css";
-import { appAlert, appConfirm } from "../../components/Dialog/dialog";
+import { appAlert } from "../../components/Dialog/dialog";
+import { confirmDelete } from "../../services/deleteGuard";
 
 function BankAccounts() {
   const permissions = usePermissions("contas_bancarias");
@@ -120,8 +121,10 @@ function BankAccounts() {
     account: BankAccount
   ) {
     const confirmed =
-      await appConfirm(
-        `Deseja realmente excluir a conta "${formatAccountLabel(account)}"?`
+      await confirmDelete(
+        "bank_accounts",
+        account.id,
+        `Tem certeza que deseja excluir a conta "${formatAccountLabel(account)}"?`
       );
 
     if (!confirmed) {

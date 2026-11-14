@@ -135,7 +135,7 @@ function CardInvoices({ card, canCreate, canDelete, canSettle, onChanged }: Card
       ? `a compra "${item.description}" inteira (as ${item.installment_count} parcelas, ${formatCurrency(item.purchase_total ?? item.value)})`
       : `a compra "${item.description}" (${formatCurrency(item.value)})`;
 
-    if (!await appConfirm(`Excluir ${whole}?`)) {
+    if (!await appConfirm(`Tem certeza que deseja excluir ${whole}?`)) {
       return;
     }
 

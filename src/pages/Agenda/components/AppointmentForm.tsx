@@ -190,7 +190,7 @@ function AppointmentForm({
   }
 
   async function handleDelete() {
-    if (!appointment || !await appConfirm("Excluir este agendamento?")) {
+    if (!appointment || !await appConfirm("Tem certeza que deseja excluir este agendamento?")) {
       return;
     }
 

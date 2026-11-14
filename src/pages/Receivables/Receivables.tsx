@@ -157,7 +157,7 @@ function Receivables() {
   ) {
     const confirmed =
       await appConfirm(
-        `Deseja realmente excluir a conta "${receivable.description}"?`
+        `Tem certeza que deseja excluir a conta "${receivable.description}"?`
       );
 
     if (!confirmed) {

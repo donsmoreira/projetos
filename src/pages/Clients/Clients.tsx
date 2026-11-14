@@ -25,6 +25,7 @@ import { usePermissions } from "../../hooks/useCompany";
 
 import "./Clients.css";
 import { appAlert, appConfirm } from "../../components/Dialog/dialog";
+import { confirmDelete } from "../../services/deleteGuard";
 
 function Clients() {
   const permissions = usePermissions("clientes");
@@ -147,8 +148,10 @@ function Clients() {
     client: Client
   ) {
     const confirmed =
-      await appConfirm(
-        `Deseja realmente excluir o cliente "${client.name}"?`
+      await confirmDelete(
+        "clients",
+        client.id,
+        `Tem certeza que deseja excluir o cliente "${client.name}"?`
       );
 
     if (!confirmed) {
