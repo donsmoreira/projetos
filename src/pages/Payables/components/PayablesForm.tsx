@@ -27,6 +27,7 @@ import type {
 
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
 import ManagementAccountSelect from "../../../components/ManagementAccountSelect/ManagementAccountSelect";
+import InstallmentOrContract from "../../../components/InstallmentOrContract/InstallmentOrContract";
 
 type PayableFormProps = {
   payable: Payable | null;
@@ -51,7 +52,9 @@ const emptyForm: PayableFormData = {
   issueDate: getToday(),
   dueDate: getToday(),
   notes: "",
-  installmentCount: 1
+  installmentCount: 1,
+  isContract: false,
+  contractMonths: 0
 };
 
 function PayableForm({
@@ -137,7 +140,9 @@ function PayableForm({
         notes:
           payable.notes ?? "",
 
-        installmentCount: 1
+        installmentCount: 1,
+        isContract: false,
+        contractMonths: 0
       });
     } else {
       setFormData({
@@ -204,6 +209,17 @@ function PayableForm({
       return;
     }
 
+    if (
+      !payable &&
+      formData.isContract &&
+      (formData.contractMonths < 2 || formData.contractMonths > 120)
+    ) {
+      setErrorMessage(
+        "Contrato: informe de 2 a 120 meses."
+      );
+      return;
+    }
+
     try {
       setSubmitting(true);
       setErrorMessage("");
@@ -240,12 +256,22 @@ function PayableForm({
           formData.notes.trim(),
 
         installmentCount:
-          Math.max(
-            Number(
-              formData.installmentCount || 1
-            ),
-            1
-          )
+          formData.isContract
+            ? 1
+            : Math.max(
+                Number(
+                  formData.installmentCount || 1
+                ),
+                1
+              ),
+
+        isContract:
+          formData.isContract,
+
+        contractMonths:
+          formData.isContract
+            ? formData.contractMonths
+            : 0
       };
 
       if (payable) {
@@ -364,7 +390,11 @@ function PayableForm({
 
         <div className="payable-field">
           <label htmlFor="payable-value">
-            Valor (R$)
+            {formData.isContract
+              ? "Valor mensal (R$)"
+              : formData.installmentCount > 1
+                ? "Valor de cada parcela (R$)"
+                : "Valor (R$)"}
           </label>
 
           <CurrencyInput
@@ -380,33 +410,32 @@ function PayableForm({
           />
         </div>
 
-        <div className="payable-field">
-          <label htmlFor="payable-installments">
-            Quantidade de parcelas
-          </label>
-
-          <input
-            id="payable-installments"
-            type="number"
-            min="1"
-            step="1"
-            value={
-              formData.installmentCount
-            }
-            onChange={event =>
-              updateField(
-                "installmentCount",
-                Math.max(
-                  Number(
-                    event.target.value || 1
-                  ),
-                  1
-                )
-              )
-            }
-            disabled={Boolean(payable)}
-          />
-        </div>
+        <InstallmentOrContract
+          prefix="payable"
+          installmentCount={formData.installmentCount}
+          isContract={formData.isContract}
+          contractMonths={formData.contractMonths}
+          valuePerEntry={
+            Number(formData.value || 0) +
+            Number(formData.interest || 0) +
+            Number(formData.penalty || 0)
+          }
+          disabled={Boolean(payable)}
+          onInstallmentCountChange={value =>
+            updateField("installmentCount", value)
+          }
+          onContractChange={checked =>
+            setFormData(current => ({
+              ...current,
+              isContract: checked,
+              installmentCount: 1,
+              contractMonths: checked ? current.contractMonths || 12 : 0
+            }))
+          }
+          onContractMonthsChange={months =>
+            updateField("contractMonths", months)
+          }
+        />
 
         <div className="payable-field">
           <label htmlFor="payable-interest">

@@ -73,6 +73,8 @@ export interface Payable {
   renegotiated_from?: string | null;
   /** Entrada de uma renegociação (já nasce paga) */
   down_payment?: boolean;
+  /** Conta de contrato (uma por mês) */
+  contract?: boolean;
 
   suppliers: PayableSupplier | null;
   bank_accounts: PayableBankAccount | null;
@@ -99,6 +101,10 @@ export interface PayableFormData {
   notes: string;
 
   installmentCount: number;
+
+  /** Contrato: uma conta por mês com o valor mensal (bloqueia o parcelamento) */
+  isContract: boolean;
+  contractMonths: number;
 }
 
 export interface PayablePaymentData {

@@ -65,6 +65,8 @@ export interface Receivable {
   renegotiated_from?: string | null;
   /** Entrada de uma renegociação (já nasce recebida) */
   down_payment?: boolean;
+  /** Conta de contrato (uma por mês) */
+  contract?: boolean;
 
   clients: ReceivableClient | null;
   bank_accounts: ReceivableBankAccount | null;
@@ -91,6 +93,10 @@ export interface ReceivableFormData {
   notes: string;
 
   installmentCount: number;
+
+  /** Contrato: uma conta por mês com o valor mensal (bloqueia o parcelamento) */
+  isContract: boolean;
+  contractMonths: number;
 }
 
 export interface ReceivableReceiptData {

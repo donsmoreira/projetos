@@ -140,7 +140,8 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Item | Status | Observação |
 |---|---|---|
 | Cadastro e edição (enquanto pendente) | ✅ | |
-| Parcelamento | ✅ | vencimento no fim do mês corrigido |
+| Parcelamento | ✅ | vencimento no fim do mês corrigido; o valor informado é o de cada parcela |
+| Contrato (meses) | ✅ | "Isso é um contrato?" + meses: uma conta por mês com o valor mensal; bloqueia o parcelamento e vice-versa (`20261114_contrato.sql`) |
 | Juros e multa | ✅ | |
 | Pagar / receber pela conta ou pelo caixa | ✅ | operação única no banco, sem pagamento em dobro |
 | Estorno | ✅ | |

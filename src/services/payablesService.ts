@@ -82,7 +82,11 @@ export async function createPayables(
 
   const installmentCount =
     Math.max(
-      Number(payable.installmentCount || 1),
+      Number(
+        payable.isContract
+          ? payable.contractMonths || 1
+          : payable.installmentCount || 1
+      ),
       1
     );
 
@@ -106,8 +110,13 @@ export async function createPayables(
 
         description:
           installmentCount > 1
-            ? `${payable.description} (${index + 1}/${installmentCount})`
+            ? payable.isContract
+              ? `${payable.description} (contrato ${index + 1}/${installmentCount})`
+              : `${payable.description} (${index + 1}/${installmentCount})`
             : payable.description,
+
+        contract:
+          Boolean(payable.isContract),
 
         category:
           payable.category || null,

@@ -168,7 +168,9 @@ function ReceivableTable({
 
                 <td>
                   {receivable.installment_count > 1
-                    ? `${receivable.installment_index}/${receivable.installment_count}`
+                    ? receivable.contract
+                      ? `Contrato ${receivable.installment_index}/${receivable.installment_count}`
+                      : `${receivable.installment_index}/${receivable.installment_count}`
                     : "Única"}
                 </td>
 

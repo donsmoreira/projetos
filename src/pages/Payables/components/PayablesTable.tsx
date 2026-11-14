@@ -166,7 +166,9 @@ function PayableTable({
 
                 <td>
                   {payable.installment_count > 1
-                    ? `${payable.installment_index}/${payable.installment_count}`
+                    ? payable.contract
+                      ? `Contrato ${payable.installment_index}/${payable.installment_count}`
+                      : `${payable.installment_index}/${payable.installment_count}`
                     : "Única"}
                 </td>
 

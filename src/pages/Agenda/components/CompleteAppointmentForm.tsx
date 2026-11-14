@@ -69,7 +69,9 @@ function CompleteAppointmentForm({
           issueDate: toISO(new Date()),
           dueDate,
           notes: `Gerada pela agenda: atendimento de ${when}.`,
-          installmentCount: 1
+          installmentCount: 1,
+          isContract: false,
+          contractMonths: 0
         });
 
         receivableId = created[0]?.id ?? null;

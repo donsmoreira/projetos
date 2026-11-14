@@ -93,7 +93,9 @@ export async function createReceivables(
   const installmentCount =
     Math.max(
       Number(
-        receivable.installmentCount || 1
+        receivable.isContract
+          ? receivable.contractMonths || 1
+          : receivable.installmentCount || 1
       ),
       1
     );
@@ -118,8 +120,13 @@ export async function createReceivables(
 
         description:
           installmentCount > 1
-            ? `${receivable.description} (${index + 1}/${installmentCount})`
+            ? receivable.isContract
+              ? `${receivable.description} (contrato ${index + 1}/${installmentCount})`
+              : `${receivable.description} (${index + 1}/${installmentCount})`
             : receivable.description,
+
+        contract:
+          Boolean(receivable.isContract),
 
         category:
           receivable.category || null,
