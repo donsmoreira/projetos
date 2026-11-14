@@ -117,10 +117,12 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Item | Status | Observação |
 |---|---|---|
 | Cadastro de contas | ✅ | banco numa lista com código, agência, número, **saldo atual** (o sistema ajusta o saldo inicial), cheque especial |
-| Extrato da conta | 🟡 | o service tem `listBankTransactions`, **sem tela** |
-| Lançamento manual em banco | 🟡 | existe no Caixa; falta tela para bancos |
+| Extrato da conta | ✅ | Conciliação Bancária → aba "Extrato do sistema", com saldo anterior e saldo linha a linha |
+| Lançamento manual em banco | 🟡 | pela conciliação ("lançar avulso" a partir do extrato); falta tela de lançamento livre |
 | Transferência | 🟡 | banco ↔ caixa pronto (e no fechamento do caixa); falta banco ↔ banco |
-| Importar extrato (OFX/CSV) | ❌ | |
+| Importar extrato (OFX/CSV) | ✅ | `/conciliacao`; repetidos pulados; tabela `bank_statement_lines` (`20261114_conciliacao_bancaria.sql`) |
+| Conciliação bancária | ✅ | sugestão automática; conciliar com movimentação, baixar conta (parcial/desconto), lançar avulso, ignorar, desfazer |
+| Open Finance | ❌ | próximo: agregador (ex.: Pluggy) em sandbox, entrando na mesma conciliação |
 
 ### 3.7 Caixa — dinheiro físico (`/caixa`)
 | Item | Status | Observação |
@@ -358,8 +360,10 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 ### Fase 2 — Completar os módulos · v0.4.0 → v0.7.0
 **Controle Bancário** (v0.4.0)
 - [x] Transferência banco ↔ caixa
-- [ ] Tela de extrato por conta
-- [ ] Lançamento manual em banco
+- [x] Tela de extrato por conta (na Conciliação Bancária)
+- [x] Importar extrato OFX/CSV e conciliação bancária
+- [ ] Open Finance (agregador em sandbox → mesma conciliação)
+- [ ] Lançamento manual em banco (tela livre; pela conciliação já dá)
 - [ ] Transferência banco ↔ banco
 - [ ] Saldo calculado no banco (D5)
 

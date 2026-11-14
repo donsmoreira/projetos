@@ -398,8 +398,9 @@ const modules = [
     ["Plano de contas de receita e despesa", 1], ["Fixa ou variável", 1], ["Conta pai e subcontas em vários níveis", 1],
     ["Busca, filtro por tipo, expandir/recolher", 1], ["Bloqueios no banco (tipo, nome repetido, conta em uso)", 1] ] },
   { name: "Controle Bancário", route: "/bancos", items: [
-    ["Cadastro de contas com saldo atual", 1], ["Banco escolhido numa lista com código", 1], ["Extrato da conta", 0.5, "código pronto, falta a tela"],
-    ["Lançamento manual", 0.5, "feito no Caixa; falta a tela para bancos"], ["Transferência entre contas", 0.5, "banco ↔ caixa pronto; falta banco ↔ banco"], ["Importar extrato (OFX/CSV)", 0] ] },
+    ["Cadastro de contas com saldo atual", 1], ["Banco escolhido numa lista com código", 1], ["Extrato da conta com saldo linha a linha", 1, "na Conciliação Bancária"],
+    ["Lançamento manual", 0.5, "pela conciliação; falta tela livre"], ["Transferência entre contas", 0.5, "banco ↔ caixa pronto; falta banco ↔ banco"], ["Importar extrato (OFX/CSV)", 1],
+    ["Conciliação bancária com sugestão automática", 1], ["Open Finance (agregador)", 0, "próximo: sandbox"] ] },
   { name: "Caixa (dinheiro físico)", route: "/caixa", items: [
     ["Caixa de operação e de retaguarda (cofre)", 1], ["Abertura conferindo o troco", 1],
     ["Fechamento com valor contado obrigatório", 1], ["Quebra de caixa (sobra/falta) confirmada", 1],
@@ -443,7 +444,7 @@ const phases = [
   { n: 2, v: "v0.4 → v0.7", title: "Completar os módulos", desc: "Fechar o que ficou pela metade", groups: [
     ["Caixa (adiantado)", ["✓ Caixa de dinheiro físico com fluxo de caixa", "✓ Pagar e receber pelo caixa", "✓ Abertura e fechamento em turnos, quebra de caixa, retaguarda, depósito, reserva e trava", "✓ Relatório de quebra de caixa"]],
     ["Agenda (adiantado)", ["✓ Mês, semana, dia e lista; responsável, conflito e status", "✓ Concluir gera conta a receber; concluído travado", "✓ Arrastar com cartão que balança; cor por agendamento (sugestões e RGB)", "✓ Vencimentos de contas a pagar e a receber na agenda", "Integração com o Google Agenda"]],
-    ["Bancos · v0.4.0", ["✓ Transferência banco ↔ caixa", "Tela de extrato", "Lançamento manual para bancos", "Transferência banco ↔ banco", "Saldo calculado no banco de dados"]],
+    ["Bancos · v0.4.0", ["✓ Transferência banco ↔ caixa", "✓ Tela de extrato", "✓ Importar OFX/CSV e conciliação", "Open Finance (sandbox)", "Lançamento manual para bancos", "Transferência banco ↔ banco", "Saldo calculado no banco de dados"]],
     ["Contas · v0.5.0", ["✓ Pagamento e recebimento parcial", "✓ Pagar e receber várias de uma vez (lote)", "✓ Renegociação", "Status vencido", "Contas recorrentes", "Filtros por período, status e conta gerencial"]],
     ["Contas gerenciais · v0.6.0", ["✓ Plano de contas de receita e despesa, com subcontas", "✓ Conta gerencial nos lançamentos (opcional)"]],
     ["Cartões · v0.7.0", ["✓ Limite calculado sozinho", "✓ Lançar compras à vista e parceladas", "✓ Faturas com histórico, pagamento e estorno", "✓ Previsão das próximas faturas", "✓ Antecipar fatura e extrato detalhado", "Pagamento parcial da fatura", "Compras do cartão nos relatórios por conta gerencial"]] ] },

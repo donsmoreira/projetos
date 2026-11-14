@@ -18,6 +18,7 @@ import Clients from "../pages/Clients/Clients";
 import Agenda from "../pages/Agenda/Agenda";
 import Suppliers from "../pages/Suppliers/Suppliers";
 import BankAccounts from "../pages/BankAccounts/BankAccounts";
+import BankReconciliation from "../pages/BankReconciliation/BankReconciliation";
 import Payables from "../pages/Payables/Payables";
 import Receivables from "../pages/Receivables/Receivables";
 import CreditCards from "../pages/CreditCards/CreditCards";
@@ -76,6 +77,11 @@ function AppRoutes() {
             <Route
               path="bancos"
               element={<ModuleRoute module="contas_bancarias"><BankAccounts /></ModuleRoute>}
+            />
+
+            <Route
+              path="conciliacao"
+              element={<ModuleRoute module="contas_bancarias"><BankReconciliation /></ModuleRoute>}
             />
 
             <Route
