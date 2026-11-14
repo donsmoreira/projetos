@@ -337,6 +337,12 @@
   color: var(--success);
 }
 
+.payables-status-renegociada {
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
 /* BOTÕES DE AÇÃO */
 
 .payables-action-button {

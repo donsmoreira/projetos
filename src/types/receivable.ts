@@ -2,7 +2,8 @@ import type { EntryManagementAccount } from "./payable";
 
 export type ReceivableStatus =
   | "pendente"
-  | "recebido";
+  | "recebido"
+  | "renegociada";
 
 export type ReceivablePaymentMethod =
   | "banco"
@@ -56,6 +57,12 @@ export interface Receivable {
 
   /** Conta de origem, quando esta é o restante de uma baixa parcial */
   partial_of?: string | null;
+  /** Baixada em lote junto com outras (mesmo id) */
+  batch_id?: string | null;
+  /** Conta antiga: renegociação para a qual foi */
+  renegotiation_id?: string | null;
+  /** Conta nova: renegociação que a criou */
+  renegotiated_from?: string | null;
 
   clients: ReceivableClient | null;
   bank_accounts: ReceivableBankAccount | null;

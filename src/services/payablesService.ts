@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import type { BatchSettleData, RenegotiationData } from "../types/entryBatch";
 import { translateCompanyError } from "./companyService";
 import { getAuthenticatedUser } from "./auth";
 import { addMonthsToDate } from "../utils/date";
@@ -351,4 +352,63 @@ export async function reversePayablePayment(
   }
 
   return getPayable(payable.id);
+}
+
+/**
+ * Baixa em lote (função pay_payables_batch): várias contas numa operação só.
+ * Valor menor que a soma só com contas do mesmo fornecedor (o banco confere).
+ */
+export async function payPayablesBatch(
+  ids: string[],
+  data: BatchSettleData
+): Promise<void> {
+  const { error } = await supabase.rpc("pay_payables_batch", {
+    p_payable_ids: ids,
+    p_account_id: data.accountId,
+    p_date: data.date,
+    p_value: Math.abs(Number(data.value || 0)),
+    p_notes: data.notes.trim() || null,
+    p_keep_rest_open: data.keepRestOpen
+  });
+
+  if (error) {
+    throw new Error(translateCompanyError(error.message));
+  }
+}
+
+/** Renegocia contas pendentes do mesmo fornecedor: as antigas viram "renegociada". */
+export async function renegotiatePayables(
+  ids: string[],
+  data: RenegotiationData
+): Promise<string> {
+  const { data: renegotiationId, error } = await supabase.rpc("renegotiate_payables", {
+    p_payable_ids: ids,
+    p_installments: data.installments,
+    p_first_due: data.firstDueDate,
+    p_increase: Number(data.increase || 0),
+    p_discount: Number(data.discount || 0),
+    p_description: data.description.trim() || null,
+    p_management_account_id: data.managementAccountId || null,
+    p_notes: data.notes.trim() || null,
+    p_category: data.category.trim() || null
+  });
+
+  if (error) {
+    throw new Error(translateCompanyError(error.message));
+  }
+
+  return String(renegotiationId);
+}
+
+/** Desfaz a renegociação: apaga as novas e reabre as antigas. */
+export async function undoPayablesRenegotiation(
+  renegotiationId: string
+): Promise<void> {
+  const { error } = await supabase.rpc("undo_payables_renegotiation", {
+    p_renegotiation_id: renegotiationId
+  });
+
+  if (error) {
+    throw new Error(translateCompanyError(error.message));
+  }
 }

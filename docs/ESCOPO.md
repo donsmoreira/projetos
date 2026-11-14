@@ -149,6 +149,8 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Pagar com cartão | — | **não permitido**: compras no cartão ficam em Cartões (regra também no banco) |
 | Status "vencido" | ❌ | só `pendente` e `pago`/`recebido` (a Agenda destaca as vencidas) |
 | Pagamento/recebimento parcial | ✅ | valor menor que o total: **baixa parcial** (o restante vira nova conta pendente, mesmo vencimento, "(restante)") ou **quitar com desconto**; o estorno junta o restante de volta (`20261114_baixa_parcial.sql`) |
+| Baixa em lote | ✅ | várias contas numa operação; valor menor só com o mesmo fornecedor/cliente; estorno desfaz o lote (`20261114_lote_e_renegociacao.sql`) |
+| Renegociação | ✅ | contas do mesmo fornecedor/cliente viram "renegociada"; novas à vista ou parceladas, com acréscimo/desconto; dá para desfazer |
 | Contas recorrentes | ❌ | |
 | Anexos (boleto, comprovante) | ❌ | |
 
@@ -240,7 +242,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | `bank_accounts` | name, bank, agency, account_number, initial_balance, overdraft_limit, account_type (banco/caixa), cash_role (operacao/retaguarda) | company_id |
 | `bank_transactions` (o **razão**) | transaction_date, description, value (+ entrada / − saída), transaction_type (manual, payable_payment, receivable_receipt, card_settlement, transfer, cash_adjustment), reference_type, reference_id | bank_account_id, payable_id, cash_session_id |
 | `cash_sessions` (turnos do caixa) | status, abertura (esperado, contado, diferença), fechamento (esperado, contado, diferença, retaguarda, depósito, reserva), reabertura | cash_account_id, backoffice_account_id, bank_account_id |
-| `payables` | description, category, original_value, interest, penalty, issue_date, due_date, status, payment_*, paid_value, installment_* | supplier_id, bank_account_id, management_account_id, card_id |
+| `payables` | description, category, original_value, interest, penalty, issue_date, due_date, status (pendente/pago/renegociada), payment_*, paid_value, installment_*, partial_of, batch_id, renegotiation_id, renegotiated_from | supplier_id, bank_account_id, management_account_id, card_id |
 | `receivables` | igual a payables, com received_value / receipt_date | client_id, bank_account_id, management_account_id |
 | `appointments` (agenda) | appointment_date, start_time, end_time, title, amount, color, status, notes, confirmed_at/completed_at/canceled_at | client_id (opcional), responsible_id, receivable_id |
 | `credit_cards` | name, brand, credit_limit, closing_day, due_day, active | bank_account_id |
@@ -375,9 +377,10 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 **Contas a pagar / receber** (v0.5.0)
 - [ ] Status "vencido" (calculado pela data)
 - [x] Pagamento/recebimento parcial (restante em aberto ou desconto)
+- [x] Baixa em lote (pagar/receber várias de uma vez)
+- [x] Renegociação (à vista ou parcelada, com desfazer)
 - [ ] Contas recorrentes
 - [ ] Filtros por período, status, fornecedor/cliente e conta gerencial
-- [ ] Pagar várias de uma vez
 
 **Contas gerenciais** (v0.6.0)
 - [x] Plano de contas com subcontas

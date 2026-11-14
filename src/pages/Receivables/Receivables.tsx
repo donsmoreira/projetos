@@ -7,17 +7,42 @@ import {
 import {
   deleteReceivable,
   listReceivables,
-  reverseReceivableReceipt
+  receiveReceivablesBatch,
+  renegotiateReceivables,
+  reverseReceivableReceipt,
+  undoReceivablesRenegotiation
 } from "../../services/receivablesService";
 
 import type {
   Receivable
 } from "../../types/receivable";
 
+import type { BatchEntry } from "../../types/entryBatch";
+
 import SearchBar from "./components/SearchBar";
 import ReceivableTable from "./components/ReceivableTable";
 import ReceivableModal from "./components/ReceivableModal";
 import ReceiptModal from "./components/ReceiptModal";
+import SelectionBar from "../../components/EntryBatch/SelectionBar";
+import BatchSettleModal from "../../components/EntryBatch/BatchSettleModal";
+import RenegotiationModal from "../../components/EntryBatch/RenegotiationModal";
+
+function toBatchEntry(receivable: Receivable): BatchEntry {
+  return {
+    id: receivable.id,
+    description: receivable.description,
+    party: receivable.clients?.name || "Cliente não informado",
+    partyId: receivable.client_id,
+    dueDate: receivable.due_date,
+    total:
+      Number(receivable.original_value || 0) +
+      Number(receivable.interest || 0) +
+      Number(receivable.penalty || 0),
+    managementAccountId: receivable.management_account_id,
+    category: receivable.category,
+    createdAt: receivable.created_at
+  };
+}
 
 import { usePermissions } from "../../hooks/useCompany";
 
@@ -35,8 +60,17 @@ function Receivables() {
 
   const [statusFilter, setStatusFilter] =
     useState<
-      "todos" | "pendente" | "recebido"
+      "todos" | "pendente" | "recebido" | "renegociada"
     >("todos");
+
+  const [selectedIds, setSelectedIds] =
+    useState<Set<string>>(new Set());
+
+  const [isBatchOpen, setIsBatchOpen] =
+    useState(false);
+
+  const [isRenegotiationOpen, setIsRenegotiationOpen] =
+    useState(false);
 
   const [loading, setLoading] =
     useState(true);
@@ -68,6 +102,14 @@ function Receivables() {
         await listReceivables();
 
       setReceivables(data);
+
+      // Mantém marcadas só as que continuam pendentes
+      const pendingIds = new Set(
+        data.filter(item => item.status === "pendente").map(item => item.id)
+      );
+      setSelectedIds(current =>
+        new Set([...current].filter(id => pendingIds.has(id)))
+      );
     } catch (error) {
       const message =
         error instanceof Error
@@ -122,6 +164,117 @@ function Receivables() {
     searchTerm,
     statusFilter
   ]);
+
+  const selectedReceivables = useMemo(
+    () => receivables.filter(
+      receivable => receivable.status === "pendente" && selectedIds.has(receivable.id)
+    ),
+    [receivables, selectedIds]
+  );
+
+  const selectedEntries = useMemo(
+    () => selectedReceivables.map(toBatchEntry),
+    [selectedReceivables]
+  );
+
+  const selectedTotal = useMemo(
+    () => Math.round(selectedEntries.reduce((sum, entry) => sum + Math.round(entry.total * 100), 0)) / 100,
+    [selectedEntries]
+  );
+
+  const canSelect =
+    permissions.canSettle ||
+    (permissions.canCreate && permissions.canUpdate);
+
+  function handleToggleSelect(receivable: Receivable) {
+    setSelectedIds(current => {
+      const next = new Set(current);
+
+      if (next.has(receivable.id)) {
+        next.delete(receivable.id);
+      } else {
+        next.add(receivable.id);
+      }
+
+      return next;
+    });
+  }
+
+  function handleToggleAll(checked: boolean) {
+    const visiblePending = filteredReceivables
+      .filter(receivable => receivable.status === "pendente")
+      .map(receivable => receivable.id);
+
+    setSelectedIds(current => {
+      const next = new Set(current);
+      visiblePending.forEach(id => (checked ? next.add(id) : next.delete(id)));
+      return next;
+    });
+  }
+
+  function handleOpenBatch() {
+    if (selectedReceivables.length === 1) {
+      handleOpenReceipt(selectedReceivables[0]);
+      return;
+    }
+
+    setIsBatchOpen(true);
+  }
+
+  async function handleOpenRenegotiation() {
+    const clients = new Set(selectedReceivables.map(receivable => receivable.client_id));
+
+    if (clients.size > 1) {
+      await appAlert(
+        "A renegociação é feita com um cliente só: marque contas do mesmo cliente.",
+        { title: "Renegociação" }
+      );
+      return;
+    }
+
+    setIsRenegotiationOpen(true);
+  }
+
+  async function handleBatchSaved() {
+    setIsBatchOpen(false);
+    setIsRenegotiationOpen(false);
+    setSelectedIds(new Set());
+    await loadReceivables();
+  }
+
+  async function handleUndoRenegotiation(receivable: Receivable) {
+    if (!receivable.renegotiation_id) {
+      return;
+    }
+
+    const newOnes = receivables.filter(
+      item => item.renegotiated_from === receivable.renegotiation_id
+    );
+
+    const oldOnes = receivables.filter(
+      item => item.renegotiation_id === receivable.renegotiation_id
+    );
+
+    const confirmed = await appConfirm(
+      `Desfazer a renegociação? As ${newOnes.length} conta(s) criadas na renegociação serão excluídas e as ${oldOnes.length} conta(s) antigas voltam a ficar pendentes.`,
+      { title: "Desfazer renegociação", confirmLabel: "Sim", cancelLabel: "Não" }
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await undoReceivablesRenegotiation(receivable.renegotiation_id);
+      await loadReceivables();
+    } catch (error) {
+      await appAlert(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível desfazer a renegociação."
+      );
+    }
+  }
 
   function handleNewReceivable() {
     setSelectedReceivable(null);
@@ -187,11 +340,17 @@ function Receivables() {
       item => item.partial_of === receivable.id
     );
 
+    const batch = receivable.batch_id
+      ? receivables.filter(item => item.batch_id === receivable.batch_id && item.status === "recebido")
+      : [];
+
     const confirmed =
       await appConfirm(
-        rest && rest.status === "pendente"
-          ? `Deseja estornar o recebimento de "${receivable.description}"? O restante em aberto ("${rest.description}") volta para esta conta.`
-          : `Deseja estornar o recebimento de "${receivable.description}"?`
+        batch.length > 1
+          ? `"${receivable.description}" foi recebida em lote com outras ${batch.length - 1} conta(s). O estorno desfaz o lote inteiro (${batch.length} contas voltam a ficar pendentes). Deseja estornar?`
+          : rest && rest.status === "pendente"
+            ? `Deseja estornar o recebimento de "${receivable.description}"? O restante em aberto ("${rest.description}") volta para esta conta.`
+            : `Deseja estornar o recebimento de "${receivable.description}"?`
       );
 
     if (!confirmed) {
@@ -262,6 +421,7 @@ function Receivables() {
                   | "todos"
                   | "pendente"
                   | "recebido"
+                  | "renegociada"
               )
             }
             aria-label="Filtrar por status"
@@ -277,8 +437,25 @@ function Receivables() {
             <option value="recebido">
               Recebidos
             </option>
+
+            <option value="renegociada">
+              Renegociadas
+            </option>
           </select>
         </div>
+
+        <SelectionBar
+          count={selectedEntries.length}
+          total={selectedTotal}
+          settleLabel={selectedEntries.length > 1 ? "Receber selecionadas" : "Receber"}
+          onSettle={permissions.canSettle ? handleOpenBatch : undefined}
+          onRenegotiate={
+            permissions.canCreate && permissions.canUpdate
+              ? handleOpenRenegotiation
+              : undefined
+          }
+          onClear={() => setSelectedIds(new Set())}
+        />
 
         {loading && (
           <div className="receivables-state">
@@ -301,9 +478,39 @@ function Receivables() {
             onDelete={permissions.canDelete ? handleDeleteReceivable : undefined}
             onReceive={permissions.canSettle ? handleOpenReceipt : undefined}
             onReverse={permissions.canSettle ? handleReverseReceipt : undefined}
+            onUndoRenegotiation={
+              permissions.canUpdate && permissions.canDelete
+                ? handleUndoRenegotiation
+                : undefined
+            }
+            selectedIds={selectedIds}
+            onToggleSelect={canSelect ? handleToggleSelect : undefined}
+            onToggleAll={handleToggleAll}
           />
         )}
       </section>
+
+      {isBatchOpen && selectedEntries.length > 1 && (
+        <BatchSettleModal
+          kind="receber"
+          entries={selectedEntries}
+          onClose={() => setIsBatchOpen(false)}
+          onSubmit={data => receiveReceivablesBatch(selectedEntries.map(entry => entry.id), data)}
+          onSaved={handleBatchSaved}
+        />
+      )}
+
+      {isRenegotiationOpen && selectedEntries.length > 0 && (
+        <RenegotiationModal
+          kind="receber"
+          entries={selectedEntries}
+          onClose={() => setIsRenegotiationOpen(false)}
+          onSubmit={async data => {
+            await renegotiateReceivables(selectedEntries.map(entry => entry.id), data);
+          }}
+          onSaved={handleBatchSaved}
+        />
+      )}
 
       <ReceivableModal
         open={isReceivableModalOpen}

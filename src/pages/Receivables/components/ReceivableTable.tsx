@@ -2,7 +2,8 @@ import {
   CircleDollarSign,
   Pencil,
   RotateCcw,
-  Trash2
+  Trash2,
+  Undo2
 } from "lucide-react";
 
 import type {
@@ -15,6 +16,17 @@ type ReceivableTableProps = {
   onDelete?: (receivable: Receivable) => void;
   onReceive?: (receivable: Receivable) => void;
   onReverse?: (receivable: Receivable) => void;
+  onUndoRenegotiation?: (receivable: Receivable) => void;
+  /** Marcação para baixa em lote / renegociação (só contas pendentes) */
+  selectedIds?: Set<string>;
+  onToggleSelect?: (receivable: Receivable) => void;
+  onToggleAll?: (checked: boolean) => void;
+};
+
+const STATUS_LABEL: Record<Receivable["status"], string> = {
+  pendente: "Pendente",
+  recebido: "Recebido",
+  renegociada: "Renegociada"
 };
 
 function formatCurrency(value: number) {
@@ -57,8 +69,16 @@ function ReceivableTable({
   onEdit,
   onDelete,
   onReceive,
-  onReverse
+  onReverse,
+  onUndoRenegotiation,
+  selectedIds,
+  onToggleSelect,
+  onToggleAll
 }: ReceivableTableProps) {
+  const pendingCount = receivables.filter(receivable => receivable.status === "pendente").length;
+  const selectedCount = receivables.filter(receivable => selectedIds?.has(receivable.id)).length;
+  const allSelected = pendingCount > 0 && selectedCount === pendingCount;
+
   if (receivables.length === 0) {
     return (
       <div className="receivables-empty">
@@ -76,6 +96,18 @@ function ReceivableTable({
       <table className="receivables-table">
         <thead>
           <tr>
+            {onToggleSelect && (
+              <th className="entry-select-cell">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  disabled={pendingCount === 0}
+                  onChange={event => onToggleAll?.(event.target.checked)}
+                  title="Marcar todas as pendentes da lista"
+                  aria-label="Marcar todas as contas pendentes da lista"
+                />
+              </th>
+            )}
             <th>Cliente</th>
             <th>Descrição</th>
             <th>Conta gerencial</th>
@@ -101,6 +133,18 @@ function ReceivableTable({
 
             return (
               <tr key={receivable.id}>
+                {onToggleSelect && (
+                  <td className="entry-select-cell">
+                    {isPending && (
+                      <input
+                        type="checkbox"
+                        checked={selectedIds?.has(receivable.id) ?? false}
+                        onChange={() => onToggleSelect(receivable)}
+                        aria-label={`Marcar ${receivable.description}`}
+                      />
+                    )}
+                  </td>
+                )}
                 <td>
                   <strong>
                     {receivable.clients?.name ||
@@ -140,9 +184,7 @@ function ReceivableTable({
                   <span
                     className={`receivables-status receivables-status-${receivable.status}`}
                   >
-                    {isPending
-                      ? "Pendente"
-                      : "Recebido"}
+                    {STATUS_LABEL[receivable.status] ?? receivable.status}
                   </span>
                 </td>
 
@@ -193,6 +235,20 @@ function ReceivableTable({
                       </button>
 )}</>
                     </>
+                  ) : receivable.status === "renegociada" ? (
+                    <>{onUndoRenegotiation && receivable.renegotiation_id && (
+<button
+                      type="button"
+                      className="receivables-action-button receivables-action-reverse"
+                      onClick={() =>
+                        onUndoRenegotiation(receivable)
+                      }
+                      title="Desfazer renegociação"
+                      aria-label={`Desfazer renegociação de ${receivable.description}`}
+                    >
+                      <Undo2 size={16} />
+                    </button>
+)}</>
                   ) : (
                     <>{onReverse && (
 <button

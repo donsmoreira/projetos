@@ -1,6 +1,7 @@
 export type PayableStatus =
   | "pendente"
-  | "pago";
+  | "pago"
+  | "renegociada";
 
 export type PayablePaymentMethod =
   | "banco"
@@ -64,6 +65,12 @@ export interface Payable {
 
   /** Conta de origem, quando esta é o restante de uma baixa parcial */
   partial_of?: string | null;
+  /** Baixada em lote junto com outras (mesmo id) */
+  batch_id?: string | null;
+  /** Conta antiga: renegociação para a qual foi */
+  renegotiation_id?: string | null;
+  /** Conta nova: renegociação que a criou */
+  renegotiated_from?: string | null;
 
   suppliers: PayableSupplier | null;
   bank_accounts: PayableBankAccount | null;

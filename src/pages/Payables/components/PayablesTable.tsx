@@ -2,7 +2,8 @@ import {
   CircleDollarSign,
   Pencil,
   RotateCcw,
-  Trash2
+  Trash2,
+  Undo2
 } from "lucide-react";
 
 import type {
@@ -15,6 +16,17 @@ type PayableTableProps = {
   onDelete?: (payable: Payable) => void;
   onPay?: (payable: Payable) => void;
   onReverse?: (payable: Payable) => void;
+  onUndoRenegotiation?: (payable: Payable) => void;
+  /** Marcação para baixa em lote / renegociação (só contas pendentes) */
+  selectedIds?: Set<string>;
+  onToggleSelect?: (payable: Payable) => void;
+  onToggleAll?: (checked: boolean) => void;
+};
+
+const STATUS_LABEL: Record<Payable["status"], string> = {
+  pendente: "Pendente",
+  pago: "Pago",
+  renegociada: "Renegociada"
 };
 
 function formatCurrency(value: number) {
@@ -57,8 +69,16 @@ function PayableTable({
   onEdit,
   onDelete,
   onPay,
-  onReverse
+  onReverse,
+  onUndoRenegotiation,
+  selectedIds,
+  onToggleSelect,
+  onToggleAll
 }: PayableTableProps) {
+  const pendingCount = payables.filter(payable => payable.status === "pendente").length;
+  const selectedCount = payables.filter(payable => selectedIds?.has(payable.id)).length;
+  const allSelected = pendingCount > 0 && selectedCount === pendingCount;
+
   if (payables.length === 0) {
     return (
       <div className="payables-empty">
@@ -76,6 +96,18 @@ function PayableTable({
       <table className="payables-table">
         <thead>
           <tr>
+            {onToggleSelect && (
+              <th className="entry-select-cell">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  disabled={pendingCount === 0}
+                  onChange={event => onToggleAll?.(event.target.checked)}
+                  title="Marcar todas as pendentes da lista"
+                  aria-label="Marcar todas as contas pendentes da lista"
+                />
+              </th>
+            )}
             <th>Fornecedor</th>
             <th>Descrição</th>
             <th>Conta gerencial</th>
@@ -101,6 +133,18 @@ function PayableTable({
 
             return (
               <tr key={payable.id}>
+                {onToggleSelect && (
+                  <td className="entry-select-cell">
+                    {isPending && (
+                      <input
+                        type="checkbox"
+                        checked={selectedIds?.has(payable.id) ?? false}
+                        onChange={() => onToggleSelect(payable)}
+                        aria-label={`Marcar ${payable.description}`}
+                      />
+                    )}
+                  </td>
+                )}
                 <td>
                   <strong>
                     {payable.suppliers?.name ||
@@ -136,9 +180,7 @@ function PayableTable({
                   <span
                     className={`payables-status payables-status-${payable.status}`}
                   >
-                    {isPending
-                      ? "Pendente"
-                      : "Pago"}
+                    {STATUS_LABEL[payable.status] ?? payable.status}
                   </span>
                 </td>
 
@@ -189,6 +231,20 @@ function PayableTable({
                       </button>
 )}</>
                     </>
+                  ) : payable.status === "renegociada" ? (
+                    <>{onUndoRenegotiation && payable.renegotiation_id && (
+<button
+                      type="button"
+                      className="payables-action-button payables-action-reverse"
+                      onClick={() =>
+                        onUndoRenegotiation(payable)
+                      }
+                      title="Desfazer renegociação"
+                      aria-label={`Desfazer renegociação de ${payable.description}`}
+                    >
+                      <Undo2 size={16} />
+                    </button>
+)}</>
                   ) : (
                     <>{onReverse && (
 <button

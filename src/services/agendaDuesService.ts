@@ -87,6 +87,7 @@ export async function listAgendaDues(
       ? supabase
         .from("payables")
         .select("id, description, original_value, interest, penalty, due_date, status, installment_index, installment_count, paid_value, payment_date, suppliers (name)")
+        .neq("status", "renegociada")
         .gte("due_date", startDate)
         .lte("due_date", endDate)
       : Promise.resolve({ data: [], error: null }),
@@ -94,6 +95,7 @@ export async function listAgendaDues(
       ? supabase
         .from("receivables")
         .select("id, description, original_value, interest, penalty, due_date, status, installment_index, installment_count, received_value, receipt_date, clients (name)")
+        .neq("status", "renegociada")
         .gte("due_date", startDate)
         .lte("due_date", endDate)
       : Promise.resolve({ data: [], error: null })

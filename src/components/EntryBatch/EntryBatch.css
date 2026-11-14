@@ -1,0 +1,179 @@
+.batch-preview {
+  display: flex;
+  flex-direction: column;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: var(--surface-alt);
+}
+
+.batch-preview-title {
+  padding: 9px 12px;
+
+  border-bottom: 1px solid var(--border);
+
+  color: var(--text);
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.batch-preview-title small {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.batch-preview-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 8px 12px;
+
+  border-bottom: 1px solid var(--border);
+
+  font-size: 13px;
+}
+
+.batch-preview-row:last-child {
+  border-bottom: 0;
+}
+
+.batch-preview-name {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.batch-preview-name strong {
+  overflow: hidden;
+
+  color: var(--text);
+
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.batch-preview-name small {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.batch-preview-result {
+  flex-shrink: 0;
+
+  color: var(--text);
+
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.batch-preview-result.is-open {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.reneg-choice-group {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Barra que aparece quando há contas marcadas na lista */
+
+.selection-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--primary);
+  border-radius: 8px;
+
+  background: var(--primary-soft);
+}
+
+.selection-bar-info {
+  flex: 1;
+  min-width: 180px;
+
+  color: var(--text);
+
+  font-size: 13px;
+}
+
+.selection-bar-info strong {
+  font-weight: 700;
+}
+
+.selection-bar-button {
+  min-height: 36px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  padding: 0 14px;
+
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+
+  background: var(--surface);
+  color: var(--text);
+
+  cursor: pointer;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.selection-bar-button:hover {
+  border-color: var(--primary);
+}
+
+.selection-bar-button-primary {
+  border-color: var(--primary);
+
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.selection-bar-button-primary:hover {
+  background: var(--primary-hover);
+}
+
+.selection-bar-clear {
+  border: 0;
+  background: transparent;
+  color: var(--text-light);
+
+  cursor: pointer;
+
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+.entry-select-cell {
+  width: 36px;
+  text-align: center;
+}
+
+.entry-select-cell input {
+  width: 16px;
+  height: 16px;
+
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .selection-bar-button {
+    flex: 1;
+    justify-content: center;
+  }
+}
