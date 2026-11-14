@@ -350,6 +350,7 @@
   z-index: 50;
 
   min-width: 200px;
+  max-width: 260px;
 
   display: flex;
   flex-direction: column;

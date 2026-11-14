@@ -50,6 +50,8 @@ function ServiceInvoices() {
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<ServiceInvoice | null>(null);
   const [menuFor, setMenuFor] = useState("");
+  // Posição da janelinha "mais opções" na tela (fica por cima, sem ser cortada pela tabela)
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   const load = useCallback(async () => {
@@ -76,14 +78,31 @@ function ServiceInvoices() {
     if (!menuFor) return;
 
     function handleClick(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuFor("");
+      const target = event.target as HTMLElement;
+
+      if (menuRef.current?.contains(target) || target.closest?.("[data-more-button]")) {
+        return;
       }
+
+      setMenuFor("");
+    }
+
+    function close() {
+      setMenuFor("");
     }
 
     document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    window.addEventListener("resize", close);
+    window.addEventListener("scroll", close, true);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      window.removeEventListener("resize", close);
+      window.removeEventListener("scroll", close, true);
+    };
   }, [menuFor]);
+
+  const menuInvoice = invoices.find(invoice => invoice.id === menuFor) ?? null;
 
   const visible = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -288,45 +307,27 @@ function ServiceInvoices() {
                                 </button>
                               ))}
 
-                              <div className="svc-more" ref={menuFor === invoice.id ? menuRef : undefined}>
-                                <button
-                                  type="button"
-                                  className="svc-icon-button"
-                                  title="Mais opções"
-                                  aria-label="Mais opções"
-                                  aria-expanded={menuFor === invoice.id}
-                                  onClick={() => setMenuFor(current => (current === invoice.id ? "" : invoice.id))}
-                                >
-                                  <MoreHorizontal size={16} />
-                                </button>
-
-                                {menuFor === invoice.id && (
-                                  <div className="svc-more-menu" role="menu">
-                                    <button type="button" role="menuitem" disabled={!invoice.pdf_url} onClick={() => openFile(invoice.pdf_url)}>
-                                      <Printer size={15} /> Imprimir NFS-e
-                                    </button>
-                                    <button type="button" role="menuitem" disabled={!invoice.pdf_url} onClick={() => openFile(invoice.pdf_url)}>
-                                      <Download size={15} /> Baixar PDF
-                                    </button>
-                                    <button type="button" role="menuitem" disabled={!invoice.xml_url} onClick={() => openFile(invoice.xml_url)}>
-                                      <FileCode2 size={15} /> Baixar XML
-                                    </button>
-                                    <button type="button" role="menuitem" disabled={!isAuthorized}>
-                                      <Mail size={15} /> Enviar e-mail
-                                    </button>
-
-                                    {!isAuthorized && (
-                                      <small>Imprimir, PDF, XML e e-mail ficam disponíveis depois que a nota for emitida.</small>
-                                    )}
-
-                                    {invoice.status === "rascunho" && permissions.canDelete && (
-                                      <button type="button" role="menuitem" onClick={() => void handleDelete(invoice)}>
-                                        <Trash2 size={15} /> Excluir rascunho
-                                      </button>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
+                              <button
+                                type="button"
+                                className="svc-icon-button"
+                                title="Mais opções"
+                                aria-label="Mais opções"
+                                aria-haspopup="menu"
+                                aria-expanded={menuFor === invoice.id}
+                                data-more-button
+                                onClick={event => {
+                                  const rect = event.currentTarget.getBoundingClientRect();
+                                  // Sempre dentro da tela (com 8px de margem), mesmo com a tabela rolada para o lado
+                                  const right = Math.min(
+                                    Math.max(window.innerWidth - rect.right, 8),
+                                    Math.max(window.innerWidth - 268, 8)
+                                  );
+                                  setMenuPos({ top: Math.min(rect.bottom + 4, window.innerHeight - 260), right });
+                                  setMenuFor(current => (current === invoice.id ? "" : invoice.id));
+                                }}
+                              >
+                                <MoreHorizontal size={16} />
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -343,6 +344,38 @@ function ServiceInvoices() {
           )
         )}
       </section>
+
+      {menuInvoice && (
+        <div
+          className="svc-more-menu"
+          role="menu"
+          ref={menuRef}
+          style={{ position: "fixed", top: menuPos.top, right: menuPos.right }}
+        >
+          <button type="button" role="menuitem" disabled={!menuInvoice.pdf_url} onClick={() => openFile(menuInvoice.pdf_url)}>
+            <Printer size={15} /> Imprimir NFS-e
+          </button>
+          <button type="button" role="menuitem" disabled={!menuInvoice.pdf_url} onClick={() => openFile(menuInvoice.pdf_url)}>
+            <Download size={15} /> Baixar PDF
+          </button>
+          <button type="button" role="menuitem" disabled={!menuInvoice.xml_url} onClick={() => openFile(menuInvoice.xml_url)}>
+            <FileCode2 size={15} /> Baixar XML
+          </button>
+          <button type="button" role="menuitem" disabled={menuInvoice.status !== "autorizada"}>
+            <Mail size={15} /> Enviar e-mail
+          </button>
+
+          {menuInvoice.status !== "autorizada" && (
+            <small>Imprimir, PDF, XML e e-mail ficam disponíveis depois que a nota for emitida.</small>
+          )}
+
+          {menuInvoice.status === "rascunho" && permissions.canDelete && (
+            <button type="button" role="menuitem" onClick={() => void handleDelete(menuInvoice)}>
+              <Trash2 size={15} /> Excluir rascunho
+            </button>
+          )}
+        </div>
+      )}
 
       {formOpen && company && (
         <InvoiceFormModal
