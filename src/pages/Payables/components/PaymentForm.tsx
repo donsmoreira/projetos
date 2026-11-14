@@ -25,6 +25,7 @@ import AccountOptions, {
 } from "../../../components/AccountOptions/AccountOptions";
 
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
+import PartialSettlement from "../../../components/PartialSettlement/PartialSettlement";
 
 import type {
   Payable,
@@ -72,7 +73,8 @@ function PaymentForm({
       bankAccountId: "",
       paymentDate: getToday(),
       paidValue: payableTotal,
-      paymentNotes: ""
+      paymentNotes: "",
+      keepRestOpen: true
     });
 
   const [loadingAccounts, setLoadingAccounts] =
@@ -114,7 +116,8 @@ function PaymentForm({
       bankAccountId: "",
       paymentDate: getToday(),
       paidValue: payableTotal,
-      paymentNotes: ""
+      paymentNotes: "",
+      keepRestOpen: true
     });
 
     setErrorMessage("");
@@ -211,7 +214,10 @@ function PaymentForm({
             ),
 
           paymentNotes:
-            formData.paymentNotes.trim()
+            formData.paymentNotes.trim(),
+
+          keepRestOpen:
+            formData.keepRestOpen
         }
       );
 
@@ -318,6 +324,19 @@ function PaymentForm({
             required
           />
         </div>
+
+        <PartialSettlement
+          total={payableTotal}
+          value={Number(formData.paidValue || 0)}
+          keepRestOpen={formData.keepRestOpen}
+          onChange={value =>
+            updateField(
+              "keepRestOpen",
+              value
+            )
+          }
+          verb="pago"
+        />
 
         <div className="payment-field payment-field-full">
           <label htmlFor="payment-notes">

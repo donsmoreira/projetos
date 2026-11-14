@@ -25,6 +25,7 @@ import AccountOptions, {
 } from "../../../components/AccountOptions/AccountOptions";
 
 import CurrencyInput from "../../../components/CurrencyInput/CurrencyInput";
+import PartialSettlement from "../../../components/PartialSettlement/PartialSettlement";
 
 import type {
   Receivable,
@@ -72,7 +73,8 @@ function ReceiptForm({
       bankAccountId: "",
       receiptDate: getToday(),
       receivedValue: receivableTotal,
-      receiptNotes: ""
+      receiptNotes: "",
+      keepRestOpen: true
     });
 
   const [loadingAccounts, setLoadingAccounts] =
@@ -114,7 +116,8 @@ function ReceiptForm({
       bankAccountId: "",
       receiptDate: getToday(),
       receivedValue: receivableTotal,
-      receiptNotes: ""
+      receiptNotes: "",
+      keepRestOpen: true
     });
 
     setErrorMessage("");
@@ -201,7 +204,10 @@ function ReceiptForm({
             ),
 
           receiptNotes:
-            formData.receiptNotes.trim()
+            formData.receiptNotes.trim(),
+
+          keepRestOpen:
+            formData.keepRestOpen
         }
       );
 
@@ -308,6 +314,19 @@ function ReceiptForm({
             required
           />
         </div>
+
+        <PartialSettlement
+          total={receivableTotal}
+          value={Number(formData.receivedValue || 0)}
+          keepRestOpen={formData.keepRestOpen}
+          onChange={value =>
+            updateField(
+              "keepRestOpen",
+              value
+            )
+          }
+          verb="recebido"
+        />
 
         <div className="receipt-field receipt-field-full">
           <label htmlFor="receipt-notes">

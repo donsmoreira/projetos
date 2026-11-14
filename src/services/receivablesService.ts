@@ -336,7 +336,8 @@ async function getReceivable(
 /**
  * Recebimento numa operação só, feito no banco (função receive_receivable):
  * grava a entrada na conta/caixa e marca a conta como recebida juntos —
- * ou nada muda, se der erro.
+ * ou nada muda, se der erro. Valor menor que o total com keepRestOpen:
+ * o banco cria outra conta pendente com o restante.
  */
 export async function receiveReceivable(
   receivable: Receivable,
@@ -348,7 +349,8 @@ export async function receiveReceivable(
     p_account_id: bankAccount.id,
     p_date: receipt.receiptDate,
     p_value: Math.abs(Number(receipt.receivedValue || 0)),
-    p_notes: receipt.receiptNotes || null
+    p_notes: receipt.receiptNotes || null,
+    p_keep_rest_open: receipt.keepRestOpen
   });
 
   if (error) {

@@ -62,6 +62,9 @@ export interface Payable {
   installment_index: number;
   installment_count: number;
 
+  /** Conta de origem, quando esta é o restante de uma baixa parcial */
+  partial_of?: string | null;
+
   suppliers: PayableSupplier | null;
   bank_accounts: PayableBankAccount | null;
   management_accounts: EntryManagementAccount | null;
@@ -94,4 +97,6 @@ export interface PayablePaymentData {
   paymentDate: string;
   paidValue: number;
   paymentNotes: string;
+  /** Valor menor que o total: true = restante fica em aberto; false = quita com desconto */
+  keepRestOpen: boolean;
 }

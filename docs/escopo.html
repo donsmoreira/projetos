@@ -410,11 +410,11 @@ const modules = [
   { name: "Contas a pagar", route: "/contas-pagar", items: [
     ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Pagamento pela conta ou pelo caixa", 1], ["Estorno", 1],
     ["Conta gerencial opcional (só despesa)", 1], ["Não aceita pagamento com cartão (compras ficam em Cartões)", 1],
-    ["Status vencido", 0], ["Pagamento parcial", 0], ["Contas recorrentes", 0], ["Anexos (boleto, comprovante)", 0] ] },
+    ["Pagamento parcial (restante em aberto ou desconto)", 1], ["Status vencido", 0], ["Contas recorrentes", 0], ["Anexos (boleto, comprovante)", 0] ] },
   { name: "Contas a receber", route: "/contas-receber", items: [
     ["Cadastro e edição", 1], ["Parcelamento", 1], ["Juros e multa", 1], ["Recebimento na conta ou no caixa", 1], ["Estorno", 1],
     ["Conta gerencial opcional (só receita)", 1], ["Criada ao concluir atendimento na Agenda", 1],
-    ["Status vencido", 0], ["Recebimento parcial", 0], ["Contas recorrentes", 0] ] },
+    ["Recebimento parcial (restante em aberto ou desconto)", 1], ["Status vencido", 0], ["Contas recorrentes", 0] ] },
   { name: "Cartões de crédito", route: "/cartoes", items: [
     ["Cadastro de cartões", 1], ["Banco e bandeira em listas, nome automático", 1], ["Desativar cartão", 1],
     ["Lançar compras à vista e parceladas (até 24x)", 1], ["Parcelas nas faturas certas pelo dia de fechamento", 1],
@@ -444,7 +444,7 @@ const phases = [
     ["Caixa (adiantado)", ["✓ Caixa de dinheiro físico com fluxo de caixa", "✓ Pagar e receber pelo caixa", "✓ Abertura e fechamento em turnos, quebra de caixa, retaguarda, depósito, reserva e trava", "✓ Relatório de quebra de caixa"]],
     ["Agenda (adiantado)", ["✓ Mês, semana, dia e lista; responsável, conflito e status", "✓ Concluir gera conta a receber; concluído travado", "✓ Arrastar com cartão que balança; cor por agendamento (sugestões e RGB)", "✓ Vencimentos de contas a pagar e a receber na agenda", "Integração com o Google Agenda"]],
     ["Bancos · v0.4.0", ["✓ Transferência banco ↔ caixa", "Tela de extrato", "Lançamento manual para bancos", "Transferência banco ↔ banco", "Saldo calculado no banco de dados"]],
-    ["Contas · v0.5.0", ["Status vencido", "Pagamento e recebimento parcial", "Contas recorrentes", "Filtros por período, status e conta gerencial", "Pagar várias de uma vez"]],
+    ["Contas · v0.5.0", ["✓ Pagamento e recebimento parcial", "Status vencido", "Contas recorrentes", "Filtros por período, status e conta gerencial", "Pagar várias de uma vez"]],
     ["Contas gerenciais · v0.6.0", ["✓ Plano de contas de receita e despesa, com subcontas", "✓ Conta gerencial nos lançamentos (opcional)"]],
     ["Cartões · v0.7.0", ["✓ Limite calculado sozinho", "✓ Lançar compras à vista e parceladas", "✓ Faturas com histórico, pagamento e estorno", "✓ Previsão das próximas faturas", "✓ Antecipar fatura e extrato detalhado", "Pagamento parcial da fatura", "Compras do cartão nos relatórios por conta gerencial"]] ] },
   { n: 3, v: "v0.8.0", title: "Painel e relatórios", desc: "Ver o dinheiro de um jeito claro", groups: [

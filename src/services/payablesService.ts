@@ -311,7 +311,8 @@ async function getPayable(
 /**
  * Pagamento numa operação só, feita no banco (função pay_payable):
  * grava a saída na conta/caixa e marca a conta como paga juntos —
- * ou nada muda, se der erro.
+ * ou nada muda, se der erro. Valor menor que o total com keepRestOpen:
+ * o banco cria outra conta pendente com o restante.
  */
 export async function payPayable(
   payable: Payable,
@@ -323,7 +324,8 @@ export async function payPayable(
     p_account_id: bankAccount.id,
     p_date: payment.paymentDate,
     p_value: Math.abs(Number(payment.paidValue || 0)),
-    p_notes: payment.paymentNotes || null
+    p_notes: payment.paymentNotes || null,
+    p_keep_rest_open: payment.keepRestOpen
   });
 
   if (error) {

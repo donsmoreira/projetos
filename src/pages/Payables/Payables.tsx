@@ -174,9 +174,15 @@ function Payables() {
   async function handleReversePayment(
     payable: Payable
   ) {
+    const rest = payables.find(
+      item => item.partial_of === payable.id
+    );
+
     const confirmed =
       await appConfirm(
-        `Deseja estornar o pagamento de "${payable.description}"?`
+        rest && rest.status === "pendente"
+          ? `Deseja estornar o pagamento de "${payable.description}"? O restante em aberto ("${rest.description}") volta para esta conta.`
+          : `Deseja estornar o pagamento de "${payable.description}"?`
       );
 
     if (!confirmed) {

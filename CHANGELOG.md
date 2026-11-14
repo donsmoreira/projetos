@@ -5,6 +5,9 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 
 ## [Não lançado]
 
+### Corrigido
+- **Baixa com valor menor que o total quitava a conta inteira** (Contas a Pagar e Contas a Receber). Agora, quando o valor pago/recebido é menor, a janela da baixa mostra quanto falta e pergunta: **Baixa parcial** (padrão: a conta fica paga/recebida só com o valor informado e o restante vira uma nova conta pendente, com o mesmo vencimento e "(restante)" na descrição) ou **Quitar com desconto** (quita pelo valor informado). O estorno de uma baixa parcial devolve o restante para a conta original (se o restante já foi baixado, é preciso estorná-lo primeiro). Regra no banco, numa operação só. SQL `supabase/migrations/20261114_baixa_parcial.sql`.
+
 ### Adicionado
 - **Alterar senha** (Configurações → Meu perfil → Alterar senha): quem já está logado troca a própria senha informando a senha atual, a nova e a confirmação (mínimo de 8 caracteres, diferente da atual). A senha atual é conferida sem derrubar a sessão; "Mostrar senhas" para conferir o que digitou. Não muda o "Esqueci a senha".
 - **Inativar cadastro.** Clientes e fornecedores ganham o botão Inativar/Reativar (permissão Alterar) e o filtro Situação (Ativos, Inativos, Todos). Inativo some das listas de escolha de contas a pagar, a receber e da agenda, mas o histórico continua; o banco também recusa lançamento novo com cadastro inativo.

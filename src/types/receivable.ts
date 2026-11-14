@@ -54,6 +54,9 @@ export interface Receivable {
   installment_index: number;
   installment_count: number;
 
+  /** Conta de origem, quando esta é o restante de uma baixa parcial */
+  partial_of?: string | null;
+
   clients: ReceivableClient | null;
   bank_accounts: ReceivableBankAccount | null;
   management_accounts: EntryManagementAccount | null;
@@ -86,4 +89,6 @@ export interface ReceivableReceiptData {
   receiptDate: string;
   receivedValue: number;
   receiptNotes: string;
+  /** Valor menor que o total: true = restante fica em aberto; false = quita com desconto */
+  keepRestOpen: boolean;
 }

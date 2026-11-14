@@ -183,9 +183,15 @@ function Receivables() {
   async function handleReverseReceipt(
     receivable: Receivable
   ) {
+    const rest = receivables.find(
+      item => item.partial_of === receivable.id
+    );
+
     const confirmed =
       await appConfirm(
-        `Deseja estornar o recebimento de "${receivable.description}"?`
+        rest && rest.status === "pendente"
+          ? `Deseja estornar o recebimento de "${receivable.description}"? O restante em aberto ("${rest.description}") volta para esta conta.`
+          : `Deseja estornar o recebimento de "${receivable.description}"?`
       );
 
     if (!confirmed) {
