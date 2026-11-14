@@ -29,6 +29,7 @@ import type { ReconcileData } from "../../utils/reconciliation";
 
 import ImportStatementModal from "./components/ImportStatementModal";
 import ReconcileModal from "./components/ReconcileModal";
+import BulkReconcileModal from "./components/BulkReconcileModal";
 
 import "../../components/EntryBatch/EntryBatch.css";
 import "./BankReconciliation.css";
@@ -77,6 +78,7 @@ function BankReconciliation() {
   const [notice, setNotice] = useState("");
   const [importOpen, setImportOpen] = useState(false);
   const [reconcileLine, setReconcileLine] = useState<StatementLine | null>(null);
+  const [bulkOpen, setBulkOpen] = useState(false);
   const [busyId, setBusyId] = useState("");
 
   const account = accounts.find(item => item.id === accountId);
@@ -376,6 +378,17 @@ function BankReconciliation() {
             {!loading && tab === "conciliacao" && (
               <>
                 <div className="reconcile-chips">
+                  {counts.pending > 0 && canReconcileAny && (
+                    <button
+                      type="button"
+                      className="reconcile-bulk-button"
+                      onClick={() => setBulkOpen(true)}
+                      title="Conciliar de uma vez todos os lançamentos a conciliar do período"
+                    >
+                      <CheckCheck size={14} /> Conciliar todos ({counts.pending})
+                    </button>
+                  )}
+
                   {(["pendente", "conciliado", "ignorado", "todos"] as StatusFilter[]).map(status => (
                     <button
                       key={status}
@@ -589,6 +602,26 @@ function BankReconciliation() {
                 (result.duplicates > 0 ? ` · ${result.duplicates} já existiam e foram pulados` : "") +
                 "."
             );
+            await load();
+          }}
+        />
+      )}
+
+      {bulkOpen && (
+        <BulkReconcileModal
+          lines={lines.filter(line => line.status === "pendente")}
+          data={data}
+          canLink={bankPermissions.canUpdate}
+          canSettlePayables={payPermissions.canSettle}
+          canSettleReceivables={receivePermissions.canSettle}
+          canCreate={bankPermissions.canCreate}
+          onClose={() => {
+            setBulkOpen(false);
+            void load();
+          }}
+          onDone={async message => {
+            setBulkOpen(false);
+            setNotice(message);
             await load();
           }}
         />

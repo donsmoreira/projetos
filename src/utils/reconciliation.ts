@@ -123,6 +123,58 @@ export function reconcileCandidates(line: StatementLine, data: ReconcileData): R
   return candidates.sort((a, b) => b.score - a.score);
 }
 
+export type BulkPlanItem = {
+  line: StatementLine;
+  /** suggestion = liga/baixa pela sugestão · avulso = lança avulso · skip = fica a conciliar */
+  action: "suggestion" | "avulso" | "skip";
+  candidate: ReconcileCandidate | null;
+};
+
+/**
+ * Plano do "Conciliar todos": cada linha usa a melhor sugestão com valor igual
+ * que ainda não foi usada por outra linha (uma movimentação/conta só pode ser
+ * usada uma vez). Sem sugestão: lança avulso, se permitido; senão fica.
+ */
+export function planBulkReconcile(
+  lines: StatementLine[],
+  data: ReconcileData,
+  options: {
+    createMissing: boolean;
+    canLink: boolean;
+    canSettlePayables: boolean;
+    canSettleReceivables: boolean;
+    canCreate: boolean;
+  }
+): BulkPlanItem[] {
+  const used = new Set<string>();
+  const ordered = [...lines].sort((a, b) =>
+    a.posted_date.localeCompare(b.posted_date) || a.created_at.localeCompare(b.created_at)
+  );
+
+  return ordered.map(line => {
+    const candidate = reconcileCandidates(line, data).find(item => {
+      if (!item.exact || item.score < 55 || used.has(`${item.kind}:${item.id}`)) {
+        return false;
+      }
+
+      if (item.kind === "transaction") return options.canLink;
+      if (item.kind === "payable") return options.canSettlePayables;
+      return options.canSettleReceivables;
+    });
+
+    if (candidate) {
+      used.add(`${candidate.kind}:${candidate.id}`);
+      return { line, action: "suggestion" as const, candidate };
+    }
+
+    return {
+      line,
+      action: options.createMissing && options.canCreate ? ("avulso" as const) : ("skip" as const),
+      candidate: null
+    };
+  });
+}
+
 /** Melhor sugestão para mostrar direto na lista (só se o valor bater). */
 export function bestSuggestion(line: StatementLine, data: ReconcileData): ReconcileCandidate | null {
   const best = reconcileCandidates(line, data)[0];

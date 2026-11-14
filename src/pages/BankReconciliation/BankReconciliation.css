@@ -647,3 +647,66 @@
     flex-direction: column;
   }
 }
+
+/* CONCILIAR TODOS */
+
+.reconcile-chips .reconcile-bulk-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-right: auto;
+
+  border-color: var(--primary);
+
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.reconcile-chips .reconcile-bulk-button:hover {
+  background: var(--primary-hover);
+}
+
+.reconcile-bulk-cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.reconcile-progress {
+  position: relative;
+
+  height: 28px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: var(--surface-alt);
+}
+
+.reconcile-progress div {
+  height: 100%;
+
+  background: var(--primary-soft);
+
+  transition: width 0.2s;
+}
+
+.reconcile-progress span {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--text);
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.reconcile-error-list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
