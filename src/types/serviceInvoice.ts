@@ -1,4 +1,4 @@
-import type { IssTaxation } from "./service";
+import type { IssTaxation, ServiceTaxFields } from "./service";
 
 export type ServiceInvoiceStatus = "rascunho" | "processando" | "autorizada" | "rejeitada" | "cancelada";
 
@@ -50,6 +50,20 @@ export interface ServiceInvoice {
   irrf_rate: number;
   inss_rate: number;
 
+  unit: string;
+  pis_cofins_cst: string | null;
+  pis_withheld: boolean;
+  cofins_withheld: boolean;
+  csll_withheld: boolean;
+  approx_tax_federal: number;
+  approx_tax_state: number;
+  approx_tax_municipal: number;
+  simples_optant: boolean;
+  simples_rate: number;
+  ibs_cbs_ind_op: string | null;
+  ibs_cbs_cst: string | null;
+  ibs_cbs_class_trib: string | null;
+
   tax_base: number;
   iss_amount: number;
   pis_amount: number;
@@ -71,7 +85,7 @@ export interface ServiceInvoice {
   updated_at?: string;
 }
 
-export interface ServiceInvoiceFormData {
+export interface ServiceInvoiceFormData extends ServiceTaxFields {
   issueDate: string;
   competenceDate: string;
   clientId: string;
@@ -90,11 +104,6 @@ export interface ServiceInvoiceFormData {
   issTaxation: IssTaxation;
   issRate: number;
   issWithheld: boolean;
-  pisRate: number;
-  cofinsRate: number;
-  csllRate: number;
-  irrfRate: number;
-  inssRate: number;
 
   notes: string;
 }

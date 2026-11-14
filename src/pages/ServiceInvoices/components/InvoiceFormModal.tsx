@@ -24,6 +24,7 @@ import { formatCityState } from "../../../utils/address";
 import { todayISO } from "../../../utils/entryBatch";
 import { computeInvoiceTotals, providerMissing, takerMissing } from "../../../utils/nfseCalc";
 import { formatNationalCode, formatNbs } from "../../../utils/serviceFormat";
+import { taxFieldsFromRow, taxFieldsProblem } from "../../../utils/serviceTax";
 
 type Tab = "prestador" | "tomador" | "servico";
 
@@ -51,11 +52,7 @@ function formFromInvoice(invoice: ServiceInvoice | null): ServiceInvoiceFormData
     issTaxation: invoice?.iss_taxation ?? "tributavel",
     issRate: invoice?.iss_rate ?? 0,
     issWithheld: invoice?.iss_withheld ?? false,
-    pisRate: invoice?.pis_rate ?? 0,
-    cofinsRate: invoice?.cofins_rate ?? 0,
-    csllRate: invoice?.csll_rate ?? 0,
-    irrfRate: invoice?.irrf_rate ?? 0,
-    inssRate: invoice?.inss_rate ?? 0,
+    ...taxFieldsFromRow(invoice),
     notes: invoice?.notes ?? ""
   };
 }
@@ -71,12 +68,13 @@ function Field({ label, value, missing }: { label: string; value: string | null 
   );
 }
 
-const RATES: [keyof ServiceInvoiceFormData, string][] = [
-  ["pisRate", "PIS"],
-  ["cofinsRate", "COFINS"],
-  ["csllRate", "CSLL"],
-  ["irrfRate", "IRRF"],
-  ["inssRate", "INSS"]
+/** [alíquota, rótulo, marcação de retido (quando é opcional)] */
+const RATES: [keyof ServiceInvoiceFormData, string, (keyof ServiceInvoiceFormData) | null][] = [
+  ["pisRate", "PIS", "pisWithheld"],
+  ["cofinsRate", "COFINS", "cofinsWithheld"],
+  ["csllRate", "CSLL", "csllWithheld"],
+  ["irrfRate", "IRRF retido", null],
+  ["inssRate", "INSS retido", null]
 ];
 
 /** Montar a NFS-e: prestador (empresa), tomador (cliente) e serviço. Salva como rascunho. */
@@ -139,11 +137,7 @@ function InvoiceFormModal({ company, invoice, onClose, onSaved }: InvoiceFormMod
             issTaxation: service.iss_taxation,
             issRate: service.iss_rate,
             issWithheld: service.iss_withheld,
-            pisRate: service.pis_rate,
-            cofinsRate: service.cofins_rate,
-            csllRate: service.csll_rate,
-            irrfRate: service.irrf_rate,
-            inssRate: service.inss_rate
+            ...taxFieldsFromRow(service)
           }
         : { ...current, serviceId: "" }
     );
@@ -189,6 +183,12 @@ function InvoiceFormModal({ company, invoice, onClose, onSaved }: InvoiceFormMod
     if (totals.problem) {
       setTab("servico");
       return setErrorMessage(totals.problem);
+    }
+
+    const taxProblem = taxFieldsProblem(form);
+    if (taxProblem) {
+      setTab("servico");
+      return setErrorMessage(taxProblem);
     }
 
     try {
@@ -361,11 +361,22 @@ function InvoiceFormModal({ company, invoice, onClose, onSaved }: InvoiceFormMod
             </div>
 
             {form.serviceCode && (
-              <small className="arc-hint">
-                Código {form.serviceCode} · tributação nacional {form.nationalTaxCode}
-                {form.municipalTaxCode ? ` · municipal ${form.municipalTaxCode}` : ""}
-                {form.nbsCode ? ` · NBS ${form.nbsCode}` : ""}
-              </small>
+              <div className="svc-codes-line">
+                <span>Código {form.serviceCode} ({form.unit})</span>
+                <span>Tributação nacional {form.nationalTaxCode}</span>
+                {form.municipalTaxCode && <span>Municipal {form.municipalTaxCode}</span>}
+                {form.nbsCode && <span>NBS {form.nbsCode}</span>}
+                {form.pisCofinsCst && <span>CST PIS/COFINS {form.pisCofinsCst}</span>}
+                {form.ibsCbsIndOp && <span>cIndOp {form.ibsCbsIndOp}</span>}
+                {form.ibsCbsClassTrib && <span>IBS/CBS: CST {form.ibsCbsCst} · cClassTrib {form.ibsCbsClassTrib}</span>}
+                {form.simplesOptant && <span>Simples Nacional {form.simplesRate.toLocaleString("pt-BR")}%</span>}
+                {(form.approxTaxFederal > 0 || form.approxTaxState > 0 || form.approxTaxMunicipal > 0) && (
+                  <span>
+                    Tributos aproximados: fed. {form.approxTaxFederal.toLocaleString("pt-BR")}% · est.{" "}
+                    {form.approxTaxState.toLocaleString("pt-BR")}% · mun. {form.approxTaxMunicipal.toLocaleString("pt-BR")}%
+                  </span>
+                )}
+              </div>
             )}
 
             <div className="arc-field">
@@ -433,10 +444,20 @@ function InvoiceFormModal({ company, invoice, onClose, onSaved }: InvoiceFormMod
             </div>
 
             <div className="arc-form-grid svc-grid-5">
-              {RATES.map(([key, label]) => (
+              {RATES.map(([key, label, withheldKey]) => (
                 <div key={key} className="arc-field">
-                  <label htmlFor={`nfse-${key}`}>{label} retido (%)</label>
+                  <label htmlFor={`nfse-${key}`}>{label} (%)</label>
                   {rateInput(key, 100)}
+                  {withheldKey && (
+                    <label className="svc-check">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(form[withheldKey])}
+                        onChange={event => update(withheldKey, event.target.checked as never)}
+                      />
+                      Retido
+                    </label>
+                  )}
                 </div>
               ))}
             </div>

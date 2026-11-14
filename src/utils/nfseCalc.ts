@@ -51,6 +51,7 @@ export type InvoiceTotals = {
   csll: number;
   irrf: number;
   inss: number;
+  /** retenções federais (só o que é descontado do líquido) */
   federal: number;
   withheld: number;
   net: number;
@@ -76,7 +77,10 @@ export function computeInvoiceTotals(form: ServiceInvoiceFormData): InvoiceTotal
   const csll = pct(form.csllRate);
   const irrf = pct(form.irrfRate);
   const inss = pct(form.inssRate);
-  const federal = round2(pis + cofins + csll + irrf + inss);
+  // Retenções federais: PIS, COFINS e CSLL só quando marcados como retidos; IRRF e INSS sempre
+  const federal = round2(
+    (form.pisWithheld ? pis : 0) + (form.cofinsWithheld ? cofins : 0) + (form.csllWithheld ? csll : 0) + irrf + inss
+  );
   const withheld = round2((form.issWithheld ? iss : 0) + federal);
   const net = round2(amount - discount - withheld);
 

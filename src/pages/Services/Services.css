@@ -464,6 +464,42 @@
   accent-color: var(--primary);
 }
 
+.svc-warning {
+  color: var(--warning);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Marcações de retenção de PIS/COFINS/CSLL */
+.svc-retention {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+
+  padding: 10px 12px;
+
+  border: 1px solid var(--border);
+  border-radius: 6px;
+
+  background: var(--surface-alt);
+}
+
+.svc-retention > span {
+  color: var(--text-light);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.svc-codes-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+
+  color: var(--text-light);
+  font-size: 12px;
+}
+
 /* Montagem da nota: abas */
 .nfse-tabs {
   display: flex;

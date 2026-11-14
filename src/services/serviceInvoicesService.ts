@@ -2,10 +2,11 @@ import { supabase } from "./supabase";
 import { translateCompanyError } from "./companyService";
 
 import type { ServiceInvoice, ServiceInvoiceFormData } from "../types/serviceInvoice";
+import { TAX_NUMBER_COLUMNS, taxFieldsToDb } from "../utils/serviceTax";
 
 const NUMBER_FIELDS = [
   "amount", "unconditional_discount", "deductions",
-  "iss_rate", "pis_rate", "cofins_rate", "csll_rate", "irrf_rate", "inss_rate",
+  "iss_rate", ...TAX_NUMBER_COLUMNS,
   "tax_base", "iss_amount", "pis_amount", "cofins_amount", "csll_amount",
   "irrf_amount", "inss_amount", "net_amount"
 ];
@@ -39,11 +40,7 @@ function toDb(form: ServiceInvoiceFormData) {
     iss_taxation: form.issTaxation,
     iss_rate: Number(form.issRate || 0),
     iss_withheld: form.issWithheld,
-    pis_rate: Number(form.pisRate || 0),
-    cofins_rate: Number(form.cofinsRate || 0),
-    csll_rate: Number(form.csllRate || 0),
-    irrf_rate: Number(form.irrfRate || 0),
-    inss_rate: Number(form.inssRate || 0),
+    ...taxFieldsToDb(form),
     notes: form.notes.trim() || null
   };
 }

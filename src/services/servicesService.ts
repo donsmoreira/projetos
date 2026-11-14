@@ -2,23 +2,21 @@ import { supabase } from "./supabase";
 import { translateCompanyError } from "./companyService";
 
 import type { Service, ServiceFormData } from "../types/service";
+import { TAX_NUMBER_COLUMNS, taxFieldsToDb } from "../utils/serviceTax";
 
 const digits = (value: string) => value.replace(/\D/g, "");
 
 function normalizeService(row: Record<string, unknown>): Service {
-  const num = (key: string) => Number(row[key] ?? 0);
+  const result: Record<string, unknown> = { ...row };
 
-  return {
-    ...row,
-    unit_price: num("unit_price"),
-    iss_rate: num("iss_rate"),
-    pis_rate: num("pis_rate"),
-    cofins_rate: num("cofins_rate"),
-    csll_rate: num("csll_rate"),
-    irrf_rate: num("irrf_rate"),
-    inss_rate: num("inss_rate"),
-    active: row.active !== false
-  } as Service;
+  for (const key of ["unit_price", "iss_rate", ...TAX_NUMBER_COLUMNS]) {
+    result[key] = Number(row[key] ?? 0);
+  }
+
+  result.unit = row.unit || "UN";
+  result.active = row.active !== false;
+
+  return result as unknown as Service;
 }
 
 function toDb(form: ServiceFormData) {
@@ -33,11 +31,7 @@ function toDb(form: ServiceFormData) {
     iss_taxation: form.issTaxation,
     iss_rate: Number(form.issRate || 0),
     iss_withheld: form.issWithheld,
-    pis_rate: Number(form.pisRate || 0),
-    cofins_rate: Number(form.cofinsRate || 0),
-    csll_rate: Number(form.csllRate || 0),
-    irrf_rate: Number(form.irrfRate || 0),
-    inss_rate: Number(form.inssRate || 0),
+    ...taxFieldsToDb(form),
     management_account_id: form.managementAccountId || null,
     category: form.category.trim() || null,
     notes: form.notes.trim() || null
