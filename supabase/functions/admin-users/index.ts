@@ -18,10 +18,11 @@ const ALLOWED_ORIGINS = [
 
 const MODULES = [
   "painel", "relatorios", "clientes", "fornecedores", "contas_pagar", "contas_receber",
-  "caixa", "contas_bancarias", "cartoes", "contas_gerenciais", "agenda"
+  "caixa", "contas_bancarias", "cartoes", "contas_gerenciais", "agenda",
+  "servicos", "notas_servico"
 ];
 const VIEW_ONLY = ["painel", "relatorios"];
-const WITH_SETTLE = ["contas_pagar", "contas_receber", "cartoes"];
+const WITH_SETTLE = ["contas_pagar", "contas_receber", "cartoes", "notas_servico"];
 
 const EMAIL_RULE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const UUID_RULE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

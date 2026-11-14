@@ -10,7 +10,9 @@ export type ModuleKey =
   | "contas_bancarias"
   | "cartoes"
   | "contas_gerenciais"
-  | "agenda";
+  | "agenda"
+  | "servicos"
+  | "notas_servico";
 
 /** Ver (a tela aparece), Cadastrar, Alterar, Excluir, Baixar (pagar/receber/estornar) */
 export type ModuleAction = "view" | "create" | "update" | "delete" | "settle";
@@ -32,7 +34,7 @@ export const ACTION_HINTS: Record<ModuleAction, string> = {
   create: "Incluir novos registros",
   update: "Editar o que já existe",
   delete: "Apagar registros",
-  settle: "Pagar, receber e estornar (contas e faturas de cartão)"
+  settle: "Pagar, receber e estornar (contas e faturas de cartão); emitir e cancelar notas de serviço"
 };
 
 export const ALL_ACTIONS: ModuleAction[] = ["view", "create", "update", "delete", "settle"];
@@ -101,6 +103,18 @@ export const MODULE_GROUPS: ModuleGroup[] = [
           { key: "contas_bancarias", label: "Controle Bancário", actions: CRUD },
           { key: "cartoes", label: "Cartões de Crédito", actions: ALL_ACTIONS },
           { key: "contas_gerenciais", label: "Contas Gerenciais", actions: CRUD }
+        ]
+      }
+    ]
+  },
+  {
+    title: "Serviços",
+    sections: [
+      {
+        title: null,
+        modules: [
+          { key: "notas_servico", label: "Nota de serviço (Baixar = emitir e cancelar)", actions: ALL_ACTIONS },
+          { key: "servicos", label: "Cadastro de serviços", actions: CRUD }
         ]
       }
     ]

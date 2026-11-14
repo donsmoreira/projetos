@@ -5,6 +5,9 @@ import type { ModuleKey } from "../../../../types/permissions";
 import {
   Banknote,
   BarChart3,
+  Briefcase,
+  FileText,
+  Wrench,
   CalendarDays,
   Building2,
   ClipboardList,
@@ -72,6 +75,16 @@ export const MENU: MenuEntry[] = [
       { title: "Conciliação Bancária", to: "/conciliacao", icon: <ListChecks size={17} />, module: "contas_bancarias" },
       { title: "Cartões de Crédito", to: "/cartoes", icon: <CreditCard size={17} />, module: "cartoes" },
       { title: "Contas Gerenciais", to: "/contas-gerenciais", icon: <FolderTree size={17} />, module: "contas_gerenciais" }
+    ]
+  },
+  {
+    kind: "group",
+    id: "servicos",
+    title: "Serviços",
+    icon: <Briefcase size={18} />,
+    items: [
+      { title: "Nota de serviço", to: "/servicos/notas", icon: <FileText size={17} />, module: "notas_servico" },
+      { title: "Cadastro de serviços", to: "/servicos/cadastro", icon: <Wrench size={17} />, module: "servicos" }
     ]
   },
   {

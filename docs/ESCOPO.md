@@ -450,8 +450,9 @@ Objetivo: emitir NFS-e (padrão nacional) pelo sistema, por meio de uma API de e
 - [x] Empresa: CNAE principal, regime especial de tributação, série e próximo número, ambiente (homologação/produção); inscrição municipal
 - [x] Cliente PJ: inscrição municipal
 - [ ] Escolher a API de emissão; certificado digital A1 enviado para ela
-- [ ] Cadastro de serviços (código do serviço, ISS, retenções) — sob comando
-- [ ] Emitir, consultar, cancelar; guardar XML e PDF (5 anos)
+- [x] Menu SERVIÇOS: Cadastro de serviços (campos da NFS-e nacional, obrigatórios e opcionais) e Nota de serviço (listagem, montar NFS-e com prestador, tomador e serviço; cálculo de ISS, retenções e líquido) — `20261114_servicos_nfse.sql`
+- [ ] Emitir, consultar, cancelar pela API; guardar XML e PDF (5 anos); enviar e-mail
+- [ ] Relatórios de NFS-e emitidas
 - [ ] Ambientes de homologação e produção do sistema (ramificações `homolog` e `prod`)
 
 ---
