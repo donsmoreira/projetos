@@ -6,6 +6,7 @@ O esquema de versões e o que entra em cada uma estão em [docs/ESCOPO.md](docs/
 ## [Não lançado]
 
 ### Adicionado
+- **Alterar senha** (Configurações → Meu perfil → Alterar senha): quem já está logado troca a própria senha informando a senha atual, a nova e a confirmação (mínimo de 8 caracteres, diferente da atual). A senha atual é conferida sem derrubar a sessão; "Mostrar senhas" para conferir o que digitou. Não muda o "Esqueci a senha".
 - **Inativar cadastro.** Clientes e fornecedores ganham o botão Inativar/Reativar (permissão Alterar) e o filtro Situação (Ativos, Inativos, Todos). Inativo some das listas de escolha de contas a pagar, a receber e da agenda, mas o histórico continua; o banco também recusa lançamento novo com cadastro inativo.
 - **Exclusão bloqueada com movimentação.** Não dá para excluir cliente com contas a receber (em aberto ou recebidas) ou agendamentos, fornecedor com contas a pagar, conta bancária/caixa com movimentação ou ligada a cartão, nem cartão com compras. A mensagem diz o motivo e sugere inativar. SQL `supabase/migrations/20261113_inativar_e_bloquear_exclusao.sql`.
 - **Quadro de avisos da semana** no painel inicial: agendamentos (com cor e horário) e contas a pagar/receber em aberto de domingo a sábado, dia a dia, com Hoje em destaque e totais. Cada parte só aparece para quem pode ver a tela correspondente.

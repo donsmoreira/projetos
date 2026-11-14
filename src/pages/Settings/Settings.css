@@ -635,3 +635,31 @@ a.settings-button {
     align-items: stretch;
   }
 }
+
+/* Alterar senha */
+.settings-card h3 svg {
+  vertical-align: -2px;
+  margin-right: 4px;
+  color: var(--primary);
+}
+
+.settings-field small.settings-field-error {
+  color: var(--danger);
+}
+
+.settings-password-toggle {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+
+  padding: 0;
+
+  border: none;
+  background: none;
+  color: var(--primary);
+
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}

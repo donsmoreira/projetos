@@ -9,6 +9,8 @@ import { documentDigits, formatCpf, isValidCpf } from "../../utils/document";
 import type { AddressFormData } from "../../types/address";
 import type { ProfileFormData, UserProfile } from "../../types/company";
 
+import ChangePasswordForm from "./ChangePasswordForm";
+
 import "./Settings.css";
 
 function formFromProfile(profile: UserProfile): ProfileFormData {
@@ -182,6 +184,8 @@ function ProfileSettings() {
       {!profile && !errorMessage && <div className="settings-note">Carregando perfil...</div>}
 
       {profile && <ProfileForm profile={profile} email={user?.email ?? ""} />}
+
+      <ChangePasswordForm />
     </div>
   );
 }

@@ -74,6 +74,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Criar conta (cadastro público) | 🟡 | tela pronta com código por e-mail; **fechado no Supabase** durante os testes. Usuários são criados pelo administrador |
 | Esqueceu a senha (código por e-mail) | 🟡 | tela pronta; o e-mail só chega a quem é da equipe do Supabase até configurar o SMTP próprio |
 | Meu perfil | ✅ | nome, telefone/WhatsApp, CPF, endereço |
+| Alterar a própria senha | ✅ | Meu perfil → Alterar senha: senha atual (conferida sem derrubar a sessão), nova e confirmação; mínimo de 8 caracteres |
 | Mensagens de erro em português | ✅ | |
 
 ### 3.2 Empresas, usuários e permissões (Configurações)
