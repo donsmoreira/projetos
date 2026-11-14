@@ -36,4 +36,8 @@ export interface RenegotiationData {
   managementAccountId: string;
   category: string;
   notes: string;
+  /** Entrada já paga/recebida na hora (0 = sem entrada); só o restante é parcelado */
+  downPayment: number;
+  downAccountId: string;
+  downDate: string;
 }

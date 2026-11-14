@@ -71,6 +71,8 @@ export interface Payable {
   renegotiation_id?: string | null;
   /** Conta nova: renegociação que a criou */
   renegotiated_from?: string | null;
+  /** Entrada de uma renegociação (já nasce paga) */
+  down_payment?: boolean;
 
   suppliers: PayableSupplier | null;
   bank_accounts: PayableBankAccount | null;

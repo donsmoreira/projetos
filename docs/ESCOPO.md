@@ -150,7 +150,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Status "vencido" | ❌ | só `pendente` e `pago`/`recebido` (a Agenda destaca as vencidas) |
 | Pagamento/recebimento parcial | ✅ | valor menor que o total: **baixa parcial** (o restante vira nova conta pendente, mesmo vencimento, "(restante)") ou **quitar com desconto**; o estorno junta o restante de volta (`20261114_baixa_parcial.sql`) |
 | Baixa em lote | ✅ | várias contas numa operação; valor menor só com o mesmo fornecedor/cliente; estorno desfaz o lote (`20261114_lote_e_renegociacao.sql`) |
-| Renegociação | ✅ | contas do mesmo fornecedor/cliente viram "renegociada"; novas à vista ou parceladas, com acréscimo/desconto; dá para desfazer |
+| Renegociação | ✅ | contas do mesmo fornecedor/cliente viram "renegociada"; novas à vista ou parceladas, com acréscimo/desconto e **valor de entrada** (já baixada; só o restante é parcelado); dá para desfazer (`20261114_renegociacao_entrada.sql`) |
 | Contas recorrentes | ❌ | |
 | Anexos (boleto, comprovante) | ❌ | |
 
@@ -378,7 +378,7 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [ ] Status "vencido" (calculado pela data)
 - [x] Pagamento/recebimento parcial (restante em aberto ou desconto)
 - [x] Baixa em lote (pagar/receber várias de uma vez)
-- [x] Renegociação (à vista ou parcelada, com desfazer)
+- [x] Renegociação (à vista ou parcelada, com entrada e desfazer)
 - [ ] Contas recorrentes
 - [ ] Filtros por período, status, fornecedor/cliente e conta gerencial
 

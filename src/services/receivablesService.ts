@@ -416,7 +416,10 @@ export async function renegotiateReceivables(
     p_description: data.description.trim() || null,
     p_management_account_id: data.managementAccountId || null,
     p_notes: data.notes.trim() || null,
-    p_category: data.category.trim() || null
+    p_category: data.category.trim() || null,
+    p_down_payment: Number(data.downPayment || 0),
+    p_down_account_id: data.downPayment > 0 ? data.downAccountId || null : null,
+    p_down_date: data.downPayment > 0 ? data.downDate || null : null
   });
 
   if (error) {

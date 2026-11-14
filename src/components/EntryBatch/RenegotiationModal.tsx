@@ -1,13 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
 
 import Modal from "../Modal/Modal";
 import CurrencyInput from "../CurrencyInput/CurrencyInput";
 import ManagementAccountSelect from "../ManagementAccountSelect/ManagementAccountSelect";
+import AccountOptions, { AccountBalanceHint } from "../AccountOptions/AccountOptions";
 
+import { listAccountsWithBalance } from "../../services/bankAccountsService";
+import type { AccountWithBalance } from "../../types/bankAccount";
 import type { BatchEntry, RenegotiationData } from "../../types/entryBatch";
 import { formatCurrency } from "../../utils/currency";
-import { formatDateBR, previewInstallments, sortForSettlement, toCents, todayISO } from "../../utils/entryBatch";
+import { addMonthsClamped, formatDateBR, previewInstallments, sortForSettlement, toCents, todayISO } from "../../utils/entryBatch";
 
 import "./EntryBatch.css";
 
@@ -17,10 +20,12 @@ type RenegotiationModalProps = {
   onClose: () => void;
   onSubmit: (data: RenegotiationData) => Promise<void>;
   onSaved: () => Promise<void> | void;
+  /** Pode baixar (necessário para lançar entrada) */
+  canSettle?: boolean;
 };
 
 /** Junta contas pendentes do mesmo fornecedor/cliente em novas contas (à vista ou parceladas). */
-function RenegotiationModal({ kind, entries, onClose, onSubmit, onSaved }: RenegotiationModalProps) {
+function RenegotiationModal({ kind, entries, onClose, onSubmit, onSaved, canSettle = false }: RenegotiationModalProps) {
   const isPay = kind === "pagar";
   const partyWord = isPay ? "fornecedor" : "cliente";
   const ordered = useMemo(() => sortForSettlement(entries), [entries]);
@@ -43,22 +48,51 @@ function RenegotiationModal({ kind, entries, onClose, onSubmit, onSaved }: Reneg
 
   const [parcelado, setParcelado] = useState(false);
   const [installments, setInstallments] = useState(2);
-  const [firstDueDate, setFirstDueDate] = useState(todayISO());
+  // 1ª parcela daqui a um mês (a entrada, se houver, é hoje)
+  const [firstDueDate, setFirstDueDate] = useState(() => addMonthsClamped(todayISO(), 1));
   const [increase, setIncrease] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [description, setDescription] = useState("Renegociação");
   const [managementAccountId, setManagementAccountId] = useState(common.id);
   const [category, setCategory] = useState(common.path);
   const [notes, setNotes] = useState("");
+  const [downPayment, setDownPayment] = useState(0);
+  const [downAccountId, setDownAccountId] = useState("");
+  const [downDate, setDownDate] = useState(todayISO());
+  const [accounts, setAccounts] = useState<AccountWithBalance[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  useEffect(() => {
+    if (!canSettle) {
+      return;
+    }
+
+    let active = true;
+
+    listAccountsWithBalance()
+      .then(data => {
+        if (active) setAccounts(data);
+      })
+      .catch(() => {
+        // Sem a lista, a entrada não pode ser lançada; o resto continua funcionando
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [canSettle]);
+
   const count = parcelado ? Math.min(Math.max(Math.floor(installments || 0), 2), 60) : 1;
   const newTotalCents = baseCents + toCents(increase) - toCents(discount);
+  const downCents = canSettle ? toCents(downPayment) : 0;
+  const restCents = newTotalCents - downCents;
+  const downTooBig = downCents > 0 && downCents >= newTotalCents;
+  const downAccount = accounts.find(account => account.id === downAccountId);
 
   const parcels = useMemo(
-    () => (newTotalCents > 0 && firstDueDate ? previewInstallments(newTotalCents, count, firstDueDate) : []),
-    [newTotalCents, count, firstDueDate]
+    () => (restCents > 0 && firstDueDate ? previewInstallments(restCents, count, firstDueDate) : []),
+    [restCents, count, firstDueDate]
   );
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -84,6 +118,26 @@ function RenegotiationModal({ kind, entries, onClose, onSubmit, onSaved }: Reneg
       return;
     }
 
+    if (downTooBig) {
+      setErrorMessage("A entrada precisa ser menor que o novo total. Para quitar tudo, use a baixa.");
+      return;
+    }
+
+    if (downCents > 0 && !downAccount) {
+      setErrorMessage(`Escolha a conta bancária ou o caixa em que a entrada ${isPay ? "sai" : "entra"}.`);
+      return;
+    }
+
+    if (downCents > 0 && !downDate) {
+      setErrorMessage("Informe a data da entrada.");
+      return;
+    }
+
+    if (isPay && downCents > 0 && downAccount?.account_type === "caixa" && downCents > toCents(downAccount.balance)) {
+      setErrorMessage("Saldo insuficiente no caixa para pagar a entrada.");
+      return;
+    }
+
     try {
       setSubmitting(true);
       setErrorMessage("");
@@ -95,7 +149,10 @@ function RenegotiationModal({ kind, entries, onClose, onSubmit, onSaved }: Reneg
         description,
         managementAccountId,
         category,
-        notes
+        notes,
+        downPayment: downCents / 100,
+        downAccountId,
+        downDate
       });
       await onSaved();
     } catch (error) {
@@ -180,6 +237,63 @@ function RenegotiationModal({ kind, entries, onClose, onSubmit, onSaved }: Reneg
             <CurrencyInput id="reneg-discount" value={discount} onChange={setDiscount} />
           </div>
 
+          {canSettle && (
+            <div className="arc-field">
+              <label htmlFor="reneg-down">Valor de entrada (R$)</label>
+              <CurrencyInput
+                id="reneg-down"
+                value={downPayment}
+                onChange={value => {
+                  setDownPayment(value);
+                  setErrorMessage("");
+                }}
+              />
+              <small className="arc-hint">
+                {isPay ? "Paga" : "Recebida"} na hora; só o restante é parcelado.
+              </small>
+            </div>
+          )}
+
+          {downCents > 0 && (
+            <>
+              <div className="arc-field">
+                <label htmlFor="reneg-down-date">Data da entrada</label>
+                <input
+                  id="reneg-down-date"
+                  type="date"
+                  value={downDate}
+                  onChange={event => setDownDate(event.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="arc-field arc-field-full">
+                <label htmlFor="reneg-down-account">
+                  Entrada {isPay ? "paga com" : "recebida em"} (conta bancária ou caixa)
+                </label>
+                <select
+                  id="reneg-down-account"
+                  value={downAccountId}
+                  onChange={event => {
+                    setDownAccountId(event.target.value);
+                    setErrorMessage("");
+                  }}
+                  required
+                >
+                  <option value="">Selecione a conta ou o caixa</option>
+                  <AccountOptions accounts={accounts} />
+                </select>
+                <AccountBalanceHint account={downAccount} value={downCents / 100} direction={isPay ? "saida" : "entrada"} />
+              </div>
+            </>
+          )}
+
+          {downTooBig && (
+            <div className="arc-form-error arc-field-full">
+              A entrada precisa ser menor que o novo total ({formatCurrency(Math.max(newTotalCents, 0) / 100)}).
+            </div>
+          )}
+
           <div className="arc-field arc-field-full">
             <label htmlFor="reneg-description">Descrição das novas contas</label>
             <input
@@ -213,8 +327,21 @@ function RenegotiationModal({ kind, entries, onClose, onSubmit, onSaved }: Reneg
         <div className="batch-preview">
           <div className="batch-preview-title">
             Novo total: {formatCurrency(Math.max(newTotalCents, 0) / 100)}
+            {downCents > 0 && !downTooBig && (
+              <> · entrada {formatCurrency(downCents / 100)} · a parcelar {formatCurrency(restCents / 100)}</>
+            )}
             <small> · {count === 1 ? "à vista" : `${count} parcelas (centavos que sobram na 1ª)`}</small>
           </div>
+
+          {downCents > 0 && !downTooBig && (
+            <div className="batch-preview-row">
+              <span className="batch-preview-name">
+                <strong>{`${description || "Renegociação"} (entrada)`}</strong>
+                <small>{isPay ? "paga" : "recebida"} em {downDate ? formatDateBR(downDate) : "—"}{downAccount ? ` · ${downAccount.name}` : ""}</small>
+              </span>
+              <span className="batch-preview-result">{formatCurrency(downCents / 100)}</span>
+            </div>
+          )}
 
           {parcels.map(parcel => (
             <div key={parcel.index} className="batch-preview-row">
@@ -231,7 +358,7 @@ function RenegotiationModal({ kind, entries, onClose, onSubmit, onSaved }: Reneg
 
         <small className="arc-hint">
           Ao confirmar, as contas marcadas ficam como <strong>Renegociada</strong> e as novas aparecem como pendentes.
-          Dá para desfazer enquanto nenhuma das novas for {isPay ? "paga" : "recebida"}.
+          Dá para desfazer enquanto nenhuma das parcelas novas for {isPay ? "paga" : "recebida"} (a entrada é estornada junto).
         </small>
 
         {errorMessage && <div className="arc-form-error">{errorMessage}</div>}
@@ -243,7 +370,7 @@ function RenegotiationModal({ kind, entries, onClose, onSubmit, onSaved }: Reneg
           <button
             type="submit"
             className="arc-button arc-button-primary"
-            disabled={submitting || !sameParty || newTotalCents <= 0}
+            disabled={submitting || !sameParty || newTotalCents <= 0 || downTooBig}
           >
             {submitting ? "Renegociando..." : "Confirmar renegociação"}
           </button>

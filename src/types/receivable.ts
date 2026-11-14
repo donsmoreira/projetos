@@ -63,6 +63,8 @@ export interface Receivable {
   renegotiation_id?: string | null;
   /** Conta nova: renegociação que a criou */
   renegotiated_from?: string | null;
+  /** Entrada de uma renegociação (já nasce recebida) */
+  down_payment?: boolean;
 
   clients: ReceivableClient | null;
   bank_accounts: ReceivableBankAccount | null;

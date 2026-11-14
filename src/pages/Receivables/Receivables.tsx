@@ -255,8 +255,10 @@ function Receivables() {
       item => item.renegotiation_id === receivable.renegotiation_id
     );
 
+    const hasDown = newOnes.some(item => item.down_payment && item.status === "recebido");
+
     const confirmed = await appConfirm(
-      `Desfazer a renegociação? As ${newOnes.length} conta(s) criadas na renegociação serão excluídas e as ${oldOnes.length} conta(s) antigas voltam a ficar pendentes.`,
+      `Desfazer a renegociação? As ${newOnes.length} conta(s) criadas na renegociação serão excluídas${hasDown ? " (a entrada recebida é estornada)" : ""} e as ${oldOnes.length} conta(s) antigas voltam a ficar pendentes.`,
       { title: "Desfazer renegociação", confirmLabel: "Sim", cancelLabel: "Não" }
     );
 
@@ -504,6 +506,7 @@ function Receivables() {
         <RenegotiationModal
           kind="receber"
           entries={selectedEntries}
+          canSettle={permissions.canSettle}
           onClose={() => setIsRenegotiationOpen(false)}
           onSubmit={async data => {
             await renegotiateReceivables(selectedEntries.map(entry => entry.id), data);

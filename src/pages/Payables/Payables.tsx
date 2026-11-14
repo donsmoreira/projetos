@@ -249,8 +249,10 @@ function Payables() {
       item => item.renegotiation_id === payable.renegotiation_id
     );
 
+    const hasDown = newOnes.some(item => item.down_payment && item.status === "pago");
+
     const confirmed = await appConfirm(
-      `Desfazer a renegociação? As ${newOnes.length} conta(s) criadas na renegociação serão excluídas e as ${oldOnes.length} conta(s) antigas voltam a ficar pendentes.`,
+      `Desfazer a renegociação? As ${newOnes.length} conta(s) criadas na renegociação serão excluídas${hasDown ? " (a entrada paga é estornada)" : ""} e as ${oldOnes.length} conta(s) antigas voltam a ficar pendentes.`,
       { title: "Desfazer renegociação", confirmLabel: "Sim", cancelLabel: "Não" }
     );
 
@@ -493,6 +495,7 @@ function Payables() {
         <RenegotiationModal
           kind="pagar"
           entries={selectedEntries}
+          canSettle={permissions.canSettle}
           onClose={() => setIsRenegotiationOpen(false)}
           onSubmit={async data => {
             await renegotiatePayables(selectedEntries.map(entry => entry.id), data);
