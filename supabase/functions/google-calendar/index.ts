@@ -29,7 +29,7 @@ const CALENDAR_API = "https://www.googleapis.com/calendar/v3";
 const UUID_RULE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DEFAULT_COLOR = "#1a5cff";
 /** Muda a cada correção: a resposta da sincronização mostra qual versão está publicada */
-const FUNCTION_VERSION = "2026-11-17.6";
+const FUNCTION_VERSION = "2026-11-18.1";
 
 /** Cores de evento do Google (colorId) — as mesmas sugestões da Agenda do Razão */
 const GOOGLE_COLORS: Record<string, string> = {
@@ -191,6 +191,7 @@ type Appointment = {
   appointment_date: string;
   start_time: string;
   end_time: string;
+  all_day: boolean | null;
   status: string;
   notes: string | null;
   color: string | null;
@@ -242,8 +243,16 @@ function eventBody(appointment: Appointment) {
   return {
     summary: `${prefix}${appointment.title || "Agendamento"}${client}`.slice(0, 1000),
     description: appointment.notes ?? "",
-    start: { dateTime: `${appointment.appointment_date}T${appointment.start_time.slice(0, 5)}:00`, timeZone: TIME_ZONE },
-    end: { dateTime: `${appointment.appointment_date}T${appointment.end_time.slice(0, 5)}:00`, timeZone: TIME_ZONE },
+    // Dia inteiro: no Google o fim é o dia seguinte (exclusivo)
+    ...(appointment.all_day
+      ? {
+          start: { date: appointment.appointment_date },
+          end: { date: nextDay(appointment.appointment_date) }
+        }
+      : {
+          start: { dateTime: `${appointment.appointment_date}T${appointment.start_time.slice(0, 5)}:00`, timeZone: TIME_ZONE },
+          end: { dateTime: `${appointment.appointment_date}T${appointment.end_time.slice(0, 5)}:00`, timeZone: TIME_ZONE }
+        }),
     ...(colorId ? { colorId } : {}),
     extendedProperties: { private: { razaoId: appointment.id } }
   };
@@ -326,7 +335,7 @@ function targetsFor(appointment: Appointment | null, connections: Connection[]) 
 }
 
 const APPOINTMENT_SELECT =
-  "id, company_id, title, appointment_date, start_time, end_time, status, notes, color, responsible_id, clients (name)";
+  "id, company_id, title, appointment_date, start_time, end_time, all_day, status, notes, color, responsible_id, clients (name)";
 
 /** Envia para o Google tudo o que está na fila da empresa */
 async function pushQueue(ctx: Context, companyId: string, connections: Connection[]) {
@@ -507,20 +516,33 @@ async function applyEvent(ctx: Context, connection: Connection, event: GoogleEve
     return "excluído (já cancelado)";
   }
 
-  // Só eventos com horário, no mesmo dia (dia inteiro, vários dias e eventos
-  // que se repetem ficam de fora: o Razão não tem repetição)
-  if (!event.start?.dateTime || !event.end?.dateTime) return "dia inteiro";
+  // Eventos que se repetem e de vários dias ficam de fora (o Razão não tem repetição)
   if (event.recurringEventId && !link) return "repetição";
-  const start = localParts(event.start.dateTime);
-  const end = localParts(event.end.dateTime);
 
-  // Terminar à meia-noite (00:00 do dia seguinte) conta como 23:59 do mesmo dia
-  if (end.date !== start.date && end.time === "00:00" && end.date === nextDay(start.date)) {
-    end.date = start.date;
-    end.time = "23:59";
+  let start: { date: string; time: string };
+  let end: { date: string; time: string };
+  let allDay = false;
+
+  if (event.start?.date && event.end?.date) {
+    // Dia inteiro de um dia só: no Google o fim é o dia seguinte
+    if (event.end.date !== nextDay(event.start.date)) return "vários dias";
+    allDay = true;
+    start = { date: event.start.date, time: "00:00" };
+    end = { date: event.start.date, time: "23:59" };
+  } else if (event.start?.dateTime && event.end?.dateTime) {
+    start = localParts(event.start.dateTime);
+    end = localParts(event.end.dateTime);
+
+    // Terminar à meia-noite (00:00 do dia seguinte) conta como 23:59 do mesmo dia
+    if (end.date !== start.date && end.time === "00:00" && end.date === nextDay(start.date)) {
+      end.date = start.date;
+      end.time = "23:59";
+    }
+
+    if (start.date !== end.date || end.time <= start.time) return "vários dias";
+  } else {
+    return "sem data";
   }
-
-  if (start.date !== end.date || end.time <= start.time) return "vários dias";
 
   const color = event.colorId && GOOGLE_COLORS[event.colorId] ? GOOGLE_COLORS[event.colorId] : null;
   const markSynced = (appointmentId: string) =>
@@ -545,6 +567,7 @@ async function applyEvent(ctx: Context, connection: Connection, event: GoogleEve
       appointment_date: start.date,
       start_time: start.time,
       end_time: end.time,
+      all_day: allDay,
       notes: event.description?.trim() || null,
       ...(color ? { color } : {}),
       updated_at: new Date().toISOString()
@@ -569,6 +592,7 @@ async function applyEvent(ctx: Context, connection: Connection, event: GoogleEve
     appointment_date: start.date,
     start_time: start.time,
     end_time: end.time,
+    all_day: allDay,
     notes: event.description?.trim() || null,
     color: color ?? DEFAULT_COLOR,
     responsible_id: connection.scope === "usuario" ? connection.user_id : null,

@@ -229,7 +229,7 @@ function IntegrationsSettings() {
         )}
 
         <small className="cert-muted">
-          Eventos de dia inteiro, de vários dias ou que se repetem, criados no Google, não entram no Razão.
+          Eventos de vários dias ou que se repetem, criados no Google, não entram no Razão (dia inteiro de um dia só entra).
           Atendimento concluído não muda pelo Google. Enquanto o app estiver em teste no Google, a conexão vence a cada 7 dias
           (aparece "Reconectar").
         </small>

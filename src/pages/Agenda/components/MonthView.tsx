@@ -138,10 +138,10 @@ function MonthView({
                       onOpen(appointment);
                     }
                   }}
-                  title={`${appointment.start_time} · ${appointment.clients?.name ?? ""} · ${appointment.title}`}
+                  title={`${appointment.all_day ? "Dia inteiro" : appointment.start_time} · ${appointment.clients?.name ?? ""} · ${appointment.title}`}
                 >
                   <span className="agenda-chip-dot" />
-                  <span className="agenda-chip-time">{appointment.start_time}</span>
+                  <span className="agenda-chip-time">{appointment.all_day ? "Dia" : appointment.start_time}</span>
                   <span className="agenda-chip-text">{appointment.clients?.name ?? (appointment.title || "Compromisso")}</span>
                 </button>
               ))}

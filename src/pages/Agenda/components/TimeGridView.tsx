@@ -63,6 +63,9 @@ function TimeGridView({
   const nowMinutes = now.getHours() * 60 + now.getMinutes();
   const nowTop = ((nowMinutes - FIRST_HOUR * 60) / 60) * HOUR_PX;
 
+  // Dia inteiro fica na faixa de cima, junto com os vencimentos
+  const allDayItems = appointments.filter(item => item.all_day);
+
   return (
     <div className={`agenda-grid ${days.length === 1 ? "is-day" : "is-week"}`}>
       <div className="agenda-grid-head">
@@ -78,13 +81,28 @@ function TimeGridView({
         })}
       </div>
 
-      {dues.some(due => days.some(day => toISO(day) === due.dueDate)) && (
+      {(dues.some(due => days.some(day => toISO(day) === due.dueDate)) ||
+        allDayItems.some(item => days.some(day => toISO(day) === item.appointment_date))) && (
         <div className="agenda-grid-allday">
-          <div className="agenda-grid-allday-label">Venc.</div>
+          <div className="agenda-grid-allday-label">Dia</div>
           {days.map(day => {
             const iso = toISO(day);
             return (
               <div key={iso} className="agenda-grid-allday-cell">
+                {allDayItems
+                  .filter(item => item.appointment_date === iso)
+                  .map(item => (
+                    <button
+                      key={item.id}
+                      type="button"
+                      className={`agenda-allday-event is-${item.status}`}
+                      style={{ "--chip-color": item.color } as CSSProperties}
+                      onClick={() => onOpen(item)}
+                      title={`Dia inteiro · ${item.clients?.name ?? ""} · ${item.title} · ${nameOf(item.responsible_id)} · ${APPOINTMENT_STATUS_LABELS[item.status]}`}
+                    >
+                      {item.clients?.name ?? (item.title || "Compromisso")}
+                    </button>
+                  ))}
                 {dues
                   .filter(due => due.dueDate === iso)
                   .map(due => (
@@ -108,7 +126,7 @@ function TimeGridView({
 
           {days.map(day => {
             const iso = toISO(day);
-            const items = layoutDay(appointments.filter(item => item.appointment_date === iso));
+            const items = layoutDay(appointments.filter(item => item.appointment_date === iso && !item.all_day));
 
             return (
               <div

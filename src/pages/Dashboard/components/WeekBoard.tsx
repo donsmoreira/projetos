@@ -93,7 +93,7 @@ function WeekBoard() {
         date,
         appointments: appointments
           .filter(item => item.appointment_date === date)
-          .sort((a, b) => a.start_time.localeCompare(b.start_time)),
+          .sort((a, b) => Number(b.all_day) - Number(a.all_day) || a.start_time.localeCompare(b.start_time)),
         dues: dues.filter(item => item.dueDate === date)
       });
     }
@@ -176,7 +176,7 @@ function WeekBoard() {
                     {day.appointments.map(item => (
                       <li key={item.id}>
                         <i className="week-board-dot" style={{ background: item.color }} aria-hidden="true" />
-                        <span className="week-board-time">{item.start_time.slice(0, 5)}</span>
+                        <span className="week-board-time">{item.all_day ? "Dia" : item.start_time.slice(0, 5)}</span>
                         <span className="week-board-text">
                           {item.title || "Agendamento"}
                           {item.clients?.name ? ` · ${item.clients.name}` : ""}

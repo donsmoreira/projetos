@@ -41,7 +41,7 @@ function CompleteAppointmentForm({
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const when = `${fromISO(appointment.appointment_date).toLocaleDateString("pt-BR")} ${appointment.start_time}`;
+  const when = `${fromISO(appointment.appointment_date).toLocaleDateString("pt-BR")} ${appointment.all_day ? "(dia inteiro)" : appointment.start_time}`;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

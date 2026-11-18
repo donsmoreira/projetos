@@ -56,8 +56,9 @@ function formFrom(
       clientId: appointment.client_id ?? "",
       title: appointment.title,
       date: appointment.appointment_date,
-      startTime: appointment.start_time,
-      endTime: appointment.end_time,
+      startTime: appointment.all_day ? "09:00" : appointment.start_time,
+      endTime: appointment.all_day ? "10:00" : appointment.end_time,
+      allDay: appointment.all_day,
       amount: appointment.amount ?? 0,
       color: appointment.color,
       responsibleId: appointment.responsible_id ?? "",
@@ -72,6 +73,7 @@ function formFrom(
     date,
     startTime: time,
     endTime: timeFrom(minutes(time) + 60),
+    allDay: false,
     amount: 0,
     color: DEFAULT_APPOINTMENT_COLOR,
     responsibleId,
@@ -155,12 +157,12 @@ function AppointmentForm({
       return;
     }
 
-    if (!form.date || !form.startTime || !form.endTime) {
+    if (!form.date || (!form.allDay && (!form.startTime || !form.endTime))) {
       setErrorMessage("Informe a data e os horários.");
       return;
     }
 
-    if (minutes(form.endTime) <= minutes(form.startTime)) {
+    if (!form.allDay && minutes(form.endTime) <= minutes(form.startTime)) {
       setErrorMessage("O horário de término precisa ser depois do início.");
       return;
     }
@@ -304,40 +306,53 @@ function AppointmentForm({
             </select>
           </div>
 
-          <div className="arc-field">
-            <label htmlFor="appointment-start">Início</label>
+          <label className="agenda-all-day arc-field-full">
             <input
-              id="appointment-start"
-              type="time"
-              value={form.startTime}
-              step={300}
-              onChange={event => {
-                const start = event.target.value;
-                const duration = minutes(form.endTime) - minutes(form.startTime);
-                setConflicts(null);
-                setErrorMessage("");
-                // Mantém a duração ao mudar o início
-                setForm(current => ({
-                  ...current,
-                  startTime: start,
-                  endTime: start ? timeFrom(minutes(start) + (duration > 0 ? duration : 60)) : current.endTime
-                }));
-              }}
-              required
+              type="checkbox"
+              checked={form.allDay}
+              onChange={event => update("allDay", event.target.checked)}
             />
-          </div>
+            Dia inteiro <small>(sem horário; não conta como horário ocupado)</small>
+          </label>
 
-          <div className="arc-field">
-            <label htmlFor="appointment-end">Término</label>
-            <input
-              id="appointment-end"
-              type="time"
-              value={form.endTime}
-              step={300}
-              onChange={event => update("endTime", event.target.value)}
-              required
-            />
-          </div>
+          {!form.allDay && (
+            <>
+              <div className="arc-field">
+                <label htmlFor="appointment-start">Início</label>
+                <input
+                  id="appointment-start"
+                  type="time"
+                  value={form.startTime}
+                  step={300}
+                  onChange={event => {
+                    const start = event.target.value;
+                    const duration = minutes(form.endTime) - minutes(form.startTime);
+                    setConflicts(null);
+                    setErrorMessage("");
+                    // Mantém a duração ao mudar o início
+                    setForm(current => ({
+                      ...current,
+                      startTime: start,
+                      endTime: start ? timeFrom(minutes(start) + (duration > 0 ? duration : 60)) : current.endTime
+                    }));
+                  }}
+                  required
+                />
+              </div>
+
+              <div className="arc-field">
+                <label htmlFor="appointment-end">Término</label>
+                <input
+                  id="appointment-end"
+                  type="time"
+                  value={form.endTime}
+                  step={300}
+                  onChange={event => update("endTime", event.target.value)}
+                  required
+                />
+              </div>
+            </>
+          )}
 
           <div className="arc-field">
             <label htmlFor="appointment-amount">Valor (opcional)</label>

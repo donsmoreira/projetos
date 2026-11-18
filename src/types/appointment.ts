@@ -46,6 +46,8 @@ export interface Appointment {
   start_time: string;
   /** "HH:MM" */
   end_time: string;
+  /** Dia inteiro (sem horário; guardado como 00:00–23:59) */
+  all_day: boolean;
   amount: number | null;
   /** Cor do agendamento ("#rrggbb"); azul por padrão */
   color: string;
@@ -65,6 +67,8 @@ export interface AppointmentFormData {
   date: string;
   startTime: string;
   endTime: string;
+  /** Dia inteiro: os horários são ignorados */
+  allDay: boolean;
   amount: number;
   color: string;
   responsibleId: string;

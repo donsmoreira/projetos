@@ -26,6 +26,7 @@ function normalize(row: Record<string, unknown>): Appointment {
     ...(row as unknown as Appointment),
     start_time: hhmm(row.start_time),
     end_time: hhmm(row.end_time),
+    all_day: row.all_day === true,
     amount: row.amount === null || row.amount === undefined ? null : Number(row.amount),
     color: typeof row.color === "string" && row.color ? row.color : DEFAULT_APPOINTMENT_COLOR,
     clients: (client ?? null) as Appointment["clients"]
@@ -37,8 +38,9 @@ function toRow(form: AppointmentFormData) {
     client_id: form.clientId || null,
     title: form.title.trim(),
     appointment_date: form.date,
-    start_time: form.startTime,
-    end_time: form.endTime,
+    start_time: form.allDay ? "00:00" : form.startTime,
+    end_time: form.allDay ? "23:59" : form.endTime,
+    all_day: form.allDay,
     amount: form.amount > 0 ? form.amount : null,
     color: form.color || DEFAULT_APPOINTMENT_COLOR,
     responsible_id: form.responsibleId || null,
@@ -55,6 +57,7 @@ export async function listAppointments(startDate: string, endDate: string): Prom
     .gte("appointment_date", startDate)
     .lte("appointment_date", endDate)
     .order("appointment_date", { ascending: true })
+    .order("all_day", { ascending: false })
     .order("start_time", { ascending: true });
 
   if (error) {
@@ -69,7 +72,8 @@ export async function listAppointments(startDate: string, endDate: string): Prom
  * (ignora cancelados e faltas, e o próprio agendamento ao editar).
  */
 export async function findConflicts(form: AppointmentFormData, excludeId?: string): Promise<Appointment[]> {
-  if (!form.responsibleId) {
+  // Dia inteiro não ocupa horário (igual ao Google Agenda)
+  if (!form.responsibleId || form.allDay) {
     return [];
   }
 
@@ -78,6 +82,7 @@ export async function findConflicts(form: AppointmentFormData, excludeId?: strin
     .select(SELECT)
     .eq("responsible_id", form.responsibleId)
     .eq("appointment_date", form.date)
+    .eq("all_day", false)
     .in("status", BUSY_STATUSES)
     .lt("start_time", form.endTime)
     .gt("end_time", form.startTime);

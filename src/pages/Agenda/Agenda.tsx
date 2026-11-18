@@ -283,6 +283,11 @@ function Agenda() {
       return;
     }
 
+    // Dia inteiro muda só o dia (o horário em que foi solto não importa)
+    if (appointment.all_day) {
+      startMinutes = null;
+    }
+
     const duration = minutes(appointment.end_time) - minutes(appointment.start_time);
     const start = startMinutes ?? minutes(appointment.start_time);
     const startTime = timeFrom(start);
@@ -298,6 +303,7 @@ function Agenda() {
       date,
       startTime,
       endTime,
+      allDay: appointment.all_day,
       amount: appointment.amount ?? 0,
       color: appointment.color,
       responsibleId: appointment.responsible_id ?? "",

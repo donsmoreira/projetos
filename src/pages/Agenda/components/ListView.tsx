@@ -71,8 +71,8 @@ function ListView({ appointments, dues, onOpenDue, nameOf, onOpen }: ListViewPro
                 onClick={() => onOpen(appointment)}
               >
                 <span className="agenda-list-time">
-                  {appointment.start_time}
-                  <small>{appointment.end_time}</small>
+                  {appointment.all_day ? "Dia" : appointment.start_time}
+                  <small>{appointment.all_day ? "inteiro" : appointment.end_time}</small>
                 </span>
 
                 <span className="agenda-list-main">
