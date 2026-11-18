@@ -18,6 +18,7 @@ import {
   Landmark,
   LineChart,
   ListChecks,
+  Plug,
   Scale,
   Settings,
   Truck,
@@ -105,7 +106,8 @@ export const MENU: MenuEntry[] = [
     items: [
       { title: "Empresas", to: "/configuracoes/empresas", icon: <Building2 size={17} /> },
       { title: "Usuários e permissões", to: "/configuracoes/usuarios", icon: <UserCog size={17} /> },
-      { title: "Meu perfil", to: "/configuracoes/perfil", icon: <UserRound size={17} /> }
+      { title: "Meu perfil", to: "/configuracoes/perfil", icon: <UserRound size={17} /> },
+      { title: "Integrações", to: "/configuracoes/integracoes", icon: <Plug size={17} /> }
     ]
   }
 ];
@@ -136,6 +138,10 @@ export function pageTitleFor(pathname: string): string | undefined {
 
   if (pathname.startsWith("/configuracoes/empresas/")) {
     return "Cadastro da empresa";
+  }
+
+  if (pathname === "/integracoes/google/retorno") {
+    return "Integrações";
   }
 
   return undefined;

@@ -186,7 +186,7 @@ Legenda: ✅ pronto · 🟡 parcial · ❌ não existe
 | Cor por agendamento | ✅ | azul por padrão, 11 sugestões ou qualquer cor (seletor RGB) |
 | Vencimentos de contas | ✅ | a pagar (vermelho) e a receber (verde) pela data de vencimento; vencidas destacadas, quitadas apagadas; botões para mostrar/esconder |
 | Permissão própria | ✅ | Ver, Cadastrar, Alterar, Excluir |
-| Integração com o Google Agenda | ❌ | próxima etapa (projeto no Google Cloud + autorização) |
+| Integração com o Google Agenda | ✅ | nos dois sentidos; agenda da empresa (administrador) e de cada usuário (os que ele é responsável), numa agenda "Razão Finance" própria no Google; sincroniza ao salvar, ao abrir a Agenda e no botão Google (Configurações → Integrações) |
 
 ### 3.11 Relatórios
 | Item | Status | Observação |
@@ -378,7 +378,8 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [x] Concluir gera conta a receber; concluído travado
 - [x] Arrastar com cartão que balança; cor por agendamento (sugestões e RGB)
 - [x] Vencimentos de contas a pagar e a receber na agenda
-- [ ] Integração com o Google Agenda
+- [x] Integração com o Google Agenda (dois sentidos; empresa e usuário) — `20261117_google_agenda.sql`, função `google-calendar`
+- [ ] Google Agenda automático (sem abrir a tela) e publicar o app no Google (sair do modo teste)
 
 **Contas a pagar / receber** (v0.5.0)
 - [ ] Status "vencido" (calculado pela data)
@@ -479,10 +480,10 @@ Objetivo: emitir NFS-e (padrão nacional) pelo sistema, por meio de uma API de e
 3. **Multiempresa:** sim. Só administradores criam empresas; quem cria vira administrador; os administradores do ID entram nas empresas novas.
 4. **Agenda (`appointments`):** é do Razão.
 5. **Login:** ID EMPRESA + e-mail + senha; usuários criados pelo administrador.
+6. **Google Agenda:** nos dois sentidos, com agenda da empresa e agenda de cada usuário.
 
 **Em aberto**
 1. **ID 1:** reservado para um uso específico, a definir.
-2. **Google Agenda:** só enviar do sistema para o Google, ou nos dois sentidos?
 3. **Cadastro público:** quando reabrir o "Criar conta" (depende do SMTP)?
 4. **Assessor WhatsApp:** tecnologia (API oficial da Meta, Z-API, Evolution API) e se usa o mesmo Supabase.
 5. **Login único ARC:** todos os produtos ARC vão compartilhar a mesma conta?

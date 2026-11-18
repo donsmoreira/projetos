@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { ArrowDownLeft, ArrowUpRight, CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, CalendarPlus, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+
+import { getGoogleConnections, syncGoogleCalendar } from "../../services/googleCalendarService";
 
 import Modal from "../../components/Modal/Modal";
 import { useAuth } from "../../contexts/AuthContext";
@@ -111,6 +113,67 @@ function Agenda() {
     const data = await listAppointments(startISO, endISO);
     setAppointments(data);
   }, [startISO, endISO]);
+
+  // ---- Google Agenda: envia as mudanças e traz as de lá ----
+  const [googleOn, setGoogleOn] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
+  const [googleProblem, setGoogleProblem] = useState("");
+  const googleRunning = useRef(false);
+  // Mudança salva enquanto uma sincronização ainda rodava: envia de novo no fim
+  const googleAgain = useRef(false);
+
+  const runGoogleSync = useCallback(async (pull: boolean) => {
+    if (!companyId) return;
+    if (googleRunning.current) {
+      googleAgain.current = true;
+      return;
+    }
+    googleRunning.current = true;
+    setGoogleBusy(true);
+
+    try {
+      let pullNow = pull;
+      do {
+        googleAgain.current = false;
+        const result = await syncGoogleCalendar(companyId, pullNow);
+        setGoogleProblem(result.failed > 0 ? "Alguns agendamentos não foram para o Google. Veja em Configurações → Integrações." : "");
+        if (result.received > 0) await load();
+        pullNow = false;
+      } while (googleAgain.current);
+    } catch (error) {
+      setGoogleProblem(error instanceof Error ? error.message : "Não foi possível sincronizar com o Google.");
+    } finally {
+      googleRunning.current = false;
+      setGoogleBusy(false);
+    }
+  }, [companyId, load]);
+
+  // Ao abrir a agenda: se a empresa ou o usuário tem Google conectado, sincroniza
+  useEffect(() => {
+    let alive = true;
+    if (!companyId) return;
+
+    getGoogleConnections(companyId)
+      .then(list => {
+        if (!alive || list.length === 0) return;
+        setGoogleOn(true);
+        void runGoogleSync(true);
+      })
+      .catch(() => {
+        // sem a integração a agenda funciona normalmente
+      });
+
+    return () => {
+      alive = false;
+    };
+    // só na abertura (e ao trocar de empresa)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId]);
+
+  /** Depois de salvar algo na agenda: manda para o Google (sem esperar) */
+  const pushToGoogle = useCallback(() => {
+    if (googleOn) void runGoogleSync(false);
+  }, [googleOn, runGoogleSync]);
 
   useEffect(() => {
     let active = true;
@@ -267,11 +330,12 @@ function Agenda() {
 
       await updateAppointment(appointment.id, form);
       await load();
+      pushToGoogle();
     } catch (error) {
       await appAlert(error instanceof Error ? error.message : "Não foi possível mover o agendamento.");
       await load().catch(() => undefined);
     }
-  }, [members, load]);
+  }, [members, load, pushToGoogle]);
 
   const drag = useAppointmentDrag(permissions.canUpdate, (appointment, date, start) => {
     void moveAppointment(appointment, date, start);
@@ -298,6 +362,7 @@ function Agenda() {
   async function handleSaved() {
     setModal(null);
     await load();
+    pushToGoogle();
   }
 
   const defaultResponsible =
@@ -378,6 +443,19 @@ function Agenda() {
               </button>
             ))}
           </div>
+
+          {googleOn && (
+            <button
+              type="button"
+              className={`agenda-google ${googleProblem ? "has-problem" : ""}`}
+              onClick={() => void runGoogleSync(true)}
+              disabled={googleBusy}
+              title={googleProblem || "Sincronizar com o Google Agenda"}
+            >
+              <RefreshCw size={14} className={googleBusy ? "is-spinning" : ""} />
+              Google
+            </button>
+          )}
 
           {permissions.canCreate && (
             <button

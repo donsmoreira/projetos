@@ -772,6 +772,38 @@ a.settings-button {
 }
 
 /* Certificado digital */
+/* Integrações: Google Agenda */
+.google-connect {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.google-error {
+  color: var(--danger) !important;
+  font-weight: 700;
+}
+
+.google-return {
+  align-items: center;
+  text-align: center;
+}
+
+.google-return > p {
+  margin: 0 !important;
+  font-size: 14px !important;
+}
+
+.google-ok { color: var(--success); }
+.google-fail { color: var(--danger); }
+.google-spin { color: var(--primary); animation: google-spin 1s linear infinite; }
+
+@keyframes google-spin {
+  to { transform: rotate(360deg); }
+}
+
 .cert-box {
   display: flex;
   flex-direction: column;

@@ -123,6 +123,48 @@
   cursor: pointer;
 }
 
+/* Sincronizar com o Google Agenda */
+.agenda-google {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  height: 36px;
+  padding: 0 12px;
+
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.agenda-google:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+
+.agenda-google:disabled {
+  cursor: progress;
+  opacity: 0.75;
+}
+
+.agenda-google.has-problem {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.agenda-google .is-spinning {
+  animation: agenda-google-spin 1s linear infinite;
+}
+
+@keyframes agenda-google-spin {
+  to { transform: rotate(360deg); }
+}
+
 /* Legenda dos responsáveis (clicar filtra) */
 .agenda-legend {
   display: flex;

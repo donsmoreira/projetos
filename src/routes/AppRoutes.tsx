@@ -33,6 +33,8 @@ import UsersSettings from "../pages/Settings/UsersSettings";
 import ProfileSettings from "../pages/Settings/ProfileSettings";
 import CompaniesSettings from "../pages/Settings/CompaniesSettings";
 import NewCompanySettings from "../pages/Settings/NewCompanySettings";
+import IntegrationsSettings from "../pages/Settings/IntegrationsSettings";
+import GoogleReturn from "../pages/Settings/GoogleReturn";
 
 function AppRoutes() {
   return (
@@ -164,6 +166,16 @@ function AppRoutes() {
             <Route
               path="configuracoes/empresas"
               element={<CompaniesSettings />}
+            />
+
+            <Route
+              path="configuracoes/integracoes"
+              element={<IntegrationsSettings />}
+            />
+
+            <Route
+              path="integracoes/google/retorno"
+              element={<GoogleReturn />}
             />
           </Route>
           </Route>

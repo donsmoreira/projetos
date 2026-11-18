@@ -348,7 +348,7 @@ footer .wrap { padding-block: 24px; color: var(--muted); font-size: 13px; displa
         <div class="q"><h3>✓ “Desktop”</h3><p>Decidido: o app no navegador, instalável como app (PWA) no celular e no computador.</p></div>
         <div class="q"><h3>✓ Agenda no banco</h3><p>Decidido: a tabela de agendamentos é do Razão.</p></div>
         <div class="q"><h3>ID 1</h3><p>Reservado para um uso específico. Qual vai ser?</p></div>
-        <div class="q"><h3>Google Agenda</h3><p>Só enviar do sistema para o Google, ou nos dois sentidos (o que for marcado no Google bloqueia a agenda)?</p></div>
+        <div class="q"><h3>✓ Google Agenda</h3><p>Decidido: nos dois sentidos, com a agenda da empresa e a agenda de cada usuário (os agendamentos em que ele é o responsável).</p></div>
         <div class="q"><h3>Cadastro público</h3><p>Quando reabrir o “Criar conta” para qualquer pessoa? Depende do e-mail próprio (SMTP).</p></div>
         <div class="q"><h3>Assessor no WhatsApp</h3><p>Usa qual tecnologia (API oficial da Meta, Z-API, Evolution API)? Usa o mesmo Supabase?</p></div>
         <div class="q"><h3>Login único ARC</h3><p>Todos os produtos ARC vão compartilhar a mesma conta de usuário?</p></div>
@@ -387,7 +387,7 @@ const modules = [
     ["Mês, semana, dia e lista", 1], ["Cliente (opcional), serviço, valor e responsável", 1], ["Aviso de conflito do responsável", 1],
     ["Status: agendado, confirmado, concluído, cancelado, faltou", 1], ["Concluir gera a conta a receber", 1],
     ["Arrastar para outro dia/horário (cartão que balança)", 1], ["Concluído travado", 1], ["Cor por agendamento (sugestões e RGB)", 1],
-    ["Vencimentos a pagar (vermelho) e a receber (verde)", 1], ["Integração com o Google Agenda", 0] ] },
+    ["Vencimentos a pagar (vermelho) e a receber (verde)", 1], ["Integração com o Google Agenda (dois sentidos)", 1] ] },
   { name: "Clientes", route: "/clientes", items: [
     ["Cadastro PF/PJ com tipo automático pelo documento", 1], ["Busca do CNPJ na Receita", 1], ["Razão social, nome fantasia, enquadramento e IE", 1],
     ["Busca na lista", 1], ["Endereço com CEP automático (ViaCEP)", 1], ["Filtro por estado e cidade", 1], ["Inativar / reativar", 1], ["Exclusão bloqueada com movimentação", 1] ] },
@@ -443,7 +443,7 @@ const phases = [
     ["Telas", ["✓ Menu recolhível (gaveta no celular, só ícones no computador)", "✓ Instalar como app (PWA)", "Tabelas viram lista de cartões", "Formulários em tela cheia", "Botões e campos do tamanho certo para o dedo"]] ] },
   { n: 2, v: "v0.4 → v0.7", title: "Completar os módulos", desc: "Fechar o que ficou pela metade", groups: [
     ["Caixa (adiantado)", ["✓ Caixa de dinheiro físico com fluxo de caixa", "✓ Pagar e receber pelo caixa", "✓ Abertura e fechamento em turnos, quebra de caixa, retaguarda, depósito, reserva e trava", "✓ Relatório de quebra de caixa"]],
-    ["Agenda (adiantado)", ["✓ Mês, semana, dia e lista; responsável, conflito e status", "✓ Concluir gera conta a receber; concluído travado", "✓ Arrastar com cartão que balança; cor por agendamento (sugestões e RGB)", "✓ Vencimentos de contas a pagar e a receber na agenda", "Integração com o Google Agenda"]],
+    ["Agenda (adiantado)", ["✓ Mês, semana, dia e lista; responsável, conflito e status", "✓ Concluir gera conta a receber; concluído travado", "✓ Arrastar com cartão que balança; cor por agendamento (sugestões e RGB)", "✓ Vencimentos de contas a pagar e a receber na agenda", "✓ Google Agenda nos dois sentidos (empresa e cada usuário)", "Google Agenda automático e app publicado no Google"]],
     ["Bancos · v0.4.0", ["✓ Transferência banco ↔ caixa", "✓ Tela de extrato", "✓ Importar OFX/CSV e conciliação", "✓ Open Finance (sandbox)", "Open Finance em produção", "Lançamento manual para bancos", "Transferência banco ↔ banco", "Saldo calculado no banco de dados"]],
     ["Contas · v0.5.0", ["✓ Pagamento e recebimento parcial", "✓ Pagar e receber várias de uma vez (lote)", "✓ Renegociação", "Status vencido", "Contas recorrentes", "Filtros por período, status e conta gerencial"]],
     ["Contas gerenciais · v0.6.0", ["✓ Plano de contas de receita e despesa, com subcontas", "✓ Conta gerencial nos lançamentos (opcional)"]],
