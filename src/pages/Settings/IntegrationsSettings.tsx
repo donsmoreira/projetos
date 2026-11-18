@@ -194,7 +194,8 @@ function IntegrationsSettings() {
         <h3>Google Agenda</h3>
         <p>
           Os agendamentos vão para o Google Agenda (e o celular) e o que for criado, movido ou excluído na agenda
-          "Razão Finance" do Google volta para o Razão. As suas outras agendas do Google não são lidas.
+          "Razão Finance" do Google volta para o Razão. Sincroniza sozinho a cada 10 minutos, ao abrir a Agenda e
+          depois de cada mudança. As suas outras agendas do Google não são lidas.
         </p>
 
         {loading ? (

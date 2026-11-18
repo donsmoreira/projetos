@@ -29,7 +29,7 @@ const CALENDAR_API = "https://www.googleapis.com/calendar/v3";
 const UUID_RULE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DEFAULT_COLOR = "#1a5cff";
 /** Muda a cada correção: a resposta da sincronização mostra qual versão está publicada */
-const FUNCTION_VERSION = "2026-11-18.1";
+const FUNCTION_VERSION = "2026-11-18.2";
 
 /** Cores de evento do Google (colorId) — as mesmas sugestões da Agenda do Razão */
 const GOOGLE_COLORS: Record<string, string> = {
@@ -604,6 +604,49 @@ async function applyEvent(ctx: Context, connection: Connection, event: GoogleEve
   return "ok";
 }
 
+/** Envia a fila, traz do Google e envia de novo o que veio (para as outras agendas) */
+async function syncCompany(admin: SupabaseClient, aesKey: CryptoKey, companyId: string, doPull: boolean, full: boolean) {
+  const connections = await loadConnections(admin, companyId);
+  const details: Record<string, number> = {};
+  const pullErrors: string[] = [];
+
+  if (connections.length === 0) {
+    return { sent: 0, received: 0, failed: 0, connections: 0, details, pullErrors };
+  }
+
+  const ctx: Context = { admin, aesKey, tokens: new Map() };
+  const first = await pushQueue(ctx, companyId, connections);
+  let received = 0;
+
+  if (doPull) {
+    for (const connection of connections) {
+      try {
+        const result = await pullConnection(ctx, full ? { ...connection, sync_token: null } : connection);
+        received += result.changed;
+        for (const [reason, count] of Object.entries(result.details)) details[reason] = (details[reason] ?? 0) + count;
+      } catch (err) {
+        console.error("pull", connection.id, err);
+        pullErrors.push(String((err as Error).message).slice(0, 300));
+        await admin.from("google_calendar_connections").update({
+          last_error: String((err as Error).message).slice(0, 300),
+          updated_at: new Date().toISOString()
+        }).eq("id", connection.id);
+      }
+    }
+  }
+
+  const second = received > 0 ? await pushQueue(ctx, companyId, connections) : { sent: 0, failed: 0 };
+
+  return {
+    sent: first.sent + second.sent,
+    received,
+    failed: second.failed || first.failed,
+    connections: connections.length,
+    details,
+    pullErrors
+  };
+}
+
 async function loadConnections(admin: SupabaseClient, companyId: string) {
   const { data, error } = await admin.from("google_calendar_connections")
     .select("id, company_id, scope, user_id, calendar_id, encrypted_refresh_token, sync_token")
@@ -642,6 +685,38 @@ Deno.serve(async request => {
     const serviceKey = firstKey("SUPABASE_SECRET_KEYS") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     if (!url || !anonKey || !serviceKey) throw new Error("Chaves do Supabase não encontradas na função.");
 
+    const body = await request.json().catch(() => ({})) as Record<string, unknown>;
+    const action = String(body.action ?? "");
+    const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
+    const aesKey = await derivedKey(serviceKey, "token", "AES-GCM");
+    const stateKey = await derivedKey(serviceKey, "state", "HMAC");
+
+    // Sincronização automática (agendador do banco, a cada 10 minutos):
+    // não tem usuário; vale a senha guardada no cofre (Vault) do banco.
+    if (action === "cron_sync") {
+      const given = request.headers.get("x-razao-cron") ?? "";
+      const { data: expected } = await admin.rpc("google_calendar_cron_secret");
+      if (!given || !expected || given !== expected) throw new Refusal("Não autorizado.", 401);
+
+      const { data: rows } = await admin.from("google_calendar_connections").select("company_id");
+      const companies = [...new Set((rows ?? []).map(row => row.company_id as string))];
+      const started = Date.now();
+      let done = 0;
+
+      for (const companyId of companies) {
+        // Não passa do tempo da função: o que sobrar vai na próxima rodada
+        if (Date.now() - started > 100_000) break;
+        try {
+          await syncCompany(admin, aesKey, companyId, true, false);
+        } catch (err) {
+          console.error("cron", companyId, err);
+        }
+        done++;
+      }
+
+      return reply({ ok: true, companies: companies.length, done, version: FUNCTION_VERSION });
+    }
+
     const asCaller = createClient(url, anonKey, {
       global: { headers: { Authorization: request.headers.get("Authorization") ?? "" } },
       auth: { persistSession: false }
@@ -649,12 +724,6 @@ Deno.serve(async request => {
     const { data: callerData, error: callerError } = await asCaller.auth.getUser();
     if (callerError || !callerData.user) throw new Refusal("Faça login de novo.", 401);
     const userId = callerData.user.id;
-
-    const body = await request.json().catch(() => ({})) as Record<string, unknown>;
-    const action = String(body.action ?? "");
-    const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
-    const aesKey = await derivedKey(serviceKey, "token", "AES-GCM");
-    const stateKey = await derivedKey(serviceKey, "state", "HMAC");
 
     // Quem chama precisa ser da empresa
     async function membership(companyId: string) {
@@ -784,48 +853,9 @@ Deno.serve(async request => {
     if (action === "sync") {
       const companyId = String(body.companyId ?? "");
       await membership(companyId);
-      const connections = await loadConnections(admin, companyId);
-      if (connections.length === 0) return reply({ sent: 0, received: 0, failed: 0, connections: 0 });
-
-      const ctx: Context = { admin, aesKey, tokens: new Map() };
-      const first = await pushQueue(ctx, companyId, connections);
-      let received = 0;
-      const doPull = body.pull !== false;
-      const details: Record<string, number> = {};
-      const pullErrors: string[] = [];
-
       // full = lê a agenda inteira de novo (não só o que mudou desde a última vez)
-      const full = body.full === true;
-
-      if (doPull) {
-        for (const connection of connections) {
-          try {
-            const result = await pullConnection(ctx, full ? { ...connection, sync_token: null } : connection);
-            received += result.changed;
-            for (const [reason, count] of Object.entries(result.details)) details[reason] = (details[reason] ?? 0) + count;
-          } catch (err) {
-            console.error("pull", connection.id, err);
-            pullErrors.push(String((err as Error).message).slice(0, 300));
-            await admin.from("google_calendar_connections").update({
-              last_error: String((err as Error).message).slice(0, 300),
-              updated_at: new Date().toISOString()
-            }).eq("id", connection.id);
-          }
-        }
-      }
-
-      // O que veio do Google vai também para as outras agendas
-      const second = received > 0 ? await pushQueue(ctx, companyId, connections) : { sent: 0, failed: 0 };
-
-      return reply({
-        sent: first.sent + second.sent,
-        received,
-        failed: second.failed || first.failed,
-        connections: connections.length,
-        details,
-        pullErrors,
-        version: FUNCTION_VERSION
-      });
+      const result = await syncCompany(admin, aesKey, companyId, body.pull !== false, body.full === true);
+      return reply({ ...result, version: FUNCTION_VERSION });
     }
 
     if (action === "disconnect") {

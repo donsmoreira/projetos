@@ -379,7 +379,8 @@ Usamos **SemVer**: `MAIOR.MENOR.CORREÇÃO`, por exemplo `1.4.2`.
 - [x] Arrastar com cartão que balança; cor por agendamento (sugestões e RGB)
 - [x] Vencimentos de contas a pagar e a receber na agenda
 - [x] Integração com o Google Agenda (dois sentidos; empresa e usuário) — `20261117_google_agenda.sql`, função `google-calendar`
-- [ ] Google Agenda automático (sem abrir a tela) e publicar o app no Google (sair do modo teste)
+- [x] Google Agenda automático a cada 10 minutos (pg_cron) — `20261118_google_agenda_automatico.sql`
+- [ ] Publicar o app no Google (sair do modo teste; precisa de domínio próprio e política de privacidade)
 
 **Contas a pagar / receber** (v0.5.0)
 - [ ] Status "vencido" (calculado pela data)
