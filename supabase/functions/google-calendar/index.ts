@@ -28,6 +28,8 @@ const TIME_ZONE = "America/Sao_Paulo";
 const CALENDAR_API = "https://www.googleapis.com/calendar/v3";
 const UUID_RULE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DEFAULT_COLOR = "#1a5cff";
+/** Muda a cada correção: a resposta da sincronização mostra qual versão está publicada */
+const FUNCTION_VERSION = "2026-11-17.6";
 
 /** Cores de evento do Google (colorId) — as mesmas sugestões da Agenda do Razão */
 const GOOGLE_COLORS: Record<string, string> = {
@@ -258,6 +260,13 @@ function localParts(dateTime: string) {
   return { date: `${parts.year}-${parts.month}-${parts.day}`, time: `${parts.hour}:${parts.minute}` };
 }
 
+/** "AAAA-MM-DD" do dia seguinte */
+function nextDay(isoDate: string) {
+  const date = new Date(`${isoDate}T12:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + 1);
+  return date.toISOString().slice(0, 10);
+}
+
 /** Título do evento → título do agendamento (tira a marca do status e o nome do cliente) */
 function titleFromSummary(summary: string, clientName: string | null) {
   let title = summary.trim();
@@ -416,13 +425,15 @@ async function pushQueue(ctx: Context, companyId: string, connections: Connectio
 /** Traz do Google o que mudou na agenda "Razão Finance" de uma conexão */
 async function pullConnection(ctx: Context, connection: Connection) {
   const token = await tokenFor(ctx, connection);
-  if (!token || !connection.calendar_id) return { changed: 0 };
+  if (!token || !connection.calendar_id) return { changed: 0, details: { "sem autorização": 1 } as Record<string, number> };
 
   const calendar = encodeURIComponent(connection.calendar_id);
   let syncToken = connection.sync_token;
   let pageToken: string | undefined;
   let nextSyncToken: string | undefined;
   let changed = 0;
+  // Quantos eventos o Google mandou e o que aconteceu com cada um (diagnóstico)
+  const details: Record<string, number> = {};
 
   for (let guard = 0; guard < 40; guard++) {
     const params = new URLSearchParams({ maxResults: "250", showDeleted: "true", singleEvents: "true" });
@@ -443,8 +454,14 @@ async function pullConnection(ctx: Context, connection: Connection) {
       throw err;
     }
 
+    details["páginas lidas"] = (details["páginas lidas"] ?? 0) + 1;
+    details["eventos lidos"] = (details["eventos lidos"] ?? 0) + (page.items?.length ?? 0);
+    if (!page.items) details[`resposta sem itens: ${Object.keys(page ?? {}).join("/").slice(0, 80)}`] = 1;
+
     for (const event of page.items ?? []) {
-      if (await applyEvent(ctx, connection, event)) changed++;
+      const outcome = await applyEvent(ctx, connection, event);
+      if (outcome === "ok") changed++;
+      details[outcome] = (details[outcome] ?? 0) + 1;
     }
 
     pageToken = page.nextPageToken;
@@ -459,17 +476,17 @@ async function pullConnection(ctx: Context, connection: Connection) {
     updated_at: new Date().toISOString()
   }).eq("id", connection.id);
 
-  return { changed };
+  return { changed, details };
 }
 
-/** Aplica no Razão um evento do Google. Devolve true se mudou algo. */
-async function applyEvent(ctx: Context, connection: Connection, event: GoogleEvent) {
+/** Aplica no Razão um evento do Google. Devolve "ok" se mudou algo ou o motivo de não ter mudado. */
+async function applyEvent(ctx: Context, connection: Connection, event: GoogleEvent): Promise<string> {
   const { data: link } = await ctx.admin.from("appointment_google_events").select("*")
     .eq("connection_id", connection.id).eq("google_event_id", event.id).maybeSingle();
 
   // Já é a versão que o próprio Razão gravou
   if (link && event.updated && link.google_updated && new Date(event.updated) <= new Date(link.google_updated)) {
-    return false;
+    return "já estava igual";
   }
 
   const { data: row } = link
@@ -479,24 +496,31 @@ async function applyEvent(ctx: Context, connection: Connection, event: GoogleEve
 
   // Excluído no Google: cancela no Razão (concluído não muda)
   if (event.status === "cancelled") {
-    if (!link) return false;
+    if (!link) return "excluído (não era do Razão)";
     await ctx.admin.from("appointment_google_events").delete()
       .eq("connection_id", connection.id).eq("google_event_id", event.id);
     if (appointment && !["concluido", "cancelado"].includes(appointment.status)) {
       const now = new Date().toISOString();
       await ctx.admin.from("appointments").update({ status: "cancelado", canceled_at: now, updated_at: now }).eq("id", appointment.id);
-      return true;
+      return "ok";
     }
-    return false;
+    return "excluído (já cancelado)";
   }
 
   // Só eventos com horário, no mesmo dia (dia inteiro, vários dias e eventos
   // que se repetem ficam de fora: o Razão não tem repetição)
-  if (!event.start?.dateTime || !event.end?.dateTime) return false;
-  if (event.recurringEventId && !link) return false;
+  if (!event.start?.dateTime || !event.end?.dateTime) return "dia inteiro";
+  if (event.recurringEventId && !link) return "repetição";
   const start = localParts(event.start.dateTime);
   const end = localParts(event.end.dateTime);
-  if (start.date !== end.date || end.time <= start.time) return false;
+
+  // Terminar à meia-noite (00:00 do dia seguinte) conta como 23:59 do mesmo dia
+  if (end.date !== start.date && end.time === "00:00" && end.date === nextDay(start.date)) {
+    end.date = start.date;
+    end.time = "23:59";
+  }
+
+  if (start.date !== end.date || end.time <= start.time) return "vários dias";
 
   const color = event.colorId && GOOGLE_COLORS[event.colorId] ? GOOGLE_COLORS[event.colorId] : null;
   const markSynced = (appointmentId: string) =>
@@ -513,7 +537,7 @@ async function applyEvent(ctx: Context, connection: Connection, event: GoogleEve
     if (appointment.status === "concluido") {
       await ctx.admin.from("google_calendar_queue").insert({ company_id: appointment.company_id, appointment_id: appointment.id });
       await markSynced(appointment.id);
-      return false;
+      return "concluído (travado)";
     }
 
     const { error } = await ctx.admin.from("appointments").update({
@@ -528,12 +552,12 @@ async function applyEvent(ctx: Context, connection: Connection, event: GoogleEve
 
     if (error) throw new Error(error.message);
     await markSynced(appointment.id);
-    return true;
+    return "ok";
   }
 
   if (link && !appointment) {
     // Agendamento excluído no Razão; a fila vai apagar o evento
-    return false;
+    return "excluído no Razão";
   }
 
   // Evento novo criado no Google: vira agendamento sem cliente
@@ -553,7 +577,7 @@ async function applyEvent(ctx: Context, connection: Connection, event: GoogleEve
 
   if (error) throw new Error(error.message);
   await markSynced(created.id);
-  return true;
+  return "ok";
 }
 
 async function loadConnections(admin: SupabaseClient, companyId: string) {
@@ -742,14 +766,22 @@ Deno.serve(async request => {
       const ctx: Context = { admin, aesKey, tokens: new Map() };
       const first = await pushQueue(ctx, companyId, connections);
       let received = 0;
-      const pullOnly = body.pull !== false;
+      const doPull = body.pull !== false;
+      const details: Record<string, number> = {};
+      const pullErrors: string[] = [];
 
-      if (pullOnly) {
+      // full = lê a agenda inteira de novo (não só o que mudou desde a última vez)
+      const full = body.full === true;
+
+      if (doPull) {
         for (const connection of connections) {
           try {
-            received += (await pullConnection(ctx, connection)).changed;
+            const result = await pullConnection(ctx, full ? { ...connection, sync_token: null } : connection);
+            received += result.changed;
+            for (const [reason, count] of Object.entries(result.details)) details[reason] = (details[reason] ?? 0) + count;
           } catch (err) {
             console.error("pull", connection.id, err);
+            pullErrors.push(String((err as Error).message).slice(0, 300));
             await admin.from("google_calendar_connections").update({
               last_error: String((err as Error).message).slice(0, 300),
               updated_at: new Date().toISOString()
@@ -765,7 +797,10 @@ Deno.serve(async request => {
         sent: first.sent + second.sent,
         received,
         failed: second.failed || first.failed,
-        connections: connections.length
+        connections: connections.length,
+        details,
+        pullErrors,
+        version: FUNCTION_VERSION
       });
     }
 

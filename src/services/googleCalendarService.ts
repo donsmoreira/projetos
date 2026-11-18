@@ -24,6 +24,10 @@ export type GoogleSyncResult = {
   received: number;
   failed: number;
   connections: number;
+  /** o que aconteceu com cada evento lido do Google (ex.: { ok: 2, "dia inteiro": 1 }) */
+  details?: Record<string, number>;
+  pullErrors?: string[];
+  version?: string;
 };
 
 export const GOOGLE_RETURN_PATH = "/integracoes/google/retorno";
@@ -80,9 +84,12 @@ export async function finishGoogleConnection(code: string, state: string) {
   });
 }
 
-/** Envia as mudanças do Razão e (se pull) traz as do Google */
-export async function syncGoogleCalendar(companyId: string, pull = true): Promise<GoogleSyncResult> {
-  return callGoogleCalendar<GoogleSyncResult>({ action: "sync", companyId, pull });
+/**
+ * Envia as mudanças do Razão e (se pull) traz as do Google.
+ * full = relê a agenda inteira do Google (usado no "Sincronizar agora" das Integrações).
+ */
+export async function syncGoogleCalendar(companyId: string, pull = true, full = false): Promise<GoogleSyncResult> {
+  return callGoogleCalendar<GoogleSyncResult>({ action: "sync", companyId, pull, full });
 }
 
 export async function disconnectGoogle(connectionId: string): Promise<{ calendarRemoved: boolean }> {

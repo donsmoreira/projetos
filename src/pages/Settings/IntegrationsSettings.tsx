@@ -157,8 +157,14 @@ function IntegrationsSettings() {
     try {
       setBusy(true);
       setErrorMessage("");
-      const result = await syncGoogleCalendar(companyId);
-      setSavedMessage(`Sincronizado: ${result.sent} enviado(s) para o Google e ${result.received} recebido(s) de lá.`);
+      const result = await syncGoogleCalendar(companyId, true, true);
+      const skipped = Object.entries(result.details ?? {})
+        .filter(([reason]) => reason !== "ok" && reason !== "já estava igual")
+        .map(([reason, count]) => `${count} ${reason}`);
+      setSavedMessage(
+        `Sincronizado: ${result.sent} enviado(s) para o Google e ${result.received} recebido(s) de lá.` +
+          (skipped.length ? ` Ficaram de fora: ${skipped.join(", ")}.` : "")
+      );
       if (result.failed > 0) {
         await appAlert("Alguns agendamentos não foram enviados. Veja o aviso na conexão (pode ser preciso reconectar).", {
           title: "Sincronização incompleta"
